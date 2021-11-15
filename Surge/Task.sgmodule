@@ -1,0 +1,19 @@
+#!name=Tasks Module
+#!desc=This is a Surge module used to collect JaveScripts on daily task.
+#!tag = type=cron, cronexp="cronexample", wake-system=1, timeout=180, script-path=javescript
+
+[Script]
+# > 百度贴吧
+百度贴吧 = type=cron, cronexp="0 0 */12 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/tieba/tieba.js
+# > 网易云音乐
+网易云音乐 = type=cron, cronexp="45 0 0 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/neteasemusic/quanx/neteasemusic.js
+# > 小米运动
+小米运动 = type=cron, cronexp="0 58 23 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js
+# > 支付宝
+支付宝 = type=cron,cronexp="0 30 7 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/alipay.js
+# > 掌上飞车
+掌上飞车 = type=cron, cronexp="50 0 0 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/zsfc.js
+# > 青年大学习
+青年大学习 = type=cron, cronexp="13 13 13,23 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/qndxx.js
+# > 日检日报
+日检日报 = type=cron, cronexp="0 3 0,7,11,17 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/epidemic_gdufe.js

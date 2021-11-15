@@ -1,0 +1,487 @@
+{
+  "id": "chiupam.sub",
+  "name": "chiupam 脚本订阅",
+  "author": "@chiupam",
+  "icon": "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.jpg",
+  "repo": "https://github.com/chiupam/surge",
+  "apps": [
+    {
+      "id": "Leave",
+      "name": "学工假条",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">请按说明修改信息</a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "isLeave",
+          "name": "请假总开关",
+          "val": true,
+          "type": "boolean",
+          "desc": "开启则表示修改假条,默认开启,关闭则以下设置都不生效"
+        },
+        {
+          "id": "interval",
+          "name": "请假天数",
+          "val": "",
+          "type": "number",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您请假的天数,1为当天,不填写则默认当天"
+        },
+        {
+          "id": "LeaveType",
+          "name": "请假类型",
+          "val": "事假",
+          "type": "radios",
+          "items": [
+            {
+              "key": "事假",
+              "label": "事假"
+            },
+            {
+              "key": "返家",
+              "label": "返家"
+            }
+          ]
+        }, 
+        {
+          "id": "LeaveThing",
+          "name": "请假事由",
+          "val": "外出吃饭",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您请假的事由"
+        }, 
+        {
+          "id": "OutAddress",
+          "name": "外出地点",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您请假外出的地点"
+        },
+        {
+          "id": "StudentName",
+          "name": "学生姓名",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的姓名"
+        },
+        {
+          "id": "StudentTel",
+          "name": "学生手机号码",
+          "val": "",
+          "type": "number",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的手机号码"
+        },
+        {
+          "id": "ParentName",
+          "name": "家长姓名",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您家长的姓名"
+        },
+        {
+          "id": "ParentTel",
+          "name": "家长手机号码",
+          "val": "",
+          "type": "number",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您家长的手机号码"
+        }, 
+        {
+          "id": "WithNumNo",
+          "name": "同行人数",
+          "val": "1",
+          "type": "number",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您同行的人数"
+        }, 
+        {
+          "id": "Vehicle",
+          "name": "往返交通工具",
+          "val": "汽车",
+          "type": "radios",
+          "items": [
+            {
+              "key": "汽车",
+              "label": "汽车"
+            },
+            {
+              "key": "其他",
+              "label": "其他"
+            }
+          ]
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge/tree/main",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.jpeg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.jpeg"
+      ]
+    },
+    {
+      "id": "xmSports",
+      "name": "小米运动",
+      "keys": [],
+      "settings": [
+        {
+          "id": "xmSportsToken",
+          "name": "小米运动Token",
+          "val": "",
+          "type": "text",
+          "desc": "小米运动登录时获取的token"
+        },
+        {
+          "id": "xmMinStep",
+          "name": "最小运动步数",
+          "val": "20000",
+          "type": "radios",
+          "desc": "选择需要修改最小的运动步数",
+          "items": [
+            {
+              "key": "20000",
+              "label": "20000步"
+            },
+            {
+              "key": "30000",
+              "label": "30000步"
+            },
+            {
+              "key": "40000",
+              "label": "40000步"
+            }
+          ]
+        },
+        {
+          "id": "xmMaxStep",
+          "name": "最大运动步数",
+          "val": "22000",
+          "type": "radios",
+          "desc": "选择需要修改最大的运动步数",
+          "items": [
+            {
+              "key": "22000",
+              "label": "22000步"
+            },
+            {
+              "key": "32000",
+              "label": "32000步"
+            },
+            {
+              "key": "42000",
+              "label": "42000步"
+            },
+            {
+              "key": "52000",
+              "label": "52000步"
+            }
+          ]
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/xmSport.jpeg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/xmSport.jpeg"
+      ]
+    },
+    {
+      "id": "GitHub",
+      "name": "访问私库",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">Github > Menu > Settings > Developer settings > Personal access tokens > Generate new token > Note > ☑️repo > Generate token。</a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "@GitHub.username",
+          "name": "Github Username",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "Your Github Name"
+        },
+        {
+          "id": "@GitHub.token",
+          "name": "Personal Access Tokens",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "Personal Access Tokens"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/github.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/GitHub.jpg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/GitHub.jpg"
+      ]
+    },
+    {
+      "id": "qndxx",
+      "name": "青年大学习",
+      "key": [],
+      "descs_html": [
+        "<h4 align=\"center\">微信 => 通讯录 => 公众号 => 云南共青团 => 大学习 => 注册团员登录学习 => 我的 => 签到</a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "qndxx_study",
+          "name": "开启每周学习",
+          "val": true,
+          "type": "boolean",
+          "desc": "开启则表示进行每周学习,建议假期关闭该选项"
+        },
+        {
+          "id": "qndxx_difference",
+          "name": "周数差值",
+          "val": "",
+          "type": "text",
+          "desc": "抓到学习包中txtid的值与脚本计算的周数的差值,不会的可不填(42)"
+        },
+        {
+          "id": "qndxx_num",
+          "name": "学习往期大学习",
+          "val": "",
+          "type": "number",
+          "desc": "学习往期大学习,不可少于4期,不填则默认4期"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/qndxx.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.jpg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.jpg"
+      ]
+    },
+    {
+        "id": "leave_gdufe",
+        "name": "请假假条",
+        "keys": [],
+        "descs_html": [
+          "<h4 align=\"center\">广东财经大学假条,请按说明修改信息</a></h4>"
+        ],
+        "settings": [
+          {
+            "id": "gdufe_isLeave",
+            "name": "请假总开关",
+            "val": true,
+            "type": "boolean",
+            "desc": "开启则表示修改假条,默认开启,关闭则以下设置都不生效"
+          },
+          {
+            "id": "gdufe_type",
+            "name": "请假类型",
+            "val": "事假",
+            "type": "radios",
+            "items": [
+              {
+                "key": "事假",
+                "label": "事假"
+              }, 
+              {
+                "key": "病假",
+                "label": "病假"
+              }, 
+              {
+                "key": "回家",
+                "label": "回家"
+              }, 
+              {
+                "key": "实习",
+                "label": "实习"
+              }
+            ]
+          }, 
+          {
+            "id": "gdufe_reason",
+            "name": "请假事由",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您请假的事由"
+          }, 
+          {
+            "id": "gdufe_route",
+            "name": "外出地点",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您请假外出的地点"
+          }, 
+          {
+            "id": "gdufe_studentName",
+            "name": "学生姓名",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您的姓名"
+          },
+          {
+            "id": "gdufe_studentId",
+            "name": "学生学号",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您的姓名"
+          },
+          {
+            "id": "gdutf_phone",
+            "name": "学生手机号码",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您的手机号码"
+          },
+          {
+            "id": "gdufe_college",
+            "name": "所属学院",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您所属的学院"
+          },
+          {
+            "id": "gdufe_grade",
+            "name": "所属班级",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您所属的班级"
+          }, 
+          {
+            "id": "gdufe_teacher",
+            "name": "辅导员",
+            "val": "",
+            "type": "text",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您归属的辅导员"
+          }, 
+          {
+            "id": "gdufe_id",
+            "name": "假条封面id",
+            "val": "",
+            "type": "number",
+            "placeholder": "(点击以展开说明)",
+            "desc": "您所看见的假条封面姓名下的数字"
+          }
+        ],
+        "author": "@chiupam",
+        "repo": "https://github.com/chiupam/surge/tree/main",
+        "icons": [
+          "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.jpeg",
+          "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.jpeg"
+        ]
+      },
+      {
+          "id": "epidemic_gdufe",
+          "name": "日检日报",
+          "keys": [],
+          "descs_html": [
+            "<h4 align=\"center\">广东财经大学日检日报,请按说明修改信息</a></h4>"
+          ],
+          "settings": [
+            {
+              "id": "gdufe_username",
+              "name": "登录用户名",
+              "val": "",
+              "type": "text",
+              "desc": "登录我在校园的用户名,填写是为了获取JWSESSION"
+            },
+            {
+              "id": "gdufe_pwd",
+              "name": "登录密码",
+              "val": "",
+              "type": "text",
+              "desc": "登录我在校园的密码,填写是为了获取JWSESSION"
+            },
+            {
+              "id": "gdufe_inSchool",
+              "name": "是否在校",
+              "val": true,
+              "type": "boolean",
+              "desc": "开启则表示您目前定位在学校,以下信息都不起效,默认开启"
+            },
+            {
+              "id": "gdufe_province",
+              "name": "所在省份",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的省份,如广东省"
+            },
+            {
+              "id": "gdufe_city",
+              "name": "所在城市",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的城市,如佛山市"
+            },
+            {
+              "id": "gdufe_district",
+              "name": "所在行政区",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的行政区,如三水区"
+            },
+            {
+              "id": "gdufe_township",
+              "name": "所在街道",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的街道,如云东海街道"
+            },
+            {
+              "id": "gdufe_street",
+              "name": "所在路段",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的路段,如大学路"
+            },
+            {
+              "id": "gdufe_areacode",
+              "name": "所在地区的邮政编码",
+              "val": "",
+              "type": "number",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前所在的地区的邮政编码,如440607"
+            },
+            {
+              "id": "gdufe_latitude",
+              "name": "目前定位所在地的纬度(精确到小数点后15位)",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前定位所在地的纬度，如23.208688735961914"
+            },
+            {
+              "id": "gdufe_longitude",
+              "name": "目前定位所在地的经度(精确到小数点后15位)",
+              "val": "",
+              "type": "text",
+              "placeholder": "(点击以展开说明)",
+              "desc": "您目前定位所在地的经度，如112.85215759277344"
+            }
+          ],
+          "author": "@chiupam",
+          "repo": "https://github.com/chiupam/surge/tree/main",
+          "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/epidemic_gdufe.js",
+          "icons": [
+            "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.jpeg",
+            "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.jpeg"
+          ]
+        }
+  ]
+}

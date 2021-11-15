@@ -1,0 +1,26 @@
+#!name=Get Cookie
+#!desc=This is a Surge module used to collect JaveScripts on Get Cookie.
+#!tag = type=http-request, pattern=regex, script-path=javescript
+#!tag = type=http-request, pattern=regex, requires-body=1, max-size=-1, script-path=javescript
+#!tag = type=http-response, pattern=regex, script-path=javescript
+#!tag = type=http-response, pattern=regex, requires-body=1, max-size=-1, script-path=javescript
+
+[Script]
+# > 网易云音乐获取Cookie (music.163.com)
+# > https://music.163.com/m/login
+# > https://music.163.com/#/user/level
+网易云音乐获取Cookie = type=http-request, pattern=^https:\/\/music.163.com\/weapi\/user\/level, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/neteasemusic/neteasemusic.cookie.js
+# > 掌上飞车获取Cookie (mwegame.qq.com)
+掌上飞车获取Cookie = type=http-request,pattern=^https:\/\/mwegame\.qq\.com\/ams\/sign\/doSign\/month, ,requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/zsfc.js
+# > 小米运动获取Token (account.huami.com)
+小米运动获取Token = type=http-response, pattern=^https:\/\/account\.huami\.com\/v2\/client\/login, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js
+# > 百度贴吧获取Cookie (tieba.baidu.com)
+# https://tieba.baidu.com/index/
+百度贴吧获取Cookie = type=http-request, pattern=^https?:\/\/tieba\.baidu\.com\/?.?, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/tieba/tieba.cookie.js
+# > 青年大学习获取Cookie (home.yngqt.org.cn)
+青年大学习获取Cookie = type=http-request, pattern=^https?:\/\/home\.yngqt\.org\.cn\/qndxx\/user\/qiandao\.ashx, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/qndxx.js
+# > 广东财经大学日检日报获取JWSESSION (student.wozaixiaoyuan.com)
+广东财经大学日检日报获取JWSESSION = type=http-request, pattern=^https?:\/\/student\.wozaixiaoyuan\.com\/health\/(getToday|save)\.json, ,requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/epidemic_gdufe.js
+
+[MITM]
+hostname = %APPEND% music.163.com, mwegame.qq.com, account.huami.com, tieba.baidu.com, home.yngqt.org.cn, student.wozaixiaoyuan.com

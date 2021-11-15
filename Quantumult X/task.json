@@ -1,0 +1,8 @@
+{
+    "name": "Example Task",
+    "description": "This is a Quantumult X task gallery.",
+    "task":[
+        "cronexample javascripts-url, tag=task-name , img-url=https-url",
+        "cronexample javascripts-url, tag=task-name , img-url=https-url"     
+    ]
+}

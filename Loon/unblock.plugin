@@ -1,0 +1,10 @@
+[Script]
+# 全能扫描王 Pro
+http-response https:\/\/(api|api-cs)\.intsig\.net\/purchase\/cs\/query_property\? script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/CamScanner_Pro.js, requires-body=true, timeout=10, tag=全能扫描王 Pro
+# WPS SVIP
+http-response https?:\/\/account\.wps\.cn\/api\/users script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/WPS_SVIP.js,requires-body=true, requires-body=true, timeout=10, tag=WPS SVIP
+# 幕布 SVIP
+http-response https?:\/\/api2\.mubu\.com\/v3\/api\/user\/current_user script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/Mubu_SVIP.js, requires-body=true, timeout=10, tag=幕布 SVIP
+
+[MITM]
+hostname = ap*.intsig.net, account.wps.cn, mubu.com

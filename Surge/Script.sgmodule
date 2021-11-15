@@ -1,0 +1,26 @@
+#!name=Scripts Module
+#!desc=This is a Surge module used to collect JaveScripts on daily use.
+#!tag = type=http-request, pattern=https, requires-body=1, max-size=-1, script-path=javescript
+#!tag = type=http-response, pattern=https, requires-body=1, max-size=-1, script-path=javescript
+
+[Script]
+# > Sub-Store (sub.store)
+Sub-Store = type=http-request,pattern=^https?:\/\/sub\.store,requires-body=1,max-size=131072,timeout=120,script-path=https://raw.githubusercontent.com/Peng-YM/Sub-Store/master/backend/sub-store.min.js,script-update-interval=0
+
+# > BoxJs TF
+BoxJs = type=http-request,pattern=^https?://boxjs.net,script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js, requires-body=true, timeout=120
+
+# > TestFlight Download (testflight.apple.com)
+TestFlight = type=http-request,pattern=^https?:\/\/testflight\.apple\.com\/v\d\/accounts\/.+?\/install$, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/tf_download.js
+
+# > 微博开屏广告 (api.weibo.cn, mapi.weibo.com, *.uve.weibo.com)
+微博去开屏广告 = type=http-response, pattern=^https?://m?api\.weibo\.c(n|om)/2/(statuses/(unread|extend|positives/get|(friends|video)(/|_)(mix)?timeline)|stories/(video_stream|home_list)|(groups|fangle)/timeline|profile/statuses|comments/build_comments|photo/recommend_list|service/picfeed|searchall|cardlist|page|!/photos/pic_recommend_status|video/tiny_stream_video_list|photo/info), requires-body=1, max-size=1, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/wb_ad.js
+微博去开屏广告 = type=http-response, pattern=^https?://(sdk|wb)app\.uve\.weibo\.com(/interface/sdk/sdkad.php|/wbapplua/wbpullad.lua), requires-body=1, max-size=1, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/wb_ad.js
+
+[URL Rewrite]
+^https://boxjs.net http://boxjs.net 302
+^http://ww1.boxjs.net http://boxjs.net 302
+^http://ww6.boxjs.net http://boxjs.net 302
+
+[MITM]
+hostname = %APPEND% sub.store, api.weibo.cn, mapi.weibo.com, *.uve.weibo.com, boxjs.net, testflight.apple.com

@@ -1,0 +1,9 @@
+#!name=Ask For Leave(GDUFE)
+#!desc=When you need to modify the leave information, open this module, and go to the BoxJs to modify the leave date.
+
+[Script]
+# > 广东财经大学假条(student.wozaixiaoyuan.com)
+广东财经大学假条 = type=http-response, pattern=^https?:\/\/student\.wozaixiaoyuan\.com\/(leave2\/getList\.json|leave2\/getLeave\.json|web\/leave2\/.*\?schoolId=89), requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_gdufe.js
+
+[Mitm]
+hostname = %APPEND% student.wozaixiaoyuan.com

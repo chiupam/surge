@@ -1,0 +1,5 @@
+#!name=Tun Only
+#!desc= Only enable the Surge module when you need to enable compatibility mode.
+
+[General]
+compatibility-mode = 3
