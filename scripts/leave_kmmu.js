@@ -1,5 +1,6 @@
 /*
 
+##### Surge #####
 [Script]
 # > 易班假条(xg.kmmu.edu.c(n|om))
 易班假条 = type=http-response, pattern=^https?:\/\/xg\.kmmu\.edu.cn\/KmmcXG\/webapi\/api\/Leave\/AllLeaveManage(_Edit)?\?LoginStatus=.*, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_kmmu.js
@@ -7,12 +8,25 @@
 [Mitm]
 hostname = %APPEND% xg.kmmu.edu.c(n|om)
 
-git: https://github.com/chiupam/surge/blob/main/scripts/leave_kmmu.js
+##### Loon #####
+[Script]
+http-response ^https?:\/\/xg\.kmmu\.edu.cn\/KmmcXG\/webapi\/api\/Leave\/AllLeaveManage(_Edit)?\?LoginStatus=.* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_kmmu.js, requires-body=true, timeout=120, tag=学工假条
+
+[Mitm]
+hostname = xg.kmmu.edu.cn
+
+type: http-response
+body: true
 raw: https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_kmmu.js
-plugin: https://raw.githubusercontent.com/chiupam/surge/main/Loon/Leave.plugin
+regex: ^https?:\/\/xg\.kmmu\.edu.cn\/KmmcXG\/webapi\/api\/Leave\/AllLeaveManage(_Edit)?\?LoginStatus=.*
+
+git: https://github.com/chiupam/surge/blob/main/scripts/leave_kmmu.js
+plugin: https://raw.githubusercontent.com/chiupam/surge/main/Loon/leave_kmmu.plugin
 sgmoudule: https://raw.githubusercontent.com/chiupam/surge/main/Surge/Leave.sgmodule
+box: https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
 
 */
+
 Date.prototype.format = function(formatTime) { 
   var o = {"M+" : this.getMonth() + 1, "d+": this.getDate(), "h+": this.getHours()}
   if(/(y+)/.test(formatTime)) {formatTime=formatTime.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length))}
@@ -22,8 +36,8 @@ Date.prototype.format = function(formatTime) {
 var $ = Env()
 var Url = $request.url
 var Body = JSON.parse($response.body)
-const isLeave = $.read('isLeave') || 'true'
-if (isLeave == 'false') {
+const isLeave = $.read("isLeave") || "true"
+if (isLeave == "false") {
   Body = JSON.parse($response.body)
 } else {
   const time = new Date()
@@ -33,21 +47,22 @@ if (isLeave == 'false') {
   time.setHours(Math.min(23, (nowHour + 2)))
   const LeaveEndTime = time.format("hh")
   const LeaveBeginDate = time.format("yyyy-MM-dd")
-  const interval = $.read("interval") * 1 || 1
+  // const interval = $.read("interval") * 1 || 1
+  const interval = 1
   time.setDate(time.getDate() + interval - 1)
   const LeaveEndDate = time.format("yyyy-MM-dd")
   const LeaveNumNo = ((LeaveEndTime - LeaveBeginTime) / 24 + interval * 1 - 1).toFixed(2)
-  const LeaveType = $.read('LeaveType') || '事假'
-  const LeaveThing = $.read('LeaveThing') || '有事外出'
-  const WithNumNo = $.read('WithNumNo') || '0'
-  const OutAddress = $.read('OutAddress') || ''
-  const StudentName = $.read('StudentName') || ''
-  const StudentTel = $.read('StudentTel') || ''
-  const ParentName = $.read('ParentName') || ''
-  const ParentTel = $.read('ParentTel') || ''
-  const Vehicle = $.read('Vehicle') || '汽车'
+  const LeaveType = $.read("LeaveType") || "事假"
+  const LeaveThing = $.read("LeaveThing") || "有事外出"
+  const WithNumNo = $.read("WithNumNo") || "0"
+  const OutAddress = $.read("OutAddress") || ""
+  const StudentName = $.read("StudentName") || ""
+  const StudentTel = $.read("StudentTel") || ""
+  const ParentName = $.read("ParentName") || ""
+  const ParentTel = $.read("ParentTel") || ""
+  const Vehicle = $.read("Vehicle") || "汽车"
   const ID = Math.random().toString().substr(2, 4)
-  if (Url.indexOf('_Edit') == -1) {
+  if (Url.indexOf("_Edit") == -1) {
     Body= {
       "AllLeaveManages": [{
         "LeaveType": LeaveType,
@@ -121,15 +136,15 @@ function Env() {
   }
   get = (url, cb) => {
     if (LN || SG) {$httpClient.get(url, cb)}
-    if (QX) {url.method = 'GET'; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
+    if (QX) {url.method = "GET"; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
   }
   post = (url, cb) => {
     if (LN || SG) {$httpClient.post(url, cb)}
-    if (QX) {url.method = 'POST'; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
+    if (QX) {url.method = "POST"; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
   }
   put = (url, cb) => {
     if (LN || SG) {$httpClient.put(url, cb)}
-    if (QX) {url.method = 'PUT'; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
+    if (QX) {url.method = "PUT"; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
   }
   log = (message) => console.log(message)
   done = (value = {}) => {$done(value)}

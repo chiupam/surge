@@ -5,4 +5,4 @@
 易班假条 = type=http-response, pattern=^https?:\/\/xg\.kmmu\.edu.cn\/KmmcXG\/webapi\/api\/Leave\/AllLeaveManage(_Edit)?\?LoginStatus=.*, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_kmmu.js
 
 [Mitm]
-hostname = %APPEND% xg.kmmu.edu.c(n|om)
+hostname = %INSERT% xg.kmmu.edu.cn

@@ -1,0 +1,9 @@
+#!name=Intercept JD's wskey
+#!desc=This is a Surge module used to intercept JD's wskey.
+
+
+[Script]
+京东获取wskey = type=http-request, pattern=^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
+
+[Mitm]
+hostname = %INSERT% api-dd.jd.com
