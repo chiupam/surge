@@ -1,8 +1,8 @@
 [Script]
 # > 云南青年大学习Cookie (home.yngqt.org.cn)
-云南青年大学习Cookie = type=http-response, pattern=^http://home\.yngqt\.org\.cn/user/weixin_yngqt\.aspx\?getcode=.*, requires-body=0, timeout=120, max-size=-1, script-path=https://gitlab.com/chiupam/surge/-/raw/main/scripts/javascripts/qndxx.js
+云南青年大学习Cookie = type=http-response, pattern=^http://home\.yngqt\.org\.cn/user/weixin_yngqt\.aspx\?getcode=.*, requires-body=0, timeout=120, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/qndxx.js
 # > 云南青年大学习
-cron "13 13 13 * * 1,2,3,4,5" script-path=https://gitlab.com/chiupam/surge/-/raw/main/scripts/javascripts/qndxx.js, tag=云南青年大学习
+cron "13 13 13 * * 1,2,3,4,5" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/qndxx.js, tag=云南青年大学习
 
 [Mitm]
 hostname = home.yngqt.org.cn
