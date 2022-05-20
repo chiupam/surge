@@ -34,7 +34,7 @@ if (typeof $request !== 'undefined') {set()}
 
 async function set() {
   cookie = $request.headers.Cookie
-  pin = cookie.match(/(pin=[^;]*)/)[1] + ";"
+  pin = "pin=" + encodeURIComponent(cookie.match(/(pin=[^;]*)/)[1].replace("pin=", "")) + ";"
   wskey = cookie.match(/(wskey=[^;]*)/)[1] + ";"
   jd_wskey = pin + wskey
   if ($.read("TG_USER_ID") && $.read("TG_BOT_TOKEN")) {
