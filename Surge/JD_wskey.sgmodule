@@ -5,5 +5,5 @@
 [Script]
 京东获取wskey = type=http-request, pattern=^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
 
-[Mitm]
-hostname = %INSERT% api-dd.jd.com
+[MITM]
+hostname = %APPEND% api-dd.jd.com
