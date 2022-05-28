@@ -1,0 +1,9 @@
+#!name= Unblock Baidu Netdisc Play Speed
+#!desc= This is a Loon plugin for unblock Baidu netdisc unlocks online video play speed.
+#!icon= https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/mini/Baidu_Cloud.png
+
+[Script]
+http-response https:\/\/pan\.baidu\.com\/rest\/\d\.\d\/membership\/user requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/BaiduCloud.js, timeout=10, tag=百度云解锁倍数
+
+[MITM]
+hostname = pan.baidu.com
