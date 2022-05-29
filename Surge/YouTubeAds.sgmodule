@@ -20,7 +20,7 @@ URL-REGEX,https?:\/\/[\w-]+\.googlevideo\.com\/.+&oad,REJECT-TINYGIF
 ctier=[A-Z] citer=A 302
 
 [Script]
-http-request https?:\/\/.+?\.googlevideo\.com\/.+&(oad|ctier)=(?!A),script-path=https://choler.github.io/Surge/Script/YouTube.js
+YouTube_Ads = type=http-request, pattern=https?:\/\/.+?\.googlevideo\.com\/.+&(oad|ctier)=(?!A), script-path=https://choler.github.io/Surge/Script/YouTube.js
 
 [MITM]
 hostname = %APPEND% *.googlevideo.com, *.youtube.com, youtubei.googleapis.com

@@ -33,20 +33,24 @@ if (typeof $request !== 'undefined') {set()}
 
 
 async function set() {
-  cookie = $request.headers.Cookie
-  pin = "pin=" + encodeURIComponent(cookie.match(/(pin=[^;]*)/)[1].replace("pin=", "")) + ";"
-  wskey = cookie.match(/(wskey=[^;]*)/)[1] + ";"
-  jd_wskey = pin + wskey
-  if ($.read("TG_USER_ID") && $.read("TG_BOT_TOKEN")) {
-    await tgNotify(jd_wskey)
-    $.notice("【京东】", "打开Telegram去复制！", jd_wskey, "")
-    $.write("undefined", "jd_wskey")
-  } else if ($.read("BARK_PUSH")) {
-    await BarkNotify(jd_wskey)
-    $.write("undefined", "jd_wskey")
-  } else {
-    $.notice("【京东】", "点击通知栏去复制！", jd_wskey, "http://boxjs.net")
-    $.write(jd_wskey, "jd_wskey")
+  if (!$.read("jd_time")) $.write((Date.parse(new Date())/1000 - 20).toString(), 'jd_time')
+  if (Date.parse(new Date())/1000 - ($.read("jd_time") * 1)  > 15) {
+    cookie = $request.headers.Cookie
+    pin = "pin=" + encodeURIComponent(cookie.match(/(pin=[^;]*)/)[1].replace("pin=", "")) + ";"
+    wskey = cookie.match(/(wskey=[^;]*)/)[1] + ";"
+    jd_wskey = pin + wskey
+    $.write((Date.parse(new Date())/1000).toString(), 'jd_time')
+    if ($.read("TG_USER_ID") && $.read("TG_BOT_TOKEN")) {
+      await tgNotify(jd_wskey)
+      $.notice("【京东】", "打开Telegram去复制！", jd_wskey, "")
+      $.write("undefined", "jd_wskey")
+    } else if ($.read("BARK_PUSH")) {
+      await BarkNotify(jd_wskey)
+      $.write("undefined", "jd_wskey")
+    } else {
+      $.notice("【京东】", "点击通知栏去复制！", jd_wskey, "http://boxjs.net")
+      $.write(jd_wskey, "jd_wskey")
+    }
   }
   $.done()
 }

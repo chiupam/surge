@@ -3,7 +3,7 @@
 #!https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/zhihu/zhihu_remove_ads.list
 
 [Rule]
-# > 知乎广告拦截
+# 知乎广告拦截
 DOMAIN,118.89.204.198,REJECT-DROP
 DOMAIN-KEYWORD,118.89.204.198,REJECT-DROP
 IP-CIDR,118.89.204.198/32,REJECT-DROP,no-resolve
@@ -11,18 +11,18 @@ DOMAIN,appcloud2.in.zhihu.com,REJECT
 USER-AGENT,AVOS*,REJECT
 URL-REGEX,^https?:\/\/api\.zhihu\.com\/(notifications\/v\d\/count|v\d\/package|me\/guides|drama\/living-info|ad|fringe|commercial|market\/popovers|search\/(top|tab)|.*featured-comment-ad),REJECT
 
-# > 拦截知乎回答下的广告
+# 拦截知乎回答下的广告
 URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v4\/answers\/\d+\/recommendations,REJECT
-# > 知乎拦截部分预加载
+# 知乎拦截部分预加载
 URL-REGEX,^https?:\/\/www\.zhihu\.com\/appview\/(p|v2\/answer|zvideo)\/.*entry=(preload-topstory|preload-search|preload-subscription),REJECT
-# > 知乎网页版去广告
+# 知乎网页版去广告
 URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v4/(questions|anwsers)\/\d+/related-readings,REJECT-TINYGIF
 URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v4\/hot_recommendation,REJECT-TINYGIF
 URL-REGEX,^https?:\/\/www\.zhihu\.com\/commercial_api\/banners_v3\/mobile_banner,REJECT-TINYGIF
 URL-REGEX,^https?:\/\/zhuanlan\.zhihu\.com\/api\/articles\/\d+\/recommendation,REJECT-TINYGIF
 
 [Map Local]
-# > 知乎去除最常访问
+# 知乎去除最常访问
 ^https?:\/\/api\.zhihu\.com\/moments\/recent data="https://raw.githubusercontent.com/chiupam/surge/main/scripts/ads/ZhiHuAds_Blank.json"
 
 [Script]
