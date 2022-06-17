@@ -120,13 +120,13 @@
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge/tree/main",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.jpeg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.jpeg"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png"
       ]
     },
     {
       "id": "Location",
-      "name": "易班定位签到",
+      "name": "定位签到",
       "key": [],
       "descs_html": [
         "<h4 align=\"center\">打开 <a href='http://yibandw.kmmu.edu.cn'>http://yibandw.kmmu.edu.cn</a> 并登录</h4>"
@@ -150,13 +150,13 @@
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.jpeg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.jpeg"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.png"
       ]
     },
     {
       "id": "qndxx",
-      "name": "云南青年大学习",
+      "name": "青年大学习",
       "key": [],
       "descs_html": [
         "<h4 align=\"center\">微信 => 通讯录 => 公众号 => 云南共青团 => 大学习 => 注册团员登录学习</a></h4>"
@@ -181,13 +181,13 @@
       "repo": "https://github.com/chiupam/surge",
       "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/qndxx.js",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.jpg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.jpg"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.png"
       ]
     },
     {
       "id": "kmust",
-      "name": "昆工日检日报",
+      "name": "昆工疫情",
       "keys": [],
       "descs_html": [
         "<h4 align=\"center\">微信 => 小程序 => 我在校园 => 日检日报</a></h4>"
@@ -195,7 +195,7 @@
       "settings": [
         {
           "id": "kmust_JWSESSION",
-          "name": "日检日报JWSESSION",
+          "name": "JWSESSION",
           "val": "",
           "type": "text",
           "desc": "用以登录我在校园"
@@ -219,8 +219,8 @@
       "repo": "https://github.com/chiupam/surge",
       "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.jpeg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.jpeg"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.png"
       ]
     },
     {
