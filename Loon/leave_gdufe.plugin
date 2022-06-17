@@ -2,7 +2,7 @@
 #!desc= When you need to modify the leave information, open this plugin, and go to the BoxJs to modify the leave date.
 #!author= chiupam
 #!homepage= https://github.com/chiupam/surge/tree/main/Loon
-#!icon= https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.jpeg
+#!icon= https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/gdufe.png
 
 [Script]
 http-response ^https?:\/\/student\.wozaixiaoyuan\.com\/(leave2\/getList\.json|leave2\/getLeave\.json|web\/leave2\/.*\?schoolId=89) script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_gdufe.js, requires-body=true, timeout=60, tag=广东财经大学假条, enable = true
