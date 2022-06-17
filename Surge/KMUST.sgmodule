@@ -2,10 +2,11 @@
 #!desc=This is a Surge module for KMUST's daily epidemic check-in.
 
 [Script]
-# > 昆工疫情JWSESSION (student.wozaixiaoyuan.com)
-昆工疫情SESSION = type=http-request, pattern=^https?://student\.wozaixiaoyuan\.com/heat/getTodayHeatList\.json, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js
-# > 昆工疫情签到
-昆工疫情签到 = type=cron, cronexp="1 0,50 7,12,22 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, script-update-interval=0
+# 昆工疫情JWSESSION
+# student.wozaixiaoyuan.com
+昆工疫情SESSION = type=http-request, pattern=^https?://student\.wozaixiaoyuan\.com/heat/getTodayHeatList\.json, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, script-update-interval=0, timeout=10
+# 昆工疫情签到
+昆工疫情签到 = type=cron, cronexp="1 0 7,12,22 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, script-update-interval=0, timeout=10
 
 [MITM]
 hostname = %APPEND% student.wozaixiaoyuan.com

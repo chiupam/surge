@@ -1,0 +1,13 @@
+#!name= Bilibili Region
+#!desc= This is a Loon plugin used to collect JaveScripts on Auto Change Bilibili Region.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png
+
+[Script]
+http-request ^https:\/\/ap(p|i)\.bili(bili|api)\.(com|net)\/x\/v\d\/search(\/type)?\?.+?%20(%E6%B8%AF|%E5%8F%B0|%E4%B8%AD)& script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Bili_Auto_Regions.js, timeout=10, tag=B站(搜索), enable = true
+http-response ^https:\/\/ap(p|i)\.bili(bili|api)\.(com|net)\/(pgc\/view\/v\d\/app\/season|x\/v\d\/search\/defaultwords)\?access_key script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Bili_Auto_Regions.js, requires-body=true, timeout=10, tag=B站(换区), enable = true
+
+[Mitm]
+hostname = ap?.bili*i.com,ap?.bili*i.net
+

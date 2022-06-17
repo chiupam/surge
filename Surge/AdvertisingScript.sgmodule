@@ -2,16 +2,16 @@
 #!desc=Use JacaScripts to remove advertisements and solve all kinds of troubles with advertisements.
 
 [Rule]
-DOMAIN,118.89.204.198,REJECT
-DOMAIN,appcloud2.in.zhihu.com,REJECT
-DOMAIN,mqtt.zhihu.com,REJECT
-DOMAIN,sugar.zhihu.com,REJECT
-IP-CIDR,118.89.204.198/32,REJECT,no-resolve
-IP-CIDR6,2402:4e00:1200:ed00:0:9089:6dac:96b6/128,REJECT,no-resolve
-URL-REGEX,^https?:\/\/api\.zhihu\.com\/brand\/question\/\d+/card\?,REJECT
-URL-REGEX,^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_v2\?,REJECT
-URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v4\/answers\/\d+\/recommendations,REJECT
-URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v\d+\/brand\/question/\d+/card\?,REJECT
+DOMAIN, 118.89.204.198, REJECT
+DOMAIN, appcloud2.in.zhihu.com, REJECT
+DOMAIN, mqtt.zhihu.com, REJECT
+DOMAIN, sugar.zhihu.com, REJECT
+IP-CIDR, 118.89.204.198/32, REJECT, no-resolve
+IP-CIDR6, 2402:4e00:1200:ed00:0:9089:6dac:96b6/128, REJECT, no-resolve
+URL-REGEX, ^https?:\/\/api\.zhihu\.com\/brand\/question\/\d+/card\?, REJECT
+URL-REGEX, ^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_v2\?, REJECT
+URL-REGEX, ^https?:\/\/www\.zhihu\.com\/api\/v4\/answers\/\d+\/recommendations, REJECT
+URL-REGEX, ^https?:\/\/www\.zhihu\.com\/api\/v\d+\/brand\/question/\d+/card\?, REJECT
 
 [URL Rewrite]
 ^https?:\/\/api\.zhihu\.com/moments/hybrid\? - reject
@@ -29,20 +29,20 @@ URL-REGEX,^https?:\/\/www\.zhihu\.com\/api\/v\d+\/brand\/question/\d+/card\?,REJ
 ^https?:\/\/www\.zhihu\.com\/commercial_api\/banners_v3\/mobile_banner - reject
 
 [Script]
-B站(开屏去广告) = type=http-response,requires-body=1,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js,pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/list
-京东(开屏去广告) = type=http-response,requires-body=1,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/startup/startup.js,pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=start
-知乎(优化软件配置) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/appcloud2\.zhihu\.com\/v\d+\/config
-知乎(信息流去广告及黑名单增强) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/(moments|topstory)(\/|\?)?(recommend|action=|feed_type=)(?!\/people)
-知乎(回答内容优化) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/www\.zhihu\.com\/appview\/v2\/answer\/.*(entry=(?!(preload-topstory|preload-search|preload-subscription)))?
-知乎(回答列表去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/v4\/questions
-知乎(处理用户信息) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/people
-知乎(官方消息去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/notifications\/v3\/(message\?|timeline\/entry\/system_message)
-知乎(屏蔽关键字解锁) = type=http-request,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/feed-root\/block
-知乎(热搜去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/search\/top_search\/tabs\/hot\/items
-知乎(热榜去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/topstory\/hot-lists?(\?|\/)
-知乎(获取黑名单) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/settings\/blocked_users
-知乎(评论去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/(comment_v5\/)?(answers|comments?|articles|pins)\/\d+\/(root_|child_)?comments?
-知乎(预置关键词去广告) = type=http-response,requires-body=1,script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js,pattern=^https?:\/\/api\.zhihu\.com\/search\/preset_words\?
+B站(开屏去广告) = type=http-response, requires-body=1, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/list
+京东(开屏去广告) = type=http-response, requires-body=1, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/startup/startup.js, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=start
+知乎(优化软件配置) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/appcloud2\.zhihu\.com\/v\d+\/config
+知乎(信息流去广告及黑名单增强) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/(moments|topstory)(\/|\?)?(recommend|action=|feed_type=)(?!\/people)
+知乎(回答内容优化) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/www\.zhihu\.com\/appview\/v2\/answer\/.*(entry=(?!(preload-topstory|preload-search|preload-subscription)))?
+知乎(回答列表去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/v4\/questions
+知乎(处理用户信息) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/people
+知乎(官方消息去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/notifications\/v3\/(message\?|timeline\/entry\/system_message)
+知乎(屏蔽关键字解锁) = type=http-request, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/feed-root\/block
+知乎(热搜去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/search\/top_search\/tabs\/hot\/items
+知乎(热榜去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/topstory\/hot-lists?(\?|\/)
+知乎(获取黑名单) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/settings\/blocked_users
+知乎(评论去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/(comment_v5\/)?(answers|comments?|articles|pins)\/\d+\/(root_|child_)?comments?
+知乎(预置关键词去广告) = type=http-response, requires-body=1, script-path=https://gist.githubusercontent.com/blackmatrix7/2e550ebf28ca60d620654e394ec47e0b/raw/zhihu.js, pattern=^https?:\/\/api\.zhihu\.com\/search\/preset_words\?
 
 [MITM]
-hostname = %APPEND% api.m.jd.com,api.zhihu.com,app.bilibili.com,appcloud2.zhihu.com,www.zhihu.com,zhuanlan.zhihu.com
+hostname = %APPEND% api.m.jd.com, api.zhihu.com, app.bilibili.com, appcloud2.zhihu.com, www.zhihu.com, zhuanlan.zhihu.com

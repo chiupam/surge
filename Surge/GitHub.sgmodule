@@ -1,8 +1,0 @@
-#!name=Github Private Repository
-#!desc=It is allowed to reference files in the private Github repository.
-
-[MITM]
-hostname = %APPEND% raw.githubusercontent.com, gist.githubusercontent.com
-
-[Script]
-访问私密库 = type=http-request, requires-body=0, pattern=^https?:\/\/(raw|gist)\.githubusercontent.com, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/github.js

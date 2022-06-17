@@ -1,0 +1,15 @@
+#!name= BiliBili Plugin
+#!desc= This is a Loon plugin for BiliBili.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png
+
+[Script]
+http-request ^https:\/\/app\.bilibili\.com\/x\/v\d\/search(\/type)?\?.+?%20(%E6%B8%AF|%E5%8F%B0|%E4%B8%AD)& script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Bili_Auto_Regions.js, requires-body=true, timeout=10, tag=bilibili自动地区(搜索)
+http-response ^https:\/\/ap(p|i)\.bilibili\.com\/(pgc\/view\/(v\d\/)?app|x(\/v\d)?\/view\/video)\/(season|online)\?access_key script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Bili_Auto_Regions.js, requires-body=true, timeout=10, tag=bilibili自动地区
+http-response ^https:\/\/app\.bilibili\.com\/x\/v2\/account\/myinfo script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js, requires-body=true, timeout=10, tag=哔哩哔哩漫画cookie
+cron "0,05,10 0 12 * * *" script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/ExchangePoints.js, tag=哔哩哔哩抢券
+cron "0 9,20 * * *" script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js, tag=哔哩哔哩漫画签到
+
+[MITM]
+hostname = app.bilibili.com,ap?.bili*i.com,ap?.bili*i.net

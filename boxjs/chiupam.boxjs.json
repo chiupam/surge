@@ -23,7 +23,7 @@
         {
           "id": "LeaveType",
           "name": "请假类型",
-          "val": "事假",
+          "val": "",
           "type": "radios",
           "items": [
             {
@@ -39,7 +39,7 @@
         {
           "id": "LeaveThing",
           "name": "请假事由",
-          "val": "外出吃饭",
+          "val": "",
           "type": "text",
           "placeholder": "(点击以展开说明)",
           "desc": "您请假的事由"
@@ -87,11 +87,19 @@
         {
           "id": "WithNumNo",
           "name": "同行人数",
-          "val": "1",
+          "val": "",
           "type": "number",
           "placeholder": "(点击以展开说明)",
-          "desc": "您同行的人数"
+          "desc": "您同行的人数,默认为0人"
         }, 
+        {
+          "id": "interval",
+          "name": "离校天数",
+          "val": "",
+          "type": "number",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您离校的天数,默认为1天,建议假期更改为假期天数"
+        },
         {
           "id": "Vehicle",
           "name": "往返交通工具",
@@ -129,7 +137,7 @@
           "name": "签到数据包",
           "val": "",
           "type": "textarea",
-          "desc": "复制它吧"
+          "desc": ""
         },
         {
           "id": "location_api_open",
@@ -185,6 +193,13 @@
         "<h4 align=\"center\">微信 => 小程序 => 我在校园 => 日检日报</a></h4>"
       ],
       "settings": [
+        {
+          "id": "kmust_JWSESSION",
+          "name": "日检日报JWSESSION",
+          "val": "",
+          "type": "text",
+          "desc": "用以登录我在校园"
+        },
         {
           "id": "kmust_inSchool",
           "name": "当前是否在学校",

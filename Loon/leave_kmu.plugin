@@ -1,5 +1,0 @@
-[Script]
-http-response ^https:\/\/kmu\.campusphere\.net\/wec-counselor-leave-apps\/leave\/stu\/.* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/leave_kmu.js, requires-body=true, timeout=20, tag=昆明学院假条
-
-[Mitm]
-hostname = kmu.campusphere.net

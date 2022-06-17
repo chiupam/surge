@@ -1,17 +1,15 @@
 #!name=Historical Price (Individual)
 #!desc=This is a Surge module used to collect the JaveScripts on historical price of Jingdong and Taobao.
-#!tag = type=http-request, pattern=regex, requires-body=1, max-size=0, script-path=javescript
-#!tag = type=http-response, pattern=regex, requires-body=1, max-size=0, script-path=javescript
 
 # > Taobao Historical Price (trade-acs.m.taobao.com)
 # >> Please reinstall Taobao if the JaveScript is not valid or invalid.
 # >>> Note: Entering Taobao without opening the JaveScript will invalidate the script!
-#!淘宝比价 = type=http-request, pattern=^http://.+/amdc/mobileDispatch, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/tb_price.js
-#!淘宝比价 = type=http-response, pattern=^https?://trade-acs\.m\.taobao\.com/gw/mtop\.taobao\.detail\.getdetail, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/tb_price.js
+#!淘宝比价 = type=http-request, pattern=^http://.+/amdc/mobileDispatch, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/tb_price.js, script-update-interval=0, timeout=60
+#!淘宝比价 = type=http-response, pattern=^https?://trade-acs\.m\.taobao\.com/gw/mtop\.taobao\.detail\.getdetail, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/tb_price.js, script-update-interval=0, timeout=60
 
 [Script]
 # > JD Historical Price
-京东比价 = type=http-response, pattern=^https?://api\.m\.jd\.com/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/jd_price.js
+京东比价 = type=http-response, pattern=^https?://api\.m\.jd\.com/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/yichahucha/surge/master/jd_price.js, script-update-interval=0, timeout=60
 
 [MITM]
 hostname = %APPEND% api.m.jd.com

@@ -1,104 +1,62 @@
-/*
-
-type: http-request
-regex: ^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog
-script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
-box: https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
-
-###### Surge ######
-[Script]
-京东获取wskey = type=http-request, pattern=^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
-
-[Mitm]
-hostname = %APPEND% api-dd.jd.com
-
-###### Loon ######
-[Script]
-http-request ^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js, requires-body=true, timeout=120, tag=京东获取wskey
-
-[Mitm]
-hostname = api-dd.jd.com
-
-###### QuanX ######
-[rewrite_local]
-^https:\/\/api\-dd\.jd\.com\/client\.action\?functionId=getSessionLog url script-request-header https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
-
-[Mitm]
-hostname = api-dd.jd.com
-
-*/
+/**
+ * 
+ * 使用方法：打开某东，然后点击右上角气泡（消息）按钮，等待数秒即可。
+ * 
+ * BoxJs: https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
+ * 
+ * hostname: api-dd.jd.com
+ * 
+ * type: http-request
+ * regex: ^https?://api-dd\.jd\.com/client\.action\?functionId=getSessionLog
+ * script-path: https://raw.githubusercontent.com/chiupam/scripts/master/jd/wskey.js
+ * requires-body: 1 | true
+ * 
+ * =============== Surge ===============
+ * 京东获取wskey = type=http-request, pattern=^https?://api-dd\.jd\.com/client\.action\?functionId=getSessionLog, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js, script-update-interval=0, timeout=10
+ * 
+ * =============== Loon ===============
+ * http-request ^https?://api-dd\.jd\.com/client\.action\?functionId=getSessionLog script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js, requires-body=true, timeout=10, tag=京东获取wskey
+ * 
+ * =============== Quan X ===============
+ * ^https?://api-dd\.jd\.com/client\.action\?functionId=getSessionLog url script-request-header https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/wskey.js
+ * 
+ */
 
 const $ = Env()
-if (typeof $request !== 'undefined') {set()}
+const user_id = $.read("TG_USER_ID") || arg().split(`&`)[0]
+const bot_token = $.read("TG_BOT_TOKEN") || `5099904762:AA` + arg().split(`&`)[1]
+if (typeof $request !== 'undefined') start()
 
+function arg() {
+  try {return $argument.match(/api=(.*)/)[1]} 
+  catch {return `none&none`}
+}
 
-async function set() {
+async function start() {
   if (!$.read("jd_time")) $.write((Date.parse(new Date())/1000 - 20).toString(), 'jd_time')
   if (Date.parse(new Date())/1000 - ($.read("jd_time") * 1)  > 15) {
     cookie = $request.headers.Cookie
     pin = "pin=" + encodeURIComponent(cookie.match(/(pin=[^;]*)/)[1].replace("pin=", "")) + ";"
-    wskey = cookie.match(/(wskey=[^;]*)/)[1] + ";"
-    jd_wskey = pin + wskey
+    jd_wskey = pin + cookie.match(/(wskey=[^;]*)/)[1] + ";"
     $.write((Date.parse(new Date())/1000).toString(), 'jd_time')
-    if ($.read("TG_USER_ID") && $.read("TG_BOT_TOKEN")) {
+    if (user_id && user_id != `none` && bot_token) {
       await tgNotify(jd_wskey)
-      $.notice("【京东】", "打开Telegram去复制！", jd_wskey, "")
-      $.write("undefined", "jd_wskey")
-    } else if ($.read("BARK_PUSH")) {
-      await BarkNotify(jd_wskey)
       $.write("undefined", "jd_wskey")
     } else {
-      $.notice("【京东】", "点击通知栏去复制！", jd_wskey, "http://boxjs.net")
+      $.notice("【京东】", "前往boxjs中查询，或查看脚本运行日志！", `数据键：jd_wskey\n` + jd_wskey, "http://boxjs.net")
       $.write(jd_wskey, "jd_wskey")
     }
   }
   $.done()
 }
 
-
-function BarkNotify(text) {
-  $.log(text)
-  return new Promise((resolve) => {
-    BARK_PUSH = $.read("BARK_PUSH")
-    const options = {
-      url: `https://api.day.app/${BARK_PUSH}`,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: `title=【京东】&body=长按或下拉复制！&autoCopy=1&copy=${text}&url=http://boxjs.net&sound=mailsent`,
-      timeout: 5
-    }
-    $.post(options, (err, resp, data) => {
-      try {
-        if (err) {
-          $.log('Bark APP发送通知调用API失败！！')
-          $.log(err)
-        } else {
-          data = JSON.parse(data)
-          if (data.code === 200) {
-            $.log('Bark APP发送通知消息成功');
-          } else {
-            $.log(`${data.message}`)
-          }
-        }
-      } catch (e) {
-        $.log(e)
-        $.log(resp)
-      } finally {
-        resolve()
-      }
-    })
-  })
-}
-
-
 function tgNotify(text) {
   $.log(text)
   return  new Promise((resolve) => {
-    TG_USER_ID = $.read("TG_USER_ID")
-    TG_BOT_TOKEN = $.read("TG_BOT_TOKEN")
     const options = {
-      url: `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
+      url: `https://api.telegram.org/bot${bot_token}/sendMessage`,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: `chat_id=${TG_USER_ID}&text=${text}&disable_web_page_preview=true`,
+      body: `chat_id=${user_id}&text=${text}&disable_web_page_preview=true`,
       timeout: 30000
     }
     $.post(options, (err, resp, data) => {
@@ -109,9 +67,9 @@ function tgNotify(text) {
         } else {
           data = JSON.parse(data)
           if (data.ok) {
-            $.log('Telegram Bot发送通知消息完成')
+            $.notice("【京东】", "Telegram Bot发送通知消息完成", jd_wskey, "")
           } else {
-            $.log('Telegram Bot发送通知消息失败！')
+            $.notice("【京东】", "Telegram Bot发送通知消息失败！", "前往boxjs中查询，或查看脚本运行日志！\n数据键：jd_wskey", "http://boxjs.net")
           }
         }
       } catch (e) {

@@ -1,0 +1,14 @@
+#!name= Unblock Module
+#!desc= This is a Loon plugin used to collect JaveScripts on hacking, and it will use local resources.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/xxxxxx.jpeg
+
+[Script]
+http-response https?:\/\/biz\.caiyunapp\.com\/(membership_rights|v2\/user) script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/ColorfulClouds_SVIP.js, requires-body=true, timeout=60, tag=彩云天气SVIP, enable = true
+http-response https:\/\/pan\.baidu\.com\/rest\/2\.0\/membership\/user script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/BaiduCloud.js, requires-body=true, timeout=60, tag=百度网盘SVIP, enable = true
+http-response https:\/\/api\.shayujizhang\.com\/account\/grant\/detail\/info script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/unblock/SYJZ_SVIP.js, requires-body=true, timeout=60, tag=鲨鱼记账SVIP, enable = true
+
+[Mitm]
+hostname = biz.caiyunapp.com,pan.baidu.com,api.shayujizhang.com
+

@@ -3,12 +3,12 @@
 #!system=ios
 
 [Rule]
-DOMAIN-SUFFIX,cm.bilibili.com,REJECT
-URL-REGEX,^https?:\/\/api\.bilibili\.com\/x\/v2\/dm\/ad,REJECT
+DOMAIN-SUFFIX, cm.bilibili.com, REJECT
+URL-REGEX, ^https?:\/\/api\.bilibili\.com\/x\/v2\/dm\/ad, REJECT
 # 可能的一些推广(beta)
-URL-REGEX,^https?:\/\/api\.bilibili\.com\/pgc\/season\/app\/related\/recommend\?,REJECT
+URL-REGEX, ^https?:\/\/api\.bilibili\.com\/pgc\/season\/app\/related\/recommend\?, REJECT
 # BiliBili漫画去广告
-URL-REGEX,^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.comic\/flash,REJECT
+URL-REGEX, ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.comic\/flash, REJECT
 
 [URL Rewrite]
 # 去除搜索中的大家都在搜
@@ -24,13 +24,13 @@ URL-REGEX,^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.comic\/flash,REJE
 ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Comic\/ListFlash - reject
 
 [Script]
-B站(推荐去广告) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/feed\/index,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(追番去广告) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/api\.bilibili\.com\/pgc\/page\/bangumi,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(直播去广告) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/api\.live\.bilibili\.com\/xlive\/app-room\/v1\/index\/getInfoByRoom,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(动态去广告) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/api\.vc\.bilibili\.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_(history|new)\?,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(开屏去广告) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/list,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(标签页处理) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/x\/resource\/show\/tab,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
-B站(我的页面处理) = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/account\/mine,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js
+B站(推荐去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/feed\/index, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(追番去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.bilibili\.com\/pgc\/page\/bangumi, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(直播去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.live\.bilibili\.com\/xlive\/app-room\/v1\/index\/getInfoByRoom, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(动态去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.vc\.bilibili\.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_(history|new)\?, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(开屏去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/list, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(标签页处理) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/resource\/show\/tab, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+B站(我的页面处理) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/account\/mine, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
 
 [MITM]
-hostname = %APPEND% app.bilibili.com,api.bilibili.com,api.live.bilibili.com,api.vc.bilibili.com
+hostname = %APPEND% app.bilibili.com, api.bilibili.com, api.live.bilibili.com, api.vc.bilibili.com

@@ -1,15 +1,14 @@
 #!name=RRTV Ads & SVIP
 #!desc=This is a Surge module used to collect JaveScripts on hacking RRTV and remove advertisings
 #!system=ios
-# > Form:Choler
 
 [Rule]
-AND,((USER-AGENT,PUClient*), (NOT,((DOMAIN-SUFFIX,rr.tv)))),REJECT
-URL-REGEX,^https?:\/\/api\.rr\.tv\/(?:ad\/getAll$|storage/business/rootName/app/homePage),REJECT
+AND, ((USER-AGENT, PUClient*), (NOT, ((DOMAIN-SUFFIX, rr.tv)))), REJECT
+URL-REGEX, ^https?:\/\/api\.rr\.tv\/(?:ad\/getAll$|storage/business/rootName/app/homePage), REJECT
 
 [Script]
-rrsp_video = type=http-response,requires-body=true,pattern=^https?:\/\/api\.rr\.tv\/watch\/v\d\/get_movie_info,script-path=https://Choler.github.io/Surge/Script/rrsp.js
-rrsp_banner = type=http-response,requires-body=true,pattern=^https?:\/\/api\.rr\.tv\/v\dplus\/index\/channel,script-path=https://Choler.github.io/Surge/Script/rrsp.js
+rrsp_video = type=http-response, requires-body=true, pattern=^https?:\/\/api\.rr\.tv\/watch\/v\d\/get_movie_info, script-path=https://Choler.github.io/Surge/Script/rrsp.js, script-update-interval=0, timeout=60
+rrsp_banner = type=http-response, requires-body=true, pattern=^https?:\/\/api\.rr\.tv\/v\dplus\/index\/channel, script-path=https://Choler.github.io/Surge/Script/rrsp.js, script-update-interval=0, timeout=60
 
 [MITM]
 hostname = %APPEND% api.rr.tv

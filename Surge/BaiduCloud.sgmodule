@@ -2,8 +2,8 @@
 #!desc=This is a Surge module for unblock Baidu netdisc unlocks online video play speed.
 
 [Script]
-# > 百度网盘解锁在线播放倍数 (pan.baidu.com)
-百度网盘解锁在线播放倍数 = type=http-response, pattern=https:\/\/pan\.baidu\.com\/rest\/\d\.\d\/membership\/user, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/BaiduCloud.js
+# 百度网盘解锁在线播放倍数 (pan.baidu.com)
+百度网盘解锁在线播放倍数 = type=http-response, pattern=https:\/\/pan\.baidu\.com\/rest\/\d\.\d\/membership\/user, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/BaiduCloud.js, script-update-interval=0, timeout=60
 
 [MITM]
 hostname = %APPEND% pan.baidu.com

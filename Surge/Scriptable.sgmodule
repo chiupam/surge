@@ -1,15 +1,10 @@
 #!name=Scriptable Software
 #!desc=This is a Surge module used to collect JaveScripts on Scriptable App.
-# > name = type=http-request, pattern=https, requires-body=1, max-size=1, script-path=javescript, script-update-interval=0
-# > name = type=http-response, pattern=https, requires-body=1, max-size=1, script-path=javescript, script-update-interval=0
 
 [Script]
-# > 中国联通获取Cookie (act.10010.com, m.client.10010.com)
-Rewrite: CUCC = type=http-request,pattern=^https?:\/\/act.10010.com\/SigninApp\/signin\/querySigninActivity.htm,script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/10010/10010.cookie.js
-Rewrite: CUCC = type=http-request,pattern=^https?:\/\/act.10010.com\/SigninApp(.*?)\/signin\/daySign,script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/10010/10010.cookie.js
-
-# > 中国电信获取Cookie
-Rewrite: CTCC = script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/telecomInfinity.js,type=http-request,pattern=https?:\/\/e\.189\.cn\/store\/user\/package_detail\.do
+# 中国联通 (Scriptable)
+# act.10010.com
+中国联通(Scriptable) = type=http-request, pattern=^https?://act\.10010\.com/SigninApp/signin/querySigninActivity\.htm, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scriptable/rewrite/10010.cookie.js, script-update-interval=0, timeout=60
 
 [MITM]
-hostname = %APPEND% act.10010.com, m.client.10010.com, e.189.cn
+hostname = %APPEND% act.10010.com

@@ -1,18 +1,6 @@
-/*
-
-[Script]
-# > 小米运动获取Cookie (account.huami.com)
-# 小米运动 = type=http-response, pattern=^https?:\/\/account\.huami\.com\/v2\/client\/login, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js
-# > 小米运动
-小米运动 = type=cron, cronexp="22 22 22 * * *", wake-system=1, timeout=180, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js
-
-[MITM]
-hostname = %APPEND% account.huami.com
-git: https://github.com/chiupam/surge/blob/main/scripts/xmSport.js
-raw: https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js
-sgmoudule: https://raw.githubusercontent.com/chiupam/surge/main/Surge/Task.sgmodule
-
-*/
+/**
+ * 未完成，请勿使用！
+ */
 
 const $ = new Env('小米运动')
 const step = randomFriendPin($.getdata('xmMinStep') * 1, $.getdata('xmMaxStep') * 1)

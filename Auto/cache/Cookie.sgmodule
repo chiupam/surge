@@ -1,0 +1,11 @@
+#!name=Cookie
+#!desc=This is a Surge module used to collect JaveScripts on Get Cookie.
+#!system=ios
+
+[Script]
+网易云音乐获取Cookie = type=http-request, pattern=^https?://music\.163\.com/weapi/user/level, requires-body=0, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/neteasemusic/neteasemusic.cookie.js, script-update-interval=0, timeout=15
+百度贴吧Cookie = type=http-request, pattern=^https?://tieba\.baidu\.com/mo/q/getUpConfigData, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/tieba.js, script-update-interval=0, timeout=15
+掌上飞车Cookie = type=http-request, pattern=^https?://mwegame\.qq\.com/ams/sign/doSign/month, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=15
+
+[MITM]
+hostname = %APPEDN% music.163.com, tieba.baidu.com, mwegame.qq.com

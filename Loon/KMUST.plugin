@@ -1,0 +1,13 @@
+#!name= KMUST Epidemic
+#!desc= This is a Loon plugin for KMUST's daily epidemic check-in.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.jpeg
+
+[Script]
+http-request ^https?://student\.wozaixiaoyuan\.com/heat/getTodayHeatList\.json script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, requires-body=true, timeout=10, tag=昆工疫情SESSION, enable = true
+cron "1 0 7,12,22 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, tag=昆工疫情签到, enable=true
+
+[Mitm]
+hostname = student.wozaixiaoyuan.com
+
