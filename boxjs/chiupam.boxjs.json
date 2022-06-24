@@ -288,6 +288,20 @@
           "val": "",
           "type": "text",
           "desc": "腾讯云 API 接口地址"
+        },
+        {
+          "id": "vps_ip",
+          "name": "个人服务器接口地址加端口",
+          "val": "",
+          "type": "text",
+          "desc": ""
+        },
+        {
+          "id": "vps_password",
+          "name": "个人服务器验证密码",
+          "val": "",
+          "type": "text",
+          "desc": ""
         }
       ],
       "author": "@chiupam",
