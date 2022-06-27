@@ -37,18 +37,21 @@
      pc_command = container + container_parameters + usering_images + incoming_parameters
      ios_command = pc_command + ios_parameters
      command = `docker rm -f music netease; ${pc_command.replace(`netease`, `music`)}; ${ios_command.replace(`55555`, `55556`)}`
-     await vps(encodeURI(command))
+     await vps(command)
    }
    $.done()
  }
  
  function vps(text) {
-   $.log(`http://${vps_ip}/music?password=${vps_password}&command=${text}`)
    return  new Promise(resolve => {
      const options = {
-       url: `http://${vps_ip}/music?password=${vps_password}&command=${text}`
+       url: `http://${vps_ip}/music`,
+       body: `password=${vps_password}&command=${encodeURI(text)}`
      }
-     $.get(options, () => {resolve()})
+     $.post(options, (error, response, data) => {
+       $.log(data)
+       resolve()
+     })
    })
  }
  
@@ -64,9 +67,13 @@
      if (LN || SG) {$httpClient.get(url, cb)}
      if (QX) {url.method = 'GET'; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
    }
+   post = (url, cb) => {
+     if (LN || SG) {$httpClient.post(url, cb)}
+     if (QX) {url.method = `POST`; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
+  }
    toStr = (obj) => JSON.stringify(obj)
    log = (message) => console.log(message)
    done = (value = {}) => {$done(value)}
-   return { read, get, toStr, log, done }
+   return { read, get, post, toStr, log, done }
  }
  
