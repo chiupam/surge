@@ -61,7 +61,7 @@ async function main () {
     if ($.expired != 0) {
       await speed()
       if ($.giftid) await handle($.giftid, `第 ${$.day_award } 天奖励`)
-      if ($.giftdays) await handle($.giftdays, `${$.day_welfare}特别福利`)
+      if ($.giftdays) await handle($.giftdays, ` ${$.day_welfare} 特别福利`)
     } else {
       $.notice($.name, `❌ 当前Cookie 已失效, 请重新获取`, illustrate)
     }
@@ -136,10 +136,12 @@ function speed() {
         if (arr[$.day_award] != 0) {
           $.giftid = data.match(/giftid="([^"]+)"/g)[arr[$.day_award]].match(/(\d+)/)[1]
         }
-        if (data.match(/月(\d+)日/g)[0].match(/(\d+)/)[1] * 1 == date.getDate()) {
-          $.day_welfare = `${date.getMonth() + 1}月${date.getDate()}日`
-          $.giftdays = data.match(/"giftdays([^"]+)"/g)[0].match(/(\d+)/)[1]
-        }
+        try {
+          if (data.match(/月(\d+)日/g)[0].match(/(\d+)/)[1] * 1 == date.getDate()) {
+            $.day_welfare = `${date.getMonth() + 1}月${date.getDate()}日`
+            $.giftdays = data.match(/"giftdays([^"]+)"/g)[0].match(/(\d+)/)[1]
+          }
+        } catch {}
       } else if (error) {
         $.log(`❌ 获取累计签到天数时发生错误`)
         $.log($.toStr(error))
