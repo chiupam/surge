@@ -72,20 +72,20 @@ async function main () {
 function index() {
   return new Promise(resolve => {
     const options = {
-      url: `https://mwegame.qq.com/ams/sign/month/speed?${$.read(`zsfc_query`)}`,
+      url: `https://mwegame.qq.com/ams/sign/month/speed?` + 
+           `${$.read(`zsfc_query`)}`,
       headers: $.toObj($.read(`zsfc_headers`))
     }
     $.get(options, (error, response, data) => {
       if (data) {
         successive = data.match(/giftid="([^"]+)"/g)[0].match(/(\d+)/)[1]
-      } else if (error) {
+      } else {
         $.log(`❌ 获取签到页面信息时发生错误`)
         $.log($.toStr(error))
       }
       resolve(successive)
     })
-  }
-  )
+  })
 }
 
 function sign (_id) {
@@ -111,20 +111,20 @@ function sign (_id) {
           $.log(`✅ ${sMsg}`)
           $.notice($.name, `✅ ${message}`, sMsg, ``)
         }
-      } else if (error) {
+      } else {
         $.log(`❌ 无法完成每日签到`)
         $.log(error)
       }
       resolve()
     })
-  }
-  )
+  })
 }
 
 function speed() {
   return new Promise(resolve => {
     const options = {
-      url: `https://mwegame.qq.com/ams/sign/month/speed?${$.read(`zsfc_query`)}`,
+      url: `https://mwegame.qq.com/ams/sign/month/speed?` + 
+           `${$.read(`zsfc_query`)}`,
       headers: $.toObj($.read(`zsfc_headers`))
     }
     $.log(`🧑‍💻 开始获取累计签到天数`)
@@ -142,14 +142,13 @@ function speed() {
             $.giftdays = data.match(/"giftdays([^"]+)"/g)[0].match(/(\d+)/)[1]
           }
         } catch {}
-      } else if (error) {
+      } else {
         $.log(`❌ 获取累计签到天数时发生错误`)
         $.log($.toStr(error))
       }
       resolve()
     })
-  }
-  )
+  })
 }
 
 function handle (_id, _award) {
@@ -169,14 +168,13 @@ function handle (_id, _award) {
         } else {
           $.log(`⭕ 领取结果: ${result.message}`)
         }
-      } else if (error) {
+      } else {
         $.log(`❌ 领取${_award}时发生错误`)
         $.log($.toStr(error))
       }
       resolve()
     })
-  }
-  )
+  })
 }
  
 function Env(name) {

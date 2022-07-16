@@ -27,10 +27,9 @@
  * 
  */
 
+
 const $ = new Env('🌼 昆明理工大学 🌼')
-const host = `https://student.wozaixiaoyuan.com/`
-const inSchool = $.read("kmust_inSchool")
-const JWSESSION = $.read("kmust_JWSESSION")
+const inSchool = $.toObj($.read("kmust_inSchool"))
 const checkin_address = $.read("kmust_address") || "云南省昆明市呈贡区致远路与郎溪街交叉口"
 const nowHours = new Date().getHours()
 const illustrate = `微信 => 小程序 => 我在校园 => 日检日报`
@@ -39,7 +38,7 @@ typeof $request !== `undefined` ? start() : main()
 
 function start() {
   const Method = $request.method
-  if (Method == "POST" || Method == "GET") {
+  if ((Method == "POST" || Method == "GET") && (!$.read(`kmust_username`) && !$.read(`kmust_password`))) {
     if ($request.headers) {
       if (!JWSESSION) {
         $.write($request.headers.JWSESSION, "kmust_JWSESSION")
@@ -56,9 +55,14 @@ function start() {
 }
 
 async function main() {
-  if (JWSESSION) {
+  if ($.read(`kmust_username`) && $.read(`kmust_password`)) {
+    await login($.read(`kmust_username`), $.read(`kmust_password`))
+  } else {
+    $.JWSESSION = $.read(`kmust_JWSESSION`)
+  }
+  if ($.JWSESSION != -10) {
     await index()
-    if (inSchool == `true` && $.list != -10) {
+    if (inSchool && $.list != -10) {
       // state 0: 未开启 1: 开启中 2: 已结束
       // type 0: 未打卡 1: 已打卡
       if ($.list.state == 0) {
@@ -69,15 +73,15 @@ async function main() {
         $.log(`⭕ ${period().t}打卡已经结束`)
       } else {
         await geocoding()
-        if ($.latitude != 0) await task()
+        if ($.body) await checkin()
       }
-    } else if (inSchool != `true` && $.list != -10) {
+    } else if (!inSchool && $.list != -10) {
       // country 有该键的存在则为打卡成功
       if ($.list.country) {
         $.log(`⭕ 今日健康已经打卡`)
       } else {
         await geocoding()
-        if ($.latitude != 0) await task()
+        if ($.body) await checkin()
       }
     } else {
       $.log(`❌ 我在校园JWSESSION已过期`)
@@ -100,118 +104,112 @@ function period() {
   return {i, t}
 }
 
+function login(_username, _password) {
+  return new Promise(resolve => {
+    const options = {
+      url: `https://gw.wozaixiaoyuan.com/basicinfo/mobile/login/username?username=${_username}&password=${_password}`,
+      headers: {"Content-Type": "application/x-www-form-urlencoded"}
+    }
+    $.post(options, (error, response, data) => {
+      if (data) {
+        if ($.toObj(data).code == 0) {
+          $.JWSESSION = response.headers.JWSESSION
+          $.write($.JWSESSION, `kmust_JWSESSION`)
+        } else {
+          $.log(`❌ 获取 JWSESSION 失败`)
+          $.JWSESSION = -10
+        }
+      } else {
+        $.log(`❌ 获取 JWSESSION 失败`)
+        $.log(error)
+        $.JWSESSION = -10
+      }
+      resolve()
+    })
+  })
+}
+
 function geocoding() {
-  inSchool == `true` ? name_task = period().t : name_task = `健康`
+  inSchool ? _task = period().t : _task = `健康`
   return new Promise(resolve => {
     const options = {
       url: `${$.read("serverless_api")}KMUST`, 
       body: `address=${checkin_address}`
     }
-    $.log(`${inSchool == "true" ? "🏫" : "🏠"} ${checkin_address}`)
+    $.log(`${inSchool ? "🏫" : "🏠"} ${checkin_address}`)
     $.log(`🧑‍💻 正在通过地址转换出打卡封包`)
-    $.post(options, (err, resp, data) => {
-      try {
-        if (data) {
-          $.dkbody = $.toObj(data)
-          $.latitude = $.dkbody.latitude
-          if ($.latitude == 0) {
-            $.notice($.name, `❌ ${name_task}打卡失败 ❌`, `📡 无法获取正确的打卡封包`)
-            $.log(`❌ 无法获取正确的打卡封包`)
-          } else {
-            $.log(`✅ 获取打卡封包成功`)
-            // $.log(`✅ 所在国家 --> ${$.dkbody.country}`)
-            // $.log(`✅ 所在省份 --> ${$.dkbody.province}`)
-            // $.log(`✅ 所在城市 --> ${$.dkbody.city}`)
-            // $.log(`✅ 所在政区 --> ${$.dkbody.district}`)
-            // $.log(`✅ 所在街道 --> ${$.dkbody.township}`)
-            // $.log(`✅ 所在道路 --> ${$.dkbody.street}`)
-            // $.log(`✅ 行政编码 --> ${$.dkbody.areacode}`)
-            // $.log(`✅ 所在纬度 --> ${$.dkbody.latitude}`)
-            // $.log(`✅ 所在经度 --> ${$.dkbody.longitude}`)
-            $.timestampHeader = $.dkbody.timestampHeader
-            $.signatureHeader = $.dkbody.signatureHeader
-            $.fastbody = $.dkbody.data
-          }
-        } else if (err) {
-          $.log(`❌ 获取打卡封包时 API 请求失败`)
-          $.log(err)
+    $.post(options, (error, response, data) => {
+      if (data) {
+        data = $.toObj(data)
+        if (data.latitude == 0) {
+          $.notice($.name, `❌ ${_task}打卡失败 ❌`, `📡 无法获取正确的打卡封包`)
+          $.log(`❌ 无法获取正确的打卡封包`)
+        } else {
+          $.log(`✅ 获取打卡封包成功`)
+          $.body = data.data
         }
-      } catch (e) {
-        $.log(`❌ 获取打卡封包时发生错误`)
-        $.log(resp)
-      } finally {
-        resolve()
+      } else {
+        $.log(`❌ 获取打卡封包时 API 请求失败`)
+        $.log(error)
       }
+      resolve()
     })
   })
 }
 
 function index() {
-  inSchool == `true` ? name_url = `getTodayHeatList` : name_url = `getToday`
-  inSchool == `true` ? name_task = `日检日报` : name_task = `健康打卡`
+  inSchool ? _url = `heat/getTodayHeatList` : _url = `health/getToday`
+  inSchool ? _task = `日检日报` : _task = `健康打卡`
   return new Promise(resolve => {
     const options = {
-      url: `${host}heat/${name_url}.json`, 
-      headers: {"JWSESSION": JWSESSION}
+      url: `https://student.wozaixiaoyuan.com/${_url}.json`, 
+      headers: {"JWSESSION": $.JWSESSION}
     }
-    $.log(`🧑‍💻 获取当天${name_task}情况`)
-    $.post(options, (err, resp , data) => {
-      try {
-        if (data) {
-          if ($.toObj(data).code != -10) {
-            $.log(`✅ 成功获取${name_task}任务`)
-            $.list = $.toObj(data).data[period().i]
-          } else {
-            $.notice($.name, `❌ 我在校园JWSESSION已过期, 请重新抓包❗`, illustrate)
-            $.list = -10
-          }
-        } else if (err) {
-          $.log(`❌ 获取${name_task}任务列表时发生错误`)
-          $.log(err)
+    $.log(`🧑‍💻 获取当天${_task}情况`)
+    $.post(options, (error, response , data) => {
+      if (data) {
+        if ($.toObj(data).code != -10) {
+          $.log(`✅ 成功获取${_task}任务`)
+          inSchool ? $.list = $.toObj(data).data[period().i] : $.list = $.toObj(data).data
+        } else {
+          $.list = -10
         }
-      } catch (e) {
-        $.log(`❌ 访问${name_task} API 时发生错误`)
-        $.log(resp)
-      } finally {
-        resolve()
+      } else {
+        $.log(`❌ 获取${_task}任务列表时发生错误`)
+        $.log(error)
       }
+      resolve()
     })
   })
 }
 
-function task() {
-  inSchool == `true` ? name_quantitative = `answers=["0"]&seq=${$.list.seq}&temperature=36.0&userId=&myArea=&` : name_quantitative = `answers=["0"]`
-  inSchool == `true` ? name_url = `heat` : name_url = `health`
-  inSchool == `true` ? name_task = period().t : name_task = `健康`
+function checkin() {
+  inSchool ? _quan = `answers=["0"]&seq=${$.list.seq}&temperature=36.0&userId=&myArea=&` : _quan = `answers=["0"]&`
+  inSchool ? _url = `heat` : _url = `health`
+  inSchool ? _task = period().t : _task = `健康`
   return new Promise(resolve => {
     const options = {
-      url: `${host}${name_url}/save.json`, 
-      headers: {"JWSESSION": JWSESSION}, 
-      body: encodeURI(name_quantitative + $.fastbody)
+      url: `https://student.wozaixiaoyuan.com/${_url}/save.json`, 
+      headers: {"JWSESSION": $.JWSESSION}, 
+      body: encodeURI(_quan + $.body)
     }
-    $.log(`🧑‍💻 信息完成组装, 开始${name_task}打卡`)
-    $.post(options, (err, resp, data) => {
-      try {
-        if (data) {
-          $.checkin = $.toObj(data)
-          if ($.checkin.code == 0) {
-            $.log(`✅ ${name_task}打卡成功`)
-            // $.notice($.name, `✅ ${name_task}打卡成功 ✅`, ``)
-          } else {
-            $.log(`❌ ${name_task}打卡失败`)
-            $.log($.toStr($.checkin))
-            $.notice($.name, `❌ ${name_task}打卡失败 ❌`, `📡 ${$.checkin.message}`)
-          }
-        } else if (err) {
-          $.log(`❌ 签到时 API 请求失败`)
-          $.log(err)
+    $.log(`🧑‍💻 信息完成组装, 开始${_task}打卡`)
+    $.post(options, (error, response, data) => {
+      if (data) {
+        data = $.toObj(data)
+        if (data.code == 0) {
+          $.log(`✅ ${_task}打卡成功`)
+          // $.notice($.name, `✅ ${_task}打卡成功 ✅`, ``)
+        } else {
+          $.log(`❌ ${_task}打卡失败`)
+          $.log($.toStr(data))
+          $.notice($.name, `❌ ${_task}打卡失败 ❌`, `📡 ${data.message}`)
         }
-      } catch (e) {
-        $.log(`❌ 签到时发生错误`)
-        $.log(resp)
-      } finally {
-        resolve()
+      } else {
+        $.log(`❌ 签到时 API 请求失败`)
+        $.log(error)
       }
+      resolve()
     })
   })
 }

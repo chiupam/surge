@@ -28,8 +28,7 @@
  */
 
 const $ = new Env("👨‍🎓 云南大学习")
-const host = "http://home.yngqt.org.cn/"
-const review = $.read("qndxx_review")
+const review = $.toObj($.read("qndxx_review"))
 const headers = {
   "Cookie": $.read("qndxx_cookie"),
   "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 " +
@@ -56,12 +55,11 @@ function start() {
 
 async function main() {
   if ($.read("qndxx_cookie")) {
-    await qiandao()
-    if ($.check == `true`) {
+    if (await qiandao()) {
       await user()
       await txtid()
-      if ($.txtid != `false`) await study($.txtid)
-      if ($.txtid != `false` && review == `true`) await study($.txtid * 1 - 1)
+      if ($.txtid) await study($.txtid)
+      if ($.txtid && review) await study($.txtid * 1 - 1)
     } else {
       $.notice($.name, `❌ Cookie已失效,请重新获取`, illustrate)
     }
@@ -74,31 +72,25 @@ async function main() {
 function qiandao() {
   return new Promise((resolve) => {
     const options = {
-      url: `${host}qndxx/user/qiandao.ashx`,
+      url: `http://home.yngqt.org.cn/qndxx/user/qiandao.ashx`,
       headers: headers,
     }
     $.log(`🧑‍💻 开始签到`)
     $.post(options, (error, response, data) => {
-      try {
-        if (data) {
-          message = $.toObj(data).message
-          if (message.indexOf(`登录`) != -1) {
-            $.log(`❌ ${message}`)
-            $.check = `false`
-          } else {
-            $.log(`✅ ${message}`)
-            $.check = `true`
-          }
-        } else if (error) {
-          $.log(`❌ 签到时发生错误`)
-          $.log($.toStr(error))
+      if (data) {
+        message = $.toObj(data).message
+        if (message.indexOf(`登录`) != -1) {
+          $.log(`❌ ${message}`)
+          check = $.toObj(`false`)
+        } else {
+          $.log(`✅ ${message}`)
+          check = $.toObj(`true`)
         }
-      } catch (e) {
-        $.log(`❌ 访问 qiandao 接口时发生错误`)
-        $.logErr(e, response)
-      } finally {
-        resolve()
+      } else {
+        $.log(`❌ 签到时发生错误`)
+        $.log($.toStr(error))
       }
+      resolve(check)
     })
   })
 }
@@ -106,25 +98,19 @@ function qiandao() {
 function user() {
   return new Promise((resolve) => {
     const options = {
-      url: `${host}qndxx/user/`,
+      url: `http://home.yngqt.org.cn/qndxx/user/`,
       headers: headers
     }
     $.log(`🧑‍💻 开始获取用户信息`)
     $.get(options, (error, response, data) => {
-      try {
-        if (data) {
-          integral = data.match(/积分：(\d*)/)[1]
-          $.log(`✅ 当前积分:${integral}`)
-        } else if (error) {
-          $.log(`❌ 访问 user 接口时发生错误`)
-          $.log($.toStr(error))
-        }
-      } catch (e) {
-        $.log(`❌ Cookie已失效`)
-        $.check = `false`
-      } finally {
-        resolve()
-      }
+     if (data) {
+       integral = data.match(/积分：(\d*)/)[1]
+       $.log(`✅ 当前积分:${integral}`)
+     } else {
+       $.log(`❌ 访问 user 接口时发生错误`)
+       $.log($.toStr(error))
+     }
+     resolve()
     })
   })
 }
@@ -132,28 +118,22 @@ function user() {
 function txtid() {
   return new Promise((resolve) => {
     const options = {
-      url: `${host}qndxx/default.aspx`,
+      url: `http://home.yngqt.org.cn/qndxx/default.aspx`,
       headers: headers
     }
     $.log(`🧑‍💻 开始获取青年大学习数据`)
     $.get(options, (error, response, data) => {
-      try {
-        if (data) {
-          $.txtid = data.match(/study\((\d*)\)/)[1] * 1
-          $.title = data.match(/习”(\S*)<\/p><p class="p2">(\S*)<\/p>/)
-          $.log(`✅ 最新一期期数:${$.title[1]}(${$.txtid})`)
-          $.log(`✅ 最新一期名称:${$.title[2]}`)
-        } else if (error) {
-          $.txtid = `false`
-          $.log(`❌ 获取青年大学习时发生错误`)
-          $.log($.toStr(error))
-        }
-      } catch (e) {
-        $.log(`❌ 访问 default 接口时发生错误`)
-        $.logErr(e, response)
-      } finally {
-        resolve()
-      }
+     if (data) {
+       $.txtid = data.match(/study\((\d*)\)/)[1] * 1
+       $.title = data.match(/习”(\S*)<\/p><p class="p2">(\S*)<\/p>/)
+       $.log(`✅ 最新一期期数:${$.title[1]}(${$.txtid})`)
+       $.log(`✅ 最新一期名称:${$.title[2]}`)
+     } else {
+       $.txtid = $.toObj(`false`)
+       $.log(`❌ 获取青年大学习时发生错误`)
+       $.log($.toStr(error))
+     }
+     resolve()
     })
   })
 }
@@ -161,25 +141,20 @@ function txtid() {
 function study(id) {
   return new Promise((resolve) => {
     const options = {
-      url: `${host}qndxx/xuexi.ashx`,
+      url: `http://home.yngqt.org.cn/qndxx/xuexi.ashx`,
       headers: headers,
       body: `{"txtid": ${id * 1}}`
     }
     $.log(`🧑‍💻 开始学习第${id}期青年大学习`)
     $.post(options, (error, response, data) => {
-      try {
-        if (data) {
-          $.log(`✅ ${$.toObj(data).message}`)
-        } else if (error) {
-          $.log(`❌ 学习第${id}期青年大学习时发生错误`)
-          $.log($.toStr(error))
-        }
-      } catch (e) {
-        $.log(`❌ 访问 xuexi 接口时发生错误`)
-        $.logErr(e, response)
-      } finally {
-        resolve()
-      }
+     if (data) {
+       result = $.toObj(data).message
+       $.log(`✅ ${result}`)
+     } else {
+       $.log(`❌ 学习第${id}期青年大学习时发生错误`)
+       $.log($.toStr(error))
+     }
+     resolve()
     })
   })
 }
@@ -215,4 +190,3 @@ function Env(name) {
   done = (value = {}) => {$done(value)}
   return { name, read, write, notice, get, post, toObj, toStr, log, done }
 }
-

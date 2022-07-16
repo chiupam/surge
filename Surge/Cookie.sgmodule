@@ -3,10 +3,6 @@
 #!system=ios
 
 [Script]
-# 网易云音乐获取Cookie
-# https://music.163.com/m/login
-# https://music.163.com/#/user/level
-网易云音乐获取Cookie = type=http-request, pattern=^https?://music\.163\.com/weapi/user/level, requires-body=0, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/neteasemusic/neteasemusic.cookie.js, script-update-interval=0, timeout=15
 
 [MITM]
-hostname = %APPEDN% music.163.com
+hostname = %APPEDN% 

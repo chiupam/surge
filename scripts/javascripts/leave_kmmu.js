@@ -40,7 +40,7 @@ const LeaveNumNo = ((LeaveEndTime - LeaveBeginTime) / 24 + interval - 1).toFixed
 const ID = "452" + Time.getDate().toString().padStart(2, "0")
 
 var Body = $.toObj($response.body)
-if ($.read("isLeave") != "false") {
+if ($.toObj($.read("isLeave"))) {
   if ($request.url.indexOf("_Edit") == -1) {
     Body.IsLeave = 1
     if (Body.AllLeaveManages.length > 0) {

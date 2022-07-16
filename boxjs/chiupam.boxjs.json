@@ -194,11 +194,25 @@
       ],
       "settings": [
         {
+          "id": "kmust_username",
+          "name": "手机号",
+          "val": "",
+          "type": "text",
+          "desc": "用以登录我在校园(建议填写)"
+        },
+        {
+          "id": "kmust_password",
+          "name": "密码",
+          "val": "",
+          "type": "text",
+          "desc": "用以登录我在校园(建议填写)"
+        },
+        {
           "id": "kmust_JWSESSION",
           "name": "JWSESSION",
           "val": "",
           "type": "text",
-          "desc": "用以登录我在校园"
+          "desc": "用以登录我在校园(不建议填写)"
         },
         {
           "id": "kmust_inSchool",
