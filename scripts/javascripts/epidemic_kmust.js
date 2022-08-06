@@ -1,7 +1,6 @@
 /**
  * 
- * 使用方法：打开我在校园，点击日检日报即可，但是由于请求体包含哈希算法加密，需要使用脚本请联系脚本作者。
- * 联系地址：https://t.me/chiupam
+ * 使用方法：打开我在校园，点击日检日报即可。
  * 
  * Surge's Moudule: https://raw.githubusercontent.com/chiupam/surge/main/Surge/KMUST.sgmodule
  * BoxJs: https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
@@ -28,9 +27,11 @@
  */
 
 
-const $ = new Env('🌼 昆明理工大学 🌼')
+const $ = new Env('🌼 我在校园 🌼')
 const inSchool = $.toObj($.read("kmust_inSchool"))
-const checkin_address = $.read("kmust_address") || "云南省昆明市呈贡区致远路与郎溪街交叉口"
+const address = $.read("kmust_address") || "云南省昆明市呈贡区致远路与郎溪街交叉口"
+const username = $.read(`kmust_username`)
+const passwd = $.read(`kmust_password`)
 const nowHours = new Date().getHours()
 const illustrate = `微信 => 小程序 => 我在校园 => 日检日报`
 
@@ -38,7 +39,7 @@ typeof $request !== `undefined` ? start() : main()
 
 function start() {
   const Method = $request.method
-  if ((Method == "POST" || Method == "GET") && (!$.read(`kmust_username`) && !$.read(`kmust_password`))) {
+  if ((Method == "POST" || Method == "GET") && (!username && !passwd)) {
     if ($request.headers) {
       if (!JWSESSION) {
         $.write($request.headers.JWSESSION, "kmust_JWSESSION")
@@ -55,33 +56,31 @@ function start() {
 }
 
 async function main() {
-  if ($.read(`kmust_username`) && $.read(`kmust_password`)) {
-    await login($.read(`kmust_username`), $.read(`kmust_password`))
-  } else {
-    $.JWSESSION = $.read(`kmust_JWSESSION`)
-  }
+  username && passwd ? $.JWSESSION = await login() : $.JWSESSION = $.read(`kmust_JWSESSION`)
   if ($.JWSESSION != -10) {
     await index()
-    if (inSchool && $.list != -10) {
-      // state 0: 未开启 1: 开启中 2: 已结束
-      // type 0: 未打卡 1: 已打卡
-      if ($.list.state == 0) {
-        $.log(`⭕ ${period().t}打卡未开启`)
-      } else if ($.list.state == 1 && $.list.type == 1) {
-        $.log(`⭕ ${period().t}已经打卡`)
-      } else if ($.list.state == 2) {
-        $.log(`⭕ ${period().t}打卡已经结束`)
+    if ($.list != -10) {
+      if (inSchool) {
+        // state 0: 未开启 1: 开启中 2: 已结束
+        // type 0: 未打卡 1: 已打卡
+        if ($.list.state == 0) {
+          $.log(`⭕ ${period().t}打卡未开启`)
+        } else if ($.list.state == 1 && $.list.type == 1) {
+          $.log(`⭕ ${period().t}已经打卡`)
+        } else if ($.list.state == 2) {
+          $.log(`⭕ ${period().t}打卡已经结束`)
+        } else {
+          await reverse(await geocoding())
+          if ($.body) await checkin()
+        }
       } else {
-        await geocoding()
-        if ($.body) await checkin()
-      }
-    } else if (!inSchool && $.list != -10) {
-      // country 有该键的存在则为打卡成功
-      if ($.list.country) {
-        $.log(`⭕ 今日健康已经打卡`)
-      } else {
-        await geocoding()
-        if ($.body) await checkin()
+        // country 有该键的存在则为打卡成功
+        if ($.list.country) {
+          $.log(`⭕ 今日${period().t}已经完成`)
+        } else {
+          await reverse(await geocoding())
+          if ($.body) await checkin()
+        }
       }
     } else {
       $.log(`❌ 我在校园JWSESSION已过期`)
@@ -94,65 +93,41 @@ async function main() {
 }
 
 function period() {
-  if (nowHours < 10) {
-    i = 0, t = `晨检`
-  } else if (nowHours < 15) {
-    i = 1, t = `午检`
+  if (inSchool) {
+    if (nowHours < 10) {
+      i = 0, t = `晨检`
+    } else if (nowHours < 15) {
+      i = 1, t = `午检`
+    } else {
+      i = 2, t = `晚检`
+    }
   } else {
-    i = 2, t = `晚检`
+    i = 0, t = `健康打卡`
   }
   return {i, t}
 }
 
-function login(_username, _password) {
+function login() {
+  cookie = -10
   return new Promise(resolve => {
     const options = {
-      url: `https://gw.wozaixiaoyuan.com/basicinfo/mobile/login/username?username=${_username}&password=${_password}`,
-      headers: {"Content-Type": "application/x-www-form-urlencoded"}
+      url: `https://gw.wozaixiaoyuan.com/basicinfo/mobile/login/username?username=${username}&password=${passwd}`,
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: ``
     }
     $.post(options, (error, response, data) => {
       if (data) {
         if ($.toObj(data).code == 0) {
-          $.JWSESSION = response.headers.JWSESSION
-          $.write($.JWSESSION, `kmust_JWSESSION`)
+          cookie = response.headers.JWSESSION
+          $.write(cookie, `kmust_JWSESSION`)
         } else {
           $.log(`❌ 获取 JWSESSION 失败`)
-          $.JWSESSION = -10
         }
       } else {
         $.log(`❌ 获取 JWSESSION 失败`)
         $.log(error)
-        $.JWSESSION = -10
       }
-      resolve()
-    })
-  })
-}
-
-function geocoding() {
-  inSchool ? _task = period().t : _task = `健康`
-  return new Promise(resolve => {
-    const options = {
-      url: `${$.read("serverless_api")}KMUST`, 
-      body: `address=${checkin_address}`
-    }
-    $.log(`${inSchool ? "🏫" : "🏠"} ${checkin_address}`)
-    $.log(`🧑‍💻 正在通过地址转换出打卡封包`)
-    $.post(options, (error, response, data) => {
-      if (data) {
-        data = $.toObj(data)
-        if (data.latitude == 0) {
-          $.notice($.name, `❌ ${_task}打卡失败 ❌`, `📡 无法获取正确的打卡封包`)
-          $.log(`❌ 无法获取正确的打卡封包`)
-        } else {
-          $.log(`✅ 获取打卡封包成功`)
-          $.body = data.data
-        }
-      } else {
-        $.log(`❌ 获取打卡封包时 API 请求失败`)
-        $.log(error)
-      }
-      resolve()
+      resolve(cookie)
     })
   })
 }
@@ -165,7 +140,7 @@ function index() {
       url: `https://student.wozaixiaoyuan.com/${_url}.json`, 
       headers: {"JWSESSION": $.JWSESSION}
     }
-    $.log(`🧑‍💻 获取当天${_task}情况`)
+    $.log(`🧑‍💻 正在获取当天${_task}情况`)
     $.post(options, (error, response , data) => {
       if (data) {
         if ($.toObj(data).code != -10) {
@@ -183,27 +158,102 @@ function index() {
   })
 }
 
+function geocoding() {
+  return new Promise(resolve => {
+    const options = {
+      url: `https://apis.map.qq.com/ws/geocoder/v1/`,
+      body: `address=${address}&key=WOPBZ-NLJCX-NST4X-ZJHV3-7TUWH-2SBSU`
+    }
+    $.log(`${inSchool ? "🏫" : "🏠"} ${address}`)
+    $.post(options, (error, response, data) => {
+      try {
+        if (data) {
+          data = $.toObj(data)
+          location = data.result.location
+          location = `${location.lat},${location.lng}`
+          $.log(`📍 ${location}`)
+        } else {
+          $.log(`❌ 无法通过地址转换出经纬度`)
+          $.log($.toStr(error))
+        }
+      } catch (e) {
+        $.body = 0
+        $.log(`❌ 地址转换出经纬度时, API请求可能出现问题`)
+        $.log(e)
+      } finally {
+        resolve(location)
+      }
+    })
+  })
+}
+
+function reverse(position) {
+  return new Promise(resolve => {
+    const options = {
+      url: `https://apis.map.qq.com/ws/geocoder/v1/`,
+      body: `location=${position}&key=WOPBZ-NLJCX-NST4X-ZJHV3-7TUWH-2SBSU`
+    }
+    $.log(`🧑‍💻 正在通过经纬度转换出地址`)
+    $.post(options, (error, response, data) => {
+      try {
+        if (data) {
+          $.body = ``
+          $.log(`✅ 通过经纬度转换出地址成功`)
+          data = $.toObj(data)
+          data = {
+            "answers":'["0"]',
+            "latitude": data.result.location.lat,
+            "longitude": data.result.location.lng,
+            "country": data.result.address_component.nation,
+            "province": data.result.address_component.province,
+            "city": data.result.address_component.city,
+            "district": data.result.address_component.district,
+            "street": data.result.address_component.street,
+            "township": data.result.address_reference.town.title,
+            "towncode": data.result.address_reference.town.id,
+            "citycode": data.result.ad_info.city_code,
+            "areacode": data.result.ad_info.adcode,
+            "timestampHeader": new Date().getTime(),
+            // signatureHeader 参数不需要传入
+          }
+          for (let key in data) $.body += `${key}=${data[key]}&`
+        } else {
+          $.body = 0
+          $.log(`❌ 无法通过经纬度转换出地址`)
+          $.log($.toStr(error))
+        }
+      } catch (e) {
+        $.body = 0
+        $.log(`❌ 经纬度转换出地址时, API请求可能出现问题`)
+        $.log(e)
+      } finally {
+        resolve()
+      }
+      resolve()
+    })
+  })
+}
+
 function checkin() {
-  inSchool ? _quan = `answers=["0"]&seq=${$.list.seq}&temperature=36.0&userId=&myArea=&` : _quan = `answers=["0"]&`
   inSchool ? _url = `heat` : _url = `health`
-  inSchool ? _task = period().t : _task = `健康`
+  inSchool ? _body = `seq=${$.list.seq}&temperature=36.${Math.floor(Math.random() * 5)}&userId=&myArea=` : _body = ``
   return new Promise(resolve => {
     const options = {
       url: `https://student.wozaixiaoyuan.com/${_url}/save.json`, 
       headers: {"JWSESSION": $.JWSESSION}, 
-      body: encodeURI(_quan + $.body)
+      body: encodeURI($.body.substr(0, $.body.length - 1) + _body)
     }
-    $.log(`🧑‍💻 信息完成组装, 开始${_task}打卡`)
+    $.log(`🧑‍💻 信息完成组装, 开始${period().t}`)
     $.post(options, (error, response, data) => {
       if (data) {
         data = $.toObj(data)
         if (data.code == 0) {
-          $.log(`✅ ${_task}打卡成功`)
-          // $.notice($.name, `✅ ${_task}打卡成功 ✅`, ``)
+          $.log(`✅ ${period().t}成功`)
+          // $.notice($.name, `✅ ${period().t}成功 ✅`, ``)
         } else {
-          $.log(`❌ ${_task}打卡失败`)
+          $.log(`❌ ${period().t}失败`)
           $.log($.toStr(data))
-          $.notice($.name, `❌ ${_task}打卡失败 ❌`, `📡 ${data.message}`)
+          $.notice($.name, `❌ ${period().t}失败 ❌`, `📡 ${data.message}`)
         }
       } else {
         $.log(`❌ 签到时 API 请求失败`)
