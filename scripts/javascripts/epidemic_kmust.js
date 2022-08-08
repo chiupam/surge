@@ -41,10 +41,10 @@ function start() {
   const Method = $request.method
   if ((Method == "POST" || Method == "GET") && (!username && !passwd)) {
     if ($request.headers) {
-      if (!JWSESSION) {
+      if (!$.read(`kmust_JWSESSION`)) {
         $.write($request.headers.JWSESSION, "kmust_JWSESSION")
         $.notice($.name, `✅`, `首次写入 JWSESSION 成功`)
-      } else if ($request.headers.JWSESSION != JWSESSION) {
+      } else if ($request.headers.JWSESSION != $.read(`kmust_JWSESSION`)) {
         $.write($request.headers.JWSESSION, "kmust_JWSESSION")
         $.notice($.name, `✅`, `更新 JWSESSION 成功`)
       }
@@ -56,40 +56,51 @@ function start() {
 }
 
 async function main() {
-  if (!username && !passwd && !JWSESSION) {
-    $.notice($.name, `❌ 赞无我在校园JWSESSION, 请先抓包❗`, illustrate)
-    $.log(`❌ 赞无我在校园JWSESSION`)
-  } else {
-    username && passwd ? $.JWSESSION = await login() : $.JWSESSION = $.read(`kmust_JWSESSION`)
-    if ($.JWSESSION != -10) {
-      list = await index()
-      if (inSchool) {
-        // state 0: 未开启 1: 开启中 2: 已结束
-        // type 0: 未打卡 1: 已打卡
-        if (list.state == 0) {
-          $.log(`⭕ ${period().t}未开启`)
-        } else if (list.state == 1 && list.type == 1) {
-          $.log(`⭕ ${period().t}已经完成`)
-        } else if (list.state == 2) {
-          $.log(`⭕ ${period().t}已经结束`)
+  try {
+    if (!username && !passwd && !$.read(`kmust_JWSESSION`)) {
+      $.notice($.name, `❌ 赞无我在校园JWSESSION, 请先抓包❗`, illustrate)
+      $.log(`❌ 赞无我在校园JWSESSION`)
+    } else {
+      username && passwd ? $.JWSESSION = await login() : $.JWSESSION = $.read(`kmust_JWSESSION`)
+      if ($.JWSESSION != -10) {
+        list = await index()
+        if (inSchool) {
+          // state 0: 未开启 1: 开启中 2: 已结束
+          // type 0: 未打卡 1: 已打卡
+          if (list.state == 0) {
+            $.log(`⭕ ${period().t}未开启`)
+          } else if (list.state == 1 && list.type == 1) {
+            $.log(`⭕ ${period().t}已经完成`)
+          } else if (list.state == 2) {
+            $.log(`⭕ ${period().t}已经结束`)
+          } else {
+            await geocoding()
+            if ($.body) await reverse()
+            if (!$.body) $.body = $.read(`kmust_body`)
+            await checkin()
+          }
         } else {
-          await reverse(await geocoding())
-          if ($.body) await checkin()
+          // country 有该键的存在则为打卡成功
+          if (list.country) {
+            $.log(`⭕ 今日${period().t}已经完成`)
+          } else {
+            await geocoding()
+            if ($.body) await reverse()
+            if (!$.body) $.body = $.read(`kmust_body`)
+            await checkin()
+          }
         }
       } else {
-        // country 有该键的存在则为打卡成功
-        if (list.country) {
-          $.log(`⭕ 今日${period().t}已经完成`)
-        } else {
-          await reverse(await geocoding())
-          if ($.body) await checkin()
-        }
+        $.notice($.name, `❌ 我在校园JWSESSION已过期, 请重新抓包❗`, illustrate)
+        $.log(`❌ 获取 JWSESSION 失败`)
       }
-    } else {
-      $.notice($.name, `❌ 我在校园JWSESSION已过期, 请重新抓包❗`, illustrate)
     }
+  } catch (e) {
+    $.notice($.name, `❌ 程序出错❗`, `具体情况请查看日志`)
+    $.log(e)
+  } finally {
+    $.done()
   }
-  $.done()
 }
 
 function period() {
@@ -117,15 +128,9 @@ function login() {
       body: ``
     }
     $.post(options, (error, response, data) => {
-      if (data) {
-        if ($.toObj(data).code == 0) {
-          cookie = response.headers.JWSESSION
-          $.write(cookie, `kmust_JWSESSION`)
-        } else {
-          $.log(`❌ 获取 JWSESSION 失败`)
-        }
-      } else {
-        $.log(`❌ 获取 JWSESSION 失败`)
+      if ($.toObj(data).code == 0) {
+        cookie = response.headers.JWSESSION
+        $.write(cookie, `kmust_JWSESSION`)
       }
       resolve(cookie)
     })
@@ -136,18 +141,16 @@ function index() {
   inSchool ? _url = `heat/getTodayHeatList` : _url = `health/getToday`
   return new Promise(resolve => {
     const options = {
-      url: `https://student.wozaixiaoyuan.com/${_url}.json`, 
+      url: `https://student.wozaixiaoyuan.com/${_url}.json`,
       headers: {"JWSESSION": $.JWSESSION}
     }
     $.log(`🧑‍💻 正在获取当天${period().t}情况`)
     $.post(options, (error, response , data) => {
-      if (data) {
-        $.log(`✅ 成功获取${period().t}任务`)
-        if (inSchool) {
-          list = $.toObj(data).data[period().i]
-        } else {
-          list = $.toObj(data).data
-        }
+      $.log(`✅ 成功获取${period().t}任务`)
+      if (inSchool) {
+        list = $.toObj(data).data[period().i]
+      } else {
+        list = $.toObj(data).data
       }
       resolve(list)
     })
@@ -155,7 +158,7 @@ function index() {
 }
 
 function geocoding() {
-  location = 0
+  $.body = 0
   return new Promise(resolve => {
     const options = {
       url: `https://apis.map.qq.com/ws/geocoder/v1/`,
@@ -167,85 +170,76 @@ function geocoding() {
         if (data) {
           data = $.toObj(data)
           location = data.result.location
-          location = `${location.lat},${location.lng}`
-          $.log(`📍 经纬度: ${location}`)
+          $.body = `${location.lat},${location.lng}`
+          $.log(`📍 经纬度: ${$.body}`)
         } else {
           $.log(`❌ 无法通过地址转换出经纬度`)
         }
-      } catch (e) {
-        $.body = 0
+      } catch {
         $.log(`❌ 地址转换出经纬度时, API请求可能出现问题`)
       } finally {
-        resolve(location)
+        resolve()
       }
     })
   })
 }
 
-function reverse(position) {
-  if (!position) {
+function reverse() {
+  return new Promise(resolve => {
+    const options = {
+      url: `https://apis.map.qq.com/ws/geocoder/v1/`,
+      body: `location=${$.body}&key=WOPBZ-NLJCX-NST4X-ZJHV3-7TUWH-2SBSU`
+    }
     $.body = 0
-    $.log(`❌ 无法通过经纬度转换出地址`)
-  } else {
-    return new Promise(resolve => {
-      const options = {
-        url: `https://apis.map.qq.com/ws/geocoder/v1/`,
-        body: `location=${position}&key=WOPBZ-NLJCX-NST4X-ZJHV3-7TUWH-2SBSU`
-      }
-      $.log(`🧑‍💻 正在通过经纬度转换出地址`)
-      $.post(options, (error, response, data) => {
-        try {
-          if (data) {
-            $.body = ``
-            $.log(`✅ 成功获取打卡封包`)
-            data = $.toObj(data)
-            data = {
-              "answers":'["0"]',
-              "latitude": data.result.location.lat,
-              "longitude": data.result.location.lng,
-              "country": data.result.address_component.nation,
-              "province": data.result.address_component.province,
-              "city": data.result.address_component.city,
-              "district": data.result.address_component.district,
-              "street": data.result.address_component.street,
-              "township": data.result.address_reference.town.title,
-              "towncode": data.result.address_reference.town.id,
-              "citycode": data.result.ad_info.city_code,
-              "areacode": data.result.ad_info.adcode,
-              "timestampHeader": new Date().getTime(),
-              // signatureHeader 参数不需要传入
-            }
-            for (let key in data) $.body += `${key}=${data[key]}&`
-          } else {
-            $.body = 0
-            $.log(`❌ 无法通过经纬度转换出地址`)
+    $.log(`🧑‍💻 正在通过经纬度转换出地址`)
+    $.post(options, (error, response, data) => {
+      try {
+        if (data) {
+          $.log(`✅ 成功获取打卡封包`)
+          data = $.toObj(data)
+          data = {
+            "answers":'["0"]',
+            "latitude": data.result.location.lat,
+            "longitude": data.result.location.lng,
+            "country": data.result.address_component.nation,
+            "province": data.result.address_component.province,
+            "city": data.result.address_component.city,
+            "district": data.result.address_component.district,
+            "street": data.result.address_component.street,
+            "township": data.result.address_reference.town.title,
+            "towncode": data.result.address_reference.town.id,
+            "citycode": data.result.ad_info.city_code,
+            "areacode": data.result.ad_info.adcode
           }
-        } catch (e) {
-          $.body = 0
-          $.log(`❌ 经纬度转换出地址时, API请求可能出现问题`)
-        } finally {
-          resolve()
+          $.body = ``
+          for (let key in data) $.body += `${key}=${data[key]}&`
+          $.write($.body, `kmust_body`)
+        } else {
+          $.log(`❌ 无法通过经纬度转换出地址`)
         }
+      } catch {
+        $.log(`❌ 经纬度转换出地址时, API请求可能出现问题`)
+      } finally {
         resolve()
-      })
+      }
     })
-  }
+  })
 }
 
 function checkin() {
   inSchool ? _url = `heat` : _url = `health`
   if (inSchool) {
-    _body = `&seq=${period().i + 1}` + 
+    _body = `seq=${period().i + 1}` +
             `&temperature=36.${Math.floor(Math.random() * 5)}` +
-            `&userId=&myArea=`
+            `&userId=&myArea=&`
   } else {
     _body = ``
   }
   return new Promise(resolve => {
     const options = {
-      url: `https://student.wozaixiaoyuan.com/${_url}/save.json`, 
-      headers: {"JWSESSION": $.JWSESSION}, 
-      body: encodeURI($.body.substr(0, $.body.length - 1) + _body)
+      url: `https://student.wozaixiaoyuan.com/${_url}/save.json`,
+      headers: {"JWSESSION": $.JWSESSION},
+      body: encodeURI(_body + $.body + `timestampHeader=${new Date().getTime()}`)
     }
     $.log(`🧑‍💻 信息完成组装, 开始${period().t}`)
     $.post(options, (error, response, data) => {
