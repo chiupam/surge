@@ -130,7 +130,7 @@ function speed() {
     $.log(`🧑‍💻 开始获取累计签到天数`)
     $.get(options, (error, response, data) => {
       if (data) {
-        let arr = [0,1,2,3,0,4,0,5,0,6,7,8,0,9,0,10,11,0,12,13,0,14,15,0,0,16]
+        let arr = [0,1,2,3,0,4,0,5,0,6,7,8,0,9,0,10,11,0,12,13,0,14,15,0,0,16,0,0,0,0,0]
         $.day_award = data.match(/<span id="my_count">(\d+)<\/span> 天/)[1] * 1
         $.log(`✅ 当前 ${date.getMonth() + 1} 月累计签到 ${$.day_award} 天`)
         if (arr[$.day_award] != 0) {
