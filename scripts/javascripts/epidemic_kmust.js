@@ -9,12 +9,12 @@
  * 
  * type: http-request
  * regex: ^https?://student\.wozaixiaoyuan\.com/heat/getTodayHeatList\.json
- * script-path: https://raw.githubusercontent.com/chiupam/surge/main/Surge/KMUST.js
+ * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js
  * requires-body: 1 | true
  * 
  * type: cron
  * cron: 1 0 7,12,22 * * *
- * script-path: https://raw.githubusercontent.com/chiupam/surge/main/Surge/KMUST.js
+ * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js
  * 
  * =============== Surge ===============
  * 昆工疫情SESSION = type=http-request, pattern=^https?://student\.wozaixiaoyuan\.com/heat/getTodayHeatList\.json, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js, script-update-interval=0, timeout=10
