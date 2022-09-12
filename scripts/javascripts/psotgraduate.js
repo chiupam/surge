@@ -1,6 +1,6 @@
 /**
  * 
- * 使用方法：打开 https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk/sfkyrxbd 登录即可。
+ * 使用方法：打开 https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login 登录即可。
  * 
  * Surge's Moudule: https://raw.githubusercontent.com/chiupam/surge/main/Surge/Psotgraduate.sgmodule
  * BoxJs: https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
@@ -22,47 +22,82 @@
  * 
  * =============== Loon ===============
  * http-request ^https?://kyyjswx\.kmmu\.edu\.cn/SmartGmis5_0/kmyk/sfkyrxbd$ script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/psotgraduate.js, requires-body=true, timeout=10, tag=疫情防控打卡GmisToken
- * cron "0 0 7,12,22 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/psotgraduate.js, tag=昆工疫情签到
+ * cron "0 0 7,12,22 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/psotgraduate.js, tag=疫情防控打卡(研究生) 
  * 
  */
 
 
 const $ = new Env('疫情防控打卡(研究生)')
+const address = $.read(`postgraduate_address`) || `云南省昆明市呈贡区癸西大道`
+const login = `https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login`
 
 typeof $request !== `undefined` ? start() : main()
 
 function start() {
   if ($request.headers) {
-    if (!$.read(`postgraduate_cookie`) || $.read(`postgraduate_gmistoken`)) {
-      $.write($request.headers.Cookie, `postgraduate_cookie`)
+    if ($.read(`postgraduate_gmistoken`)) {
       $.write($request.headers.GmisToken, `postgraduate_gmistoken`)
-    }
-    if ($request.headers.Cookie != $.read(`postgraduate_cookie`)) {
-      $.write($request.headers.Cookie, `postgraduate_cookie`)
-    }
-    if ($request.headers.GmisToken != $.read(`postgraduate_gmistoken`)) {
+      $.notice($.name, `✅ 首次使用 ✅`, `写入数据成功`, ``)
+    } else if ($request.headers.GmisToken != $.read(`postgraduate_gmistoken`)) {
       $.write($request.headers.GmisToken, `postgraduate_gmistoken`)
+      $.notice($.name, `✅ 更新成功 ✅`, ``, ``)
+    } else {
+      $.log(`无需写入或更新数据`)
     }
   }
   $.done()
 }
 
 async function main() {
-  await add()
+  if (!$.read(`postgraduate_gmistoken`)) {
+    $.notice($.name, `❌ 首次使用请先登录 ❌`, `点击通知栏前往登录页面`, login)
+  } else {
+    if (!$.read(`postgraduate_address`)) $.log(`⭕ 使用默认地址进行打卡`)
+    user = await index()
+    if (user) {
+      $.log(`✅ 当前帐号: ${user}`)
+      condition = await checkin()
+      if (condition) {
+        $.log(`✅ 今日疫情防控打卡成功`)
+      } else {
+        $.log(`❌ 今日疫情防控打卡失败`)
+        $.notice($.name, `❌ 打卡失败 ❌`, `点击通知栏手动打卡`, login)
+      }
+    } else {
+      $.log(`❌ 获取账号信息失败, 请重新登录`)
+      $.notice($.name, `❌ 请重新登录 ❌`, `点击通知栏前往登录页面`, login)
+    }
+  }
   $.done()
 }
 
-function add() {
+function index() {
+  username = 0
+  return new Promise(resolve => {
+    const options = {
+      url: `https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/xsjbxx/xh`,
+      headers: {"GmisToken": $.read(`postgraduate_gmistoken`)}
+    }
+    $.log(`🧑‍💻 开始获取研究生账号信息`)
+    $.get(options, (error, response, data) => {
+      if (data) {
+        data = $.toObj(data)
+        username = data.xm
+      }
+      resolve(username)
+    })
+  })
+}
+
+function checkin() {
+  state = 0
   return new Promise(resolve => {
     const options = {
       url: `https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/health_daily/add`,
-      headers: {
-        "GmisToken": $.read(`postgraduate_gmistoken`),
-        "Cookie": $.read(`postgraduate_cookie`)
-      },
+      headers: {"GmisToken": $.read(`postgraduate_gmistoken`)},
       body: {
         "temperature": "36.5",
-        "address": $.read(`postgraduate_address`),
+        "address": address,
         "addressRiskLevel": 2,  // 所在地风险等级 2 低风险 4 中风险 6 高风险
         "healthStatus": 2,  // 健康情况 2 低风险人群 4 中风险人群 6 高风险人群
         "healthRemark": "无", // 健康备注
@@ -73,26 +108,23 @@ function add() {
         "sfyzdycqk": "否"  // 是否问题4
       }
     }
-    $.log(`🧑‍💻 开始疫情防控打卡(研究生)`)
+    $.log(`🧑‍💻 开始疫情防控打卡`)
     $.post(options, (error, response, data) => {
       if (data) {
         try {
           data = $.toObj(data)
           if (data.zt == "1") {
-            $.log(`✅ 疫情防控打卡(研究生)成功`)
-            // $.notice($.name, `✅ ${period().t}成功 ✅`, ``)
+            state = 1
           } else {
-            $.log(`❌ 疫情防控打卡(研究生)失败`)
             $.log($.toStr(data))
           }
         } catch {
-          $.log(`❌ 疫情防控打卡(研究生)失败`)
           $.log($.toStr(error))
         }
       } else {
         $.log(`❌ 签到时 API 请求失败`)
       }
-      resolve()
+      resolve(state)
     })
   })
 }

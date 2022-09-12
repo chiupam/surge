@@ -238,6 +238,37 @@
       ]
     },
     {
+      "id": "postgraduate",
+      "name": "研究生打卡",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">打开 <a href='https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login'>https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login</a> 并登录</h4>"
+      ],
+      "settings": [
+        {
+          "id": "postgraduate_address",
+          "name": "打卡地址",
+          "val": "",
+          "type": "text",
+          "desc": "不填写则默认学校地址(建议假期更改为住址)"
+        },
+        {
+          "id": "postgraduate_gmistoken",
+          "name": "GmisToken",
+          "val": "",
+          "type": "text",
+          "desc": "用以登录打卡页面(程序自动获取)"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/psotgraduate.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png"
+      ]
+    },
+    {
       "id": "wskey",
       "name": "京东值",
       "key": [],
