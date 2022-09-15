@@ -16,4 +16,4 @@
 蚂蚁森林 = type=cron, cronexp="1 1 7 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/alipay.js, script-update-interval=0, timeout=5
 
 [MITM]
-hostname = %APPEDN% tieba.baidu.com, mwegame.qq.com
+hostname = %APPEDN% tieba.baidu.com, c.tieba.baidu.com, tiebac.baidu.com, mwegame.qq.com
