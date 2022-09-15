@@ -22,7 +22,7 @@ if (typeof $request !== 'undefined') start()
 async function start() {
   cookie = $request.headers.Cookie
   if (cookie.indexOf('BDUSS') != -1) {
-    $.write(cookie, `tieba_checkin_cookie`)
+    $.write(cookie, `tieba_signin_cookie`)
     $.log(cookie)
   }
   $.done()
