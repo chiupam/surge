@@ -35,15 +35,15 @@ typeof $request !== `undefined` ? start() : main()
 
 function start() {
   if ($request.headers) {
-    if ($.read(`postgraduate_gmistoken`)) {
+    if (!$.read(`postgraduate_gmistoken`)) {
       $.write($request.headers.GmisToken, `postgraduate_gmistoken`)
       $.notice($.name, `✅ 首次使用 ✅`, `写入数据成功`, ``)
     } else if ($request.headers.GmisToken != $.read(`postgraduate_gmistoken`)) {
       $.write($request.headers.GmisToken, `postgraduate_gmistoken`)
       $.notice($.name, `✅ 更新成功 ✅`, ``, ``)
-    } else {
-      $.log(`无需写入或更新数据`)
     }
+  } else {
+    $.notice($.name, `⭕ 无法读取请求头 ⭕`, `请检查配置是否正确`)
   }
   $.done()
 }
