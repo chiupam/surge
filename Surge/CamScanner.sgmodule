@@ -1,0 +1,8 @@
+#!name=CamScanner SVIP
+#!desc=This is a Surge module for hacking CamScanner affiliates. CamScanner Version: 5.30.1.xxxxxx
+
+[MITM]
+hostname = %APPEND% ap*.intsig.net
+
+[Script]
+全能扫描王 SVIP = type=http-response, pattern=^https:\/\/(api|api-cs)\.intsig\.net\/purchase\/cs\/query_property\?, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/CamScanner.js
