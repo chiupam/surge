@@ -21,6 +21,46 @@
           "desc": "开启则表示修改假条,默认开启,关闭则以下设置都不生效"
         },
         {
+          "id": "StudentName",
+          "name": "学生姓名",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的姓名"
+        },
+        {
+          "id": "StudentIdCard",
+          "name": "学生身份证号码",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的身份证号码"
+        },
+        {
+          "id": "NativePlace",
+          "name": "学生身份证籍贯",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的身份证籍贯，如云南省昆明市五华区"
+        },
+        {
+          "id": "CollegeName",
+          "name": "学生所属学院",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您的所在学院, 如第一临床学院"
+        },
+        {
+          "id": "StudentId",
+          "name": "学生学号",
+          "val": "",
+          "type": "text",
+          "placeholder": "(点击以展开说明)",
+          "desc": "您学生卡上的学号"
+        },
+        {
           "id": "LeaveType",
           "name": "请假类型",
           "val": "",
@@ -51,14 +91,6 @@
           "type": "text",
           "placeholder": "(点击以展开说明)",
           "desc": "您请假外出的地点"
-        },
-        {
-          "id": "StudentName",
-          "name": "学生姓名",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的姓名"
         },
         {
           "id": "StudentTel",
