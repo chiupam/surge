@@ -100,7 +100,7 @@ function All() {
 
 function One() {
   Note = All()
-	Note.GoOutConfirmName = "是"
+  Note.GoOutConfirmName = "是"
   Note.LeaveThing = $.read("LeaveThing") || "家中急事"
   Note.OutName = $.read("StudentName") || ""
   Note.OutMoveTel = $.read("StudentTel") || ""
