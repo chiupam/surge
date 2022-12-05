@@ -11,7 +11,7 @@
  */
 
 
- Date.prototype.format = function(format) {
+Date.prototype.format = function(format) {
   var o = {
     "M+": this.getMonth() + 1, //month
     "d+": this.getDate(), //day
@@ -41,44 +41,44 @@ const ID = "452" + Time.getDate().toString().padStart(2, "0")
 
 var Body = $.toObj($response.body)
 if ($request.url.indexOf("Student/GetStu") != -1) {
-	if ($request.url.indexOf("GetStuHomePage") != -1) {
-		Body.UserInfo.Name = $.read("StudentName") || ""
-		Body.UserInfo.UserId = $.read("StudentId") || "2022010001"
-		Body.UserInfo.Photo = ""
-	} else if ($request.url.indexOf("GetStuPersonInfo") != -1) {
-		Body.Name = $.read("StudentName") || ""
-		Body.CollegeName = $.read("CollegeName") || "第一临床学院"
-		Body.StudentId = $.read("StudentId") || "2022010001"
-		Body.Nation = "汉"
-		Body.NativePlace = $.read("NativePlace") || "云南省昆明市盘龙区"
-		Body.Polity = "共青团员"
-		Body.IdCard = $.read("StudentIdCard") || ""
-		Body.MoveTel = $.read("StudentTel") || ""
-		Body.Photo = ""
-	}
+  if ($request.url.indexOf("GetStuHomePage") != -1) {
+    Body.UserInfo.Name = $.read("StudentName") || ""
+    Body.UserInfo.UserId = $.read("StudentId") || "2022010001"
+    Body.UserInfo.Photo = ""
+  } else if ($request.url.indexOf("GetStuPersonInfo") != -1) {
+    Body.Name = $.read("StudentName") || ""
+    Body.CollegeName = $.read("CollegeName") || "第一临床学院"
+    Body.StudentId = $.read("StudentId") || "2022010001"
+    Body.Nation = "汉"
+    Body.NativePlace = $.read("NativePlace") || "云南省昆明市盘龙区"
+    Body.Polity = "共青团员"
+    Body.IdCard = $.read("StudentIdCard") || ""
+    Body.MoveTel = $.read("StudentTel") || ""
+    Body.Photo = ""
+  }
 } else {
-	if ($.read("isLeave") != "false") {
-		if ($request.url.indexOf("_Edit") == -1) {
-			Body.IsLeave = 1
-			if (Body.AllLeaveManages.length > 0) {
-				if (Body.AllLeaveManages[0].Status == "假期中") {
-					LeaveManages = Body.AllLeaveManages[0]
-					LeaveManages.LeaveEndTime = LeaveEndTime
-					LeaveNumNoCache = (LeaveEndTime - LeaveManages.LeaveBeginTime * 1) / 24
-					LeaveManages.LeaveNumNo = (LeaveNumNoCache + interval - 1).toFixed(2)
-				} else {
-					Body.AllLeaveManages.unshift(All())
-				}
-			} else {
-				Body.AllLeaveManages.push(All())
-			}
-		} else if ($request.url.indexOf("_Edit") != -1 && Body.OverStatus == "1") {
-			Body.LeaveEndTime = LeaveEndTime
-			Body.BackTime = LeaveEndTime
-		} else if ($request.url.indexOf(ID) != -1) {
-			Body = One()
-		}
-	}
+  if ($.read("isLeave") != "false") {
+    if ($request.url.indexOf("_Edit") == -1) {
+      Body.IsLeave = 1
+      if (Body.AllLeaveManages.length > 0) {
+        if (Body.AllLeaveManages[0].Status == "假期中") {
+          LeaveManages = Body.AllLeaveManages[0]
+          LeaveManages.LeaveEndTime = LeaveEndTime
+          LeaveNumNoCache = (LeaveEndTime - LeaveManages.LeaveBeginTime * 1) / 24
+          LeaveManages.LeaveNumNo = (LeaveNumNoCache + interval - 1).toFixed(2)
+        } else {
+          Body.AllLeaveManages.unshift(All())
+        }
+      } else {
+        Body.AllLeaveManages.push(All())
+      }
+    } else if ($request.url.indexOf("_Edit") != -1 && Body.OverStatus == "1") {
+      Body.LeaveEndTime = LeaveEndTime
+      Body.BackTime = LeaveEndTime
+    } else if ($request.url.indexOf(ID) != -1) {
+      Body = One()
+    }
+  }
 }
 $.done({body: $.toStr(Body)})
 
