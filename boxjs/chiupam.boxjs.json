@@ -6,298 +6,79 @@
   "repo": "https://github.com/chiupam/surge",
   "apps": [
     {
-      "id": "Leave",
-      "name": "学工假条",
-      "keys": [],
-      "descs_html": [
-        "<h4 align=\"center\">请按说明修改信息</a></h4>"
-      ],
-      "settings": [
-        {
-          "id": "isLeave",
-          "name": "请假总开关",
-          "val": true,
-          "type": "boolean",
-          "desc": "开启则表示修改假条,默认开启,关闭则以下设置都不生效"
-        },
-        {
-          "id": "StudentName",
-          "name": "学生姓名",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的姓名"
-        },
-        {
-          "id": "StudentIdCard",
-          "name": "学生身份证号码",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的身份证号码"
-        },
-        {
-          "id": "NativePlace",
-          "name": "学生身份证籍贯",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的身份证籍贯，如云南省昆明市五华区"
-        },
-        {
-          "id": "CollegeName",
-          "name": "学生所属学院",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的所在学院, 如第一临床学院"
-        },
-        {
-          "id": "StudentId",
-          "name": "学生学号",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您学生卡上的学号"
-        },
-        {
-          "id": "LeaveType",
-          "name": "请假类型",
-          "val": "",
-          "type": "radios",
-          "items": [
-            {
-              "key": "事假（含家人生病）",
-              "label": "事假（含家人生病）"
-            },
-            {
-              "key": "返家",
-              "label": "返家"
-            }
-          ]
-        }, 
-        {
-          "id": "LeaveThing",
-          "name": "请假事由",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您请假的事由"
-        }, 
-        {
-          "id": "OutAddress",
-          "name": "外出地点",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您请假外出的地点"
-        },
-        {
-          "id": "StudentTel",
-          "name": "学生手机号码",
-          "val": "",
-          "type": "number",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您的手机号码"
-        },
-        {
-          "id": "ParentName",
-          "name": "家长姓名",
-          "val": "",
-          "type": "text",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您家长的姓名"
-        },
-        {
-          "id": "ParentTel",
-          "name": "家长手机号码",
-          "val": "",
-          "type": "number",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您家长的手机号码"
-        }, 
-        {
-          "id": "WithNumNo",
-          "name": "同行人数",
-          "val": "",
-          "type": "number",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您同行的人数,默认为0人"
-        }, 
-        {
-          "id": "interval",
-          "name": "离校天数",
-          "val": "",
-          "type": "number",
-          "placeholder": "(点击以展开说明)",
-          "desc": "您离校的天数,默认为1天,建议假期更改为假期天数"
-        },
-        {
-          "id": "Vehicle",
-          "name": "往返交通工具",
-          "val": "汽车",
-          "type": "radios",
-          "items": [
-            {
-              "key": "汽车",
-              "label": "汽车"
-            },
-            {
-              "key": "其他",
-              "label": "其他"
-            }
-          ]
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge/tree/main",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png"
-      ]
-    },
-    {
-      "id": "Location",
-      "name": "定位签到",
+      "id": "Procuratorate",
+      "name": "工作打卡",
       "key": [],
       "descs_html": [
-        "<h4 align=\"center\">打开 <a href='http://yibandw.kmmu.edu.cn'>http://yibandw.kmmu.edu.cn</a> 并登录</h4>"
+        "<h4 align=\"center\">打开工作打卡的小程序手动进行一次打卡.</a></h4>"
       ],
       "settings": [
         {
-          "id": "location",
-          "name": "签到数据包",
-          "val": "",
-          "type": "textarea",
-          "desc": ""
-        },
-        {
-          "id": "location_api_open",
-          "name": "快捷签到开关",
+          "id": "procuratorate_fast",
+          "name": "快速签到",
           "val": false,
           "type": "boolean",
-          "desc": "开启则表示使用快捷方式签到,关闭则以下设置不生效"
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.png",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Location.png"
-      ]
-    },
-    {
-      "id": "qndxx",
-      "name": "青年大学习",
-      "key": [],
-      "descs_html": [
-        "<h4 align=\"center\">微信 => 通讯录 => 公众号 => 云南共青团 => 大学习 => 注册团员登录学习</a></h4>"
-      ],
-      "settings": [
-        {
-          "id": "qndxx_study",
-          "name": "开启每周学习",
-          "val": true,
-          "type": "boolean",
-          "desc": "开启则表示进行每周学习,建议开启该选项"
+          "desc": "不管今天是否上班, 都进行打卡(默认关闭)"
         },
         {
-          "id": "qndxx_review",
-          "name": "开启复习模式",
-          "val": true,
-          "type": "boolean",
-          "desc": "开启则表示进行上期学习,建议开启该选项"
+          "id": "procuratorate_cookie",
+          "name": "签到cookie",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡验证信息"
+        },
+        {
+          "id": "procuratorate_body",
+          "name": "签到body",
+          "val": "",
+          "type": "textarea",
+          "desc": "上班打卡请求体"
         }
       ],
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge",
-      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/qndxx.js",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.png",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/qndxx.png"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Procuratorate.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/Procuratorate.png"
       ]
     },
     {
-      "id": "kmust",
-      "name": "昆工疫情",
+      "id": "zsfc",
+      "name": "掌上飞车",
       "keys": [],
       "descs_html": [
-        "<h4 align=\"center\">微信 => 小程序 => 我在校园 => 日检日报</a></h4>"
+        "<h4 align=\"center\">掌上飞车APP => 发现 => 每日签到 => 点击签到</a></h4>"
       ],
       "settings": [
         {
-          "id": "kmust_username",
-          "name": "手机号",
-          "val": "",
-          "type": "text",
-          "desc": "用以登录我在校园(建议填写)"
-        },
-        {
-          "id": "kmust_password",
-          "name": "密码",
-          "val": "",
-          "type": "text",
-          "desc": "用以登录我在校园(建议填写)"
-        },
-        {
-          "id": "kmust_JWSESSION",
-          "name": "JWSESSION",
-          "val": "",
-          "type": "text",
-          "desc": "用以登录我在校园(不建议填写)"
-        },
-        {
-          "id": "kmust_inSchool",
-          "name": "当前是否在学校",
-          "val": true,
-          "type": "boolean",
-          "desc": "开启则表示当前在学校,建议假期关闭该选项"
-        },
-        {
-          "id": "kmust_address",
+          "id": "zsfc_url",
           "name": "签到地址",
           "val": "",
-          "type": "text",
-          "desc": "需要签到的地址,不填写则默认是学校地址"
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge",
-      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/epidemic_kmust.js",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.png",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmust.png"
-      ]
-    },
-    {
-      "id": "postgraduate",
-      "name": "研究生打卡",
-      "keys": [],
-      "descs_html": [
-        "<h4 align=\"center\">打开 <a href='https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login'>https://kyyjswx.kmmu.edu.cn/SmartGmis5_0/kmyk_cas/login</a> 并登录</h4>"
-      ],
-      "settings": [
-        {
-          "id": "postgraduate_address",
-          "name": "打卡地址",
-          "val": "",
-          "type": "text",
-          "desc": "不填写则默认学校地址(建议假期更改为住址)"
+          "type": "textarea",
+          "desc": "每日签到的地址"
         },
         {
-          "id": "postgraduate_gmistoken",
-          "name": "GmisToken",
+          "id": "zsfc_query",
+          "name": "签到验证",
           "val": "",
-          "type": "text",
-          "desc": "用以登录打卡页面(程序自动获取)"
+          "type": "textarea",
+          "desc": "身份验证"
+        },
+        {
+          "id": "zsfc_headers",
+          "name": "签到请求头",
+          "val": "",
+          "type": "textarea",
+          "desc": "每日签到的请求头"
         }
       ],
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge",
-      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/psotgraduate.js",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js",
       "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/kmmu.png"
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"
       ]
     },
     {
@@ -344,41 +125,6 @@
           "val": "",
           "type": "text",
           "desc": "Telegram 的机器人 API"
-        },
-        {
-          "id": "BARK_PUSH",
-          "name": "BARK PUSH",
-          "val": "",
-          "type": "text",
-          "desc": "Bark 的用户 API"
-        },
-        {
-          "id": "PUSH_PLUS",
-          "name": "PUSH PLUS",
-          "val": "",
-          "type": "text",
-          "desc": "Pushplus 的用户 API"
-        },
-        {
-          "id": "serverless_api",
-          "name": "腾讯云接口",
-          "val": "",
-          "type": "text",
-          "desc": "腾讯云 API 接口地址"
-        },
-        {
-          "id": "vps_ip",
-          "name": "个人服务器接口地址加端口",
-          "val": "",
-          "type": "text",
-          "desc": ""
-        },
-        {
-          "id": "vps_password",
-          "name": "个人服务器验证密码",
-          "val": "",
-          "type": "text",
-          "desc": ""
         }
       ],
       "author": "@chiupam",

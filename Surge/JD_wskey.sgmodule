@@ -1,5 +1,5 @@
 #!name=Intercept JD's wskey
-#!desc=This is a Surge module used to intercept JD's wskey.
+#!desc=This is a Surge module used to intercept JD's wskey. JD Version: 10.3.6, ID: 167963
 
 [Script]
 # 使用方法：打开某东，然后点击右上角气泡（消息）按钮，等待数秒即可。

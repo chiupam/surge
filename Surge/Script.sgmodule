@@ -7,6 +7,7 @@ skip-proxy = %APPEND% iosapps.itunes.apple.com
 [Script]
 # BoxJs TF
 BoxJs(TF) = type=http-request, pattern=^https?://boxjs.net, requires-body=1, timeout=120, script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js, script-update-interval=0, timeout=60
+BoxJs(Backup) = type=cron, cronexp="0 1 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/dompling/Script/master/gist/backup.js, script-update-interval=0, timeout=60
 
 # TestFlight
 TF-Download = type=http-request, pattern=^https?:\/\/testflight\.apple\.com\/v\d\/accounts\/.+?\/install$, requires-body=1, script-update-interval=-1, max-size=0, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/TF_Download.js, script-update-interval=0, timeout=60

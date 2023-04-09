@@ -10,20 +10,20 @@
  * requests-body: 1
  * 
  * type: cron
- * cron: 0 5 0 * * *
+ * cron: 0 10 0 * * *
  * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js
  * 
  * =============== Surge ===============
  * 掌上飞车Cookie = type=http-request, pattern=^https://mwegame\.qq\.com/ams/sign/doSign/month, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=5
- * 掌上飞车 =type=cron, cronexp="0 5 0 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=5
+ * 掌上飞车 =type=cron, cronexp="0 10 0 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=5
  * 
  * =============== Loon ===============
  * http-request ^https://mwegame\.qq\.com/ams/sign/doSign/month script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, requires-body=true, timeout=10, tag=掌上飞车Cookie
- * cron "0 5 0 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie
+ * cron "0 10 0 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie
  * 
  * =============== Quan X ===============
  * ^https://mwegame\.qq\.com/ams/sign/doSign/month url scripts-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js
- * 0 5 0 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie, enabled=true
+ * 0 10 0 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie, enabled=true
  * 
 */
 
@@ -130,7 +130,7 @@ function speed() {
     $.log(`🧑‍💻 开始获取累计签到天数`)
     $.get(options, (error, response, data) => {
       if (data) {
-        let arr = [0,1,2,3,0,4,0,5,0,6,7,8,0,9,0,10,11,0,12,13,0,14,15,0,0,16,0,0,0,0,0]
+        let arr = [0,1,2,3,0,4,0,5,0,6,7,8,0,9,0,10,11,0,12,13,0,14,15,0,0,16,0,0,0,0,0,0]
         $.day_award = data.match(/<span id="my_count">(\d+)<\/span> 天/)[1] * 1
         $.log(`✅ 当前 ${date.getMonth() + 1} 月累计签到 ${$.day_award} 天`)
         if (arr[$.day_award] != 0) {

@@ -45,4 +45,4 @@ RULE-SET,https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/s
 知乎(移除推荐页顶部项) = type=http-request,requires-body=1,max-size=0,pattern=^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/feed-root\/sections\/query\/v2,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/zhihu/zhihu.js
 
 [MITM]
-hostname = %APPEND% www.zhihu.com,api.zhihu.com,zhuanlan.zhihu.com,appcloud2.zhihu.com,103.41.167.236,103.41.167.234,103.41.167.235,103.41.167.226hostname = %APPEND% www.zhihu.com, api.zhihu.com, zhuanlan.zhihu.com, appcloud2.zhihu.com
+hostname = %APPEND% www.zhihu.com,api.zhihu.com,zhuanlan.zhihu.com,appcloud2.zhihu.com,103.41.167.236,103.41.167.234,103.41.167.235,103.41.167.226

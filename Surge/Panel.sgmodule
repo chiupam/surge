@@ -2,11 +2,8 @@
 #!desc=This is a module that collects Surge panels.
 #!system=ios
 
-[Host]
-ip-api.com = 208.95.112.1
-
 [Panel]
-Network-info = script-name=网络信息, title="", content="", style=info, update-interval=1
+Network-info = script-name=网络信息, title="", content="", style=info, update-interval=60
 Restriction-check = script-name=流媒体解锁检测, title="", content="", update-interval=1800
 
 [Script]

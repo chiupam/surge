@@ -11,9 +11,9 @@
 百度贴吧 = type=cron, cronexp="0 0 0,12 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/tieba/tieba_signin.js, script-update-interval=0, timeout=60
 # 掌上飞车
 掌上飞车Cookie = type=http-request, pattern=^https?://mwegame\.qq\.com/ams/sign/doSign/month, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=15
-掌上飞车 =type=cron, cronexp="0 1 0 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=30
+掌上飞车 =type=cron, cronexp="0 10 0 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, script-update-interval=0, timeout=30
 # 蚂蚁森林
-蚂蚁森林 = type=cron, cronexp="1 21 8 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/alipay.js, script-update-interval=0, timeout=5
+蚂蚁森林 = type=cron, cronexp="1 5 9 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/alipay.js, script-update-interval=0, timeout=5
 
 [MITM]
 hostname = %APPEDN% tieba.baidu.com, c.tieba.baidu.com, tiebac.baidu.com, mwegame.qq.com
