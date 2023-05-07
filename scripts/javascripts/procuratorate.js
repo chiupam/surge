@@ -153,7 +153,7 @@ function checkTasks() {
 async function checkIn(_period) {
   let lng = Math.floor(Math.random() * 1000)
   let lat = Math.floor(Math.random() * 1000)
-  $.log(`📍 经纬度: ${lat}, ${lng}`)
+  $.log(`📍 经纬度: ${$.read(`procuratorate_lat`)}${lat}, ${$.read(`procuratorate_lng`)}${lng}`)
   await waitTime(_period)
   return new Promise(resolve => {
     const options = {
