@@ -11,6 +11,8 @@ URL-REGEX, ^https?:\/\/api\.bilibili\.com\/pgc\/season\/app\/related\/recommend\
 URL-REGEX, ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.comic\/flash, REJECT
 
 [URL Rewrite]
+# 去除搜索中的默认关键词
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.interface\.v1\.Search\/DefaultWords$ - reject
 # 去除搜索中的大家都在搜
 ^https?:\/\/api\.vc\.bilibili\.com\/search_svr\/v\d\/Search\/recommend_words - reject
 # 去除动态中的话题
@@ -23,14 +25,30 @@ URL-REGEX, ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.comic\/flash, RE
 ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Comic\/Flash - reject
 ^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Comic\/ListFlash - reject
 
+[Map Local]
+# 去除搜索中的大家都在搜
+^https?:\/\/api\.vc\.bilibili\.com\/search_svr\/v\d\/Search\/recommend_words data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+# 去除动态中的话题
+^https?:\/\/api\.vc\.bilibili\.com\/topic_svr\/v1\/topic_svr data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+# 去除动态中的最常访问
+^https?:\/\/api\.vc\.bilibili\.com\/dynamic_svr\/v1\/dynamic_svr\/mix_uplist data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+# 可能的一些推广(beta)
+^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/season\/app\/related\/recommend\? data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+# BiliBili漫画去广告
+^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Comic\/Flash data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Comic\/ListFlash data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+^https?:\/\/api\.live\.bilibili\.com\/xlive\/e-commerce-interface\/v1\/ecommerce-user\/get_shopping_info\? data="https://raw.githubusercontent.com/mieqq/mieqq/master/reject-dict.json"
+
 [Script]
-B站(推荐去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/feed\/index, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(追番去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.bilibili\.com\/pgc\/page\/bangumi, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(直播去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.live\.bilibili\.com\/xlive\/app-room\/v1\/index\/getInfoByRoom, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(动态去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/api\.vc\.bilibili\.com\/dynamic_svr\/v1\/dynamic_svr\/dynamic_(history|new)\?, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(开屏去广告) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/splash\/list, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(标签页处理) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/resource\/show\/tab, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
-B站(我的页面处理) = type=http-response, requires-body=1, max-size=0, pattern=^https?:\/\/app\.bilibili\.com\/x\/v2\/account\/mine, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/bilibili/bilibili_plus.js, script-update-interval=0, timeout=60
+# BiliBili去广告
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/api\.live\.bilibili\.com\/xlive\/app-room\/v1\/index\/getInfoByRoom, requires-body=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/page\/(bangumi|cinema\/tab\?), requires-body=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/(splash\/(brand\/list|event\/list2|list|show)|feed\/index(\/story)?|search\/square), requires-body=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.view\.v1\.View\/View$, requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.dynamic\.v2\.Dynamic\/Dyn(All|Video)$, requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playurl\.v1\.PlayURL\/PlayView$, requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+B站(推荐去广告)  = type=http-response, pattern=^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/SearchAll$, requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/BiliUniverse/ADBlock/main/js/BiliBili.ADBlock.response.js
+# 京东
 京东(开屏去广告) = type=http-response, requires-body=1, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/startup/startup.js, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=start
 # 微博下面的评论
 微博(下面的评论) = type=http-response, requires-body=1, max-size=0, pattern=^https://(api\.weibo\.cn|mapi\.weibo\.com)/2/comments/build_comments\?, script-path=https://raw.githubusercontent.com/yjqiang/surge_scripts/main/scripts/weibo/weibo_comment.js, script-update-interval=0, timeout=60
@@ -50,4 +68,4 @@ B站(我的页面处理) = type=http-response, requires-body=1, max-size=0, patt
 微博(开屏广告) = type=http-response, requires-body=1, max-size=0, pattern=^https://sdkapp\.uve\.weibo\.com/interface/sdk/sdkad\.php$, script-path=https://raw.githubusercontent.com/yjqiang/surge_scripts/main/scripts/weibo/weibo_sdkad.js, script-update-interval=0, timeout=60
 
 [MITM]
-hostname = %APPEND% app.bilibili.com, api.bilibili.com, api.live.bilibili.com, api.vc.bilibili.com, api.m.jd.com, 103.41.167.236, 103.41.167.234, 103.41.167.235, 103.41.167.226, api.weibo.cn, mapi.weibo.com, sdkapp.uve.weibo.com
+hostname = %APPEND% manga.bilibili.com, api.live.bilibili.com, api.vc.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net, api.m.jd.com, 103.41.167.236, 103.41.167.234, 103.41.167.235, 103.41.167.226, api.weibo.cn, mapi.weibo.com, sdkapp.uve.weibo.com
