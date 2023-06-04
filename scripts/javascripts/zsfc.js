@@ -185,7 +185,7 @@ async function dailyCheckin(giftId) {
           // Cookie 有效，签到成功
           result = true;
           $.log(`✅ ${body.send_result.sMsg}`);
-          $.message = body.send_result.sMsg;
+          $.message = body.send_result.sMsg.replace("：", ":");
         }
       } else {
         // 发生错误，签到失败
