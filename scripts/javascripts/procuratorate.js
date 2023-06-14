@@ -50,6 +50,8 @@ let isreq = typeof $request !== 'undefined';
     // 请求阶段，设置请求数据
     const requestBody = $.toObj($request.body);
     const { lng, lat } = requestBody.model;
+
+    // 将请求数据保存到文件
     const dataToWrite = {
       'procuratorate_body': requestBody,
       'procuratorate_UnitCode': requestBody.model.UnitCode,
@@ -65,26 +67,41 @@ let isreq = typeof $request !== 'undefined';
       'procuratorate_agent': $request.headers['user-agent']
     };
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
+
+    // 发送通知，显示写入数据成功
     $.notice($.name, '✅ 写入数据成功', '', '');
   } else {
     // 执行打卡操作阶段
     const storedRequestBody = $.read('procuratorate_body');
     if (storedRequestBody) {
+      // 检查当天是否为工作日
       let workday = await checkWorkdayStatus('main');
       if (workday === null) workday = await checkWorkdayStatus('');
-      if (!workday) {
+
+      // 如果当天不是工作日，取消打卡
+      if (!workday) { // 工作日时api接口返回否工作日的，删除左侧中的!后再次运行
+        // 获取当前是星期几，0代表周日，1代表周一，依此类推
+        if (new Date().getDay() >= 1 && new Date().getDay() <= 5) {
+          $.notice(`🧑‍💼 警告提醒`, `⭕ 今天确定是休息吗？`, ``, ``)
+        }
         $.log('⭕ 当天是休息日, 取消打卡');
         return;
       }
+
       $.log('✅ 当天是工作日, 进行打卡');
+
+      // 检查打卡类型是否符合条件
       const punchType = await checkPunchCardAvailability();
+
+      // 判断是否需要进行打卡
       if (!punchType) {
         $.log('⭕ 不符合打卡情况, 取消打卡');
-        return;
+      } else {
+        $.log(`✅ 成功获取${punchType}任务`);
+        await SaveAttCheckinout(punchType);
       }
-      $.log(`✅ 成功获取${punchType}任务`);
-      await SaveAttCheckinout(punchType);
     } else {
+      // 发送通知，要求用户手动打卡
       $.notice($.name, '⭕', '首次使用请手动打卡', '');
     }
   }
@@ -105,16 +122,16 @@ function isCurrentTimeInRange(currentTime, startTime, endTime) {
 
 /**
  * 检查当前时间的打卡状态
- * @returns {boolean|null} 打卡状态，可能的取值为：true（可以打卡）、false（不能打卡）、null（无法确定打卡状态）
+ * @returns {boolean|null} 打卡状态，可能的取值为：true（可以打卡）、false（不能打卡）
  */
-async function checkPunchCardAvailability() {
+async function checkPunchCardAvailability(status = false) {
   // 定义不同时间范围和对应的打卡状态
   const timeRanges = [
-    { start: '00:00:00', end: '08:29:59' }, // 凌晨时段
-    { start: '08:30:00', end: '09:00:59' }, // 打卡时段
-    { start: '09:01:00', end: '16:59:59' }, // 工作时段
-    { start: '17:00:00', end: '20:59:59' }, // 打卡时段
-    { start: '21:00:00', end: '23:59:59' } // 夜晚时段
+    { start: '00:00:00', end: '08:29:59', status: false }, // 凌晨时段
+    { start: '08:30:00', end: '09:00:59', status: '上班打卡' }, // 打卡时段
+    { start: '09:01:00', end: '16:59:59', status: false }, // 工作时段
+    { start: '17:00:00', end: '20:59:59', status: '下班打卡' }, // 打卡时段
+    { start: '21:00:00', end: '23:59:59', status: false } // 夜晚时段
   ];
 
   // 获取当前时间
@@ -123,20 +140,24 @@ async function checkPunchCardAvailability() {
   // 获取当前时间的时分秒，并确保格式为HH:mm:ss
   const currentTime = now.toTimeString().slice(0, 8);
 
-  // 预设返回值为 false
+  // 初始化打卡状态为 false
   let result = false;
 
   // 遍历时间范围，判断当前时间的打卡状态
   for (const range of timeRanges) {
     if (isCurrentTimeInRange(currentTime, range.start, range.end)) {
-      if (range.start === timeRanges[1].start && range.end === timeRanges[1].end) {
+      if (status === range.status) {
+        return range.status;
+      } else {
         const attCheckinoutList = await GetAttCheckinoutList();
-        if (attCheckinoutList === 0) result = `上班打卡`;
-      } else if (range.start === timeRanges[3].start && range.end === timeRanges[3].end) {
-        const attCheckinoutList = await GetAttCheckinoutList();
-        if (attCheckinoutList === 0 || attCheckinoutList === 1) result = `下班打卡`;
+        if (
+          (range.status === '上班打卡' && attCheckinoutList === 0) ||
+          (range.status === '下班打卡' && (attCheckinoutList === 0 || attCheckinoutList === 1))
+        ) {
+          result = range.status;
+        }
+        break; // 跳出循环
       }
-      break; // 跳出循环
     }
   }
 
@@ -239,6 +260,18 @@ async function GetAttCheckinoutList() {
  * @returns {Promise<void>} - Promise对象，在保存完成后解析
  */
 async function SaveAttCheckinout(punchType) {
+  const currentTimeString = new Date().toLocaleTimeString();
+
+  // 调用checkPunchCardAvailability函数检查打卡状态(二重保险以免打了 "迟到" 卡)
+  const punchCardAvailable = await checkPunchCardAvailability(punchType);
+
+  // 如果打卡状态为false，则退出运行
+  if (!punchCardAvailable) {
+    // 程序认为非打卡时段，拒绝进行打卡并发出警告内容
+    $.notice(`🧑‍💼 违规操作`, `⭕ 操作时间: ${currentTimeString}`, `💻 程序认为该打卡严重违规, 因此拒绝了打卡请求`, ``)
+    return;
+  }
+
   // 生成随机经度
   let lng = Math.floor(Math.random() * 1000);
 
@@ -296,7 +329,6 @@ async function SaveAttCheckinout(punchType) {
     setTimeout(() => {
       $.post(options, (error, response, data) => {
         if (data) {
-          let currentTimeString = new Date().toLocaleTimeString()
           data = $.toObj(data)
           if (data.success) {
             // 打卡成功，发送通知
