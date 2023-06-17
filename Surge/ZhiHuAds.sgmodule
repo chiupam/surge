@@ -3,30 +3,30 @@
 #!https://github.com/blackmatrix7/ios_rule_script/blob/master/script/zhihu/zhihu_plus.sgmodule
 
 [Rule]
-# 屏蔽知乎8.3.0版本首页顶部的视频角标
+# > 屏蔽知乎8.3.0版本首页顶部的视频角标
 URL-REGEX,^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/explore\/entry\/tips,REJECT-TINYGIF
-# 知乎广告拦截
+# > 知乎广告拦截
 RULE-SET,https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/zhihu/zhihu_remove_ads.list,REJECT-NO-DROP
 
 
 [URL Rewrite]
-# 屏蔽知乎“我的”页面推荐开通会员的卡片
+# > 屏蔽知乎“我的”页面推荐开通会员的卡片
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/people\/self\/new_user_card - reject
 
 [Map Local]
-# 屏蔽知乎下发的配置，如皮肤等
+# > 屏蔽知乎下发的配置，如皮肤等
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/ab\/api\/v1\/products\/zhihu\/platforms\/ios\/config data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json" header="Content-Type: application/x-protobuf"
-# 知乎去除Tab页关注人头像
+# > 知乎去除Tab页关注人头像
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/moments\/tab_v2 data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
-# 知乎去除最常访问
+# > 知乎去除最常访问
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/moments\/recent data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
-# 知乎其他广告拦截
+# > 知乎其他广告拦截
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/(notifications\/v\d\/count|v\d\/package|me\/guides|drama\/living-info|ad|fringe|commercial|market\/popovers|.*featured-comment-ad|ad-style-service) data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
-# 屏蔽消息页面上拉的用户精选
+# > 屏蔽消息页面上拉的用户精选
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/moments/hybrid\? data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
-# 新人必看之类的入口
+# > 新人必看之类的入口
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/flow\/show_entrance data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
-# 疑似通知角标
+# > 疑似通知角标
 ^https?:\/\/(api\.zhihu\.com|(103\.41\.167\.(226|234|235|236)))\/settings\/new\/notification data="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/blank/blank_dict.json"
 
 [Script]
