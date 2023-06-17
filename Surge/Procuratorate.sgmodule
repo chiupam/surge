@@ -4,9 +4,9 @@
 
 [Script]
 # 使用方法：打开工作打卡的小程序手动进行一次打卡即可。
-工作打卡Cookie = type=http-request, pattern=^https?://zhcj\.kmcgjcy\.cn/AttendanceCard/SaveAttCheckinout$, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=30
-工作打卡 = type=cron, cronexp="1 46,48 8 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=60
-工作打卡 = type=cron, cronexp="30 1 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=60
+工作打卡Cookie = type=http-request, pattern=^https?://zhcj\.kmcgjcy\.cn/AttendanceCard/SaveAttCheckinout$, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=10
+工作打卡 = type=cron, cronexp="1 48,50 8 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=90
+工作打卡 = type=cron, cronexp="30 1 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=90
 
 [MITM]
 hostname = %APPEND% zhcj.kmcgjcy.cn

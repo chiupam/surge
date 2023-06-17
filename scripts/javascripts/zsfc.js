@@ -19,28 +19,29 @@
  * 
  * =============== Loon ===============
  * http-request ^https://mwegame\.qq\.com/ams/sign/doSign/month script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, requires-body=true, timeout=10, tag=掌上飞车Cookie
- * cron "0 10 0 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie
+ * cron "0 10 0 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车
  * 
  * =============== Quan X ===============
  * ^https://mwegame\.qq\.com/ams/sign/doSign/month url scripts-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js
- * 0 10 0 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车Cookie, enabled=true
+ * 0 10 0 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车, enabled=true
  * 
 */
 
+/**
+ * 创建一个名为 $ 的环境变量实例，用于处理掌上飞车相关操作
+ */
 const $ = new Env(`🏎️ 掌上飞车`)
-const date = new Date()
-const illustrate = `掌上飞车APP => 发现 => 每日签到 => 点击签到`
 
 /**
  * 检查是否为请求阶段
  */
-const isReq = typeof $request !== 'undefined';
+const isreq = typeof $request !== 'undefined';
 
 /**
  * 主函数，用于执行打卡操作或设置请求数据
  */
 (async () => {
-  if (isReq) {
+  if (isreq) {
     // 请求阶段，设置请求数据
     if (!$request.url || !$request.headers) {
       // 无法读取请求头，显示配置错误通知
@@ -69,6 +70,7 @@ const isReq = typeof $request !== 'undefined';
     // 执行打卡操作阶段
     const url = $.read('zsfc_url');
     const query = $.read('zsfc_query');
+    const illustrate = `掌上飞车APP => 发现 => 每日签到 => 点击签到`;
 
     if (!url) {
       // Cookie 为空，显示获取Cookie错误通知
@@ -95,6 +97,9 @@ const isReq = typeof $request !== 'undefined';
 
     // 获取签到信息数组
     signInInfoArray = await getSignInInfo();
+    if (signInInfoArray.length) {
+      $.log(`🎉 共有 ${signInInfoArray.length} 个礼包待领取`)
+    }
 
     // 遍历签到信息数组，领取每日礼物
     for (let signInInfo of signInInfoArray) {
@@ -109,7 +114,6 @@ const isReq = typeof $request !== 'undefined';
 })()
   .catch((e) => $.notice($.name, '❌ 未知错误无法打卡', e, ''))
   .finally(() => $.done());
-
 
 /**
  * 匹配 URL 参数
@@ -127,7 +131,8 @@ function matchParam(url, key) {
  * @returns {Promise<string>} 返回连续签到的礼物 ID
  */
 async function getSuccessiveGiftId() {
-  let giftid; // 用于保存连续签到的礼物 ID
+  // 用于保存连续签到的礼物 ID
+  let giftid; 
 
   // 构造请求参数
   const options = {
@@ -153,7 +158,8 @@ async function getSuccessiveGiftId() {
  * @returns {Promise<boolean>} 返回签到结果，true 表示签到成功，false 表示签到失败
  */
 async function dailyCheckin(giftId) {
-  let result = false; // 初始化签到结果为 false
+  // 初始化签到结果为 false
+  let result = false; 
 
   // 构造请求参数
   const options = {
@@ -184,7 +190,7 @@ async function dailyCheckin(giftId) {
         } else {
           // Cookie 有效，签到成功
           result = true;
-          $.log(`✅ ${body.send_result.sMsg}`);
+          $.log(`✅ ${body.send_result.sMsg.replace("：", ":")}`);
           $.message = body.send_result.sMsg.replace("：", ":");
         }
       } else {
@@ -202,32 +208,44 @@ async function dailyCheckin(giftId) {
  * @returns {Promise<Array>} 一个返回包含签到礼物的数组的 Promise。
  */
 async function getSignInInfo() {
+  // 获取当前时间
+  const date = new Date();
+
+  // 设置请求参数
   const options = {
     url: `https://mwegame.qq.com/ams/sign/month/speed?${$.read(`zsfc_query`)}`,
     headers: $.toObj($.read(`zsfc_headers`))
   }
 
   // 输出日志，开始获取累计签到天数
-  $.log(`🧑‍💻 开始获取累计签到天数`)
+  $.log(`🧑‍💻 开始获取累计签到天数`);
 
-  let signInGifts = []; // 初始化 signInGifts 为空列表
+  // 初始化 signInGifts 为空列表
+  let signInGifts = []; 
 
   // 发送 GET 请求，获取签到信息
   return new Promise(resolve => {
     $.get(options, (err, resp, data) => {
       if (data) {
         // 定义一个数组，用于将累计签到天数映射到礼物编号
-        const giftIndexByDay = [0, 1, 2, 3, 0, 4, 0, 5, 0, 6, 7, 8, 0, 9, 0, 10, 11, 0, 12, 13, 0, 14, 15, 0, 0, 16, 0, 0, 0, 0, 0, 0];
+        const giftIndexByDay = [
+          0, // 占位，第一个元素不是第一天
+          1, 2, 3, 0, 4, 0, 5, 0, 6, 7, 
+          8, 0, 9, 0, 10, 11, 0, 12, 13, 0, 
+          14, 15, 0, 0, 16, 0, 0, 0, 0, 0, 0
+        ];
 
         // 使用正则表达式获取累计签到天数
         const totalSignInDays = Number(data.match(/<span id="my_count">(\d+)<\/span>/)?.[1]);
-        $.subtitle = `✅ 累计签到 ${totalSignInDays} 天`;
+        const missedDays = new Date().getDate() - totalSignInDays;
+        const missedDaysText = missedDays !== 0 ? `(漏签 ${missedDays} 天)` : ``;
+        $.subtitle = `✅ 累计签到 ${totalSignInDays} 天${missedDaysText}`;
         $.log($.subtitle);
 
         // 根据累计签到天数获取礼物编号，并将其添加到 signInGifts 中
         const giftIndex = giftIndexByDay[totalSignInDays];
         const giftCode = giftIndex ? data.match(/giftid="([^"]+)"/g)[giftIndex].match(/(\d+)/)[1] : null;
-        if (giftCode && giftIndex) signInGifts.push({ code: giftCode, title:  `第 ${giftIndexByDay.indexOf(giftIndex)} 天奖励` });
+        if (giftIndex && giftCode) signInGifts.push({ code: giftCode, title:  `第 ${giftIndexByDay.indexOf(giftIndex)} 天奖励` });
 
         // 获取当前日期的日数，并检查是否为每月的第 X 天，如果是则将礼物编号添加到 signInGifts 中
         const [matchMonthDay] = data.match(/月(\d+)日/g) || [];
@@ -255,6 +273,7 @@ async function getSignInInfo() {
  * @param {string} giftName 礼物名称
  */
 async function claimGift(giftId, giftName) {
+  // 设置请求参数
   const options = {
     url: `https://mwegame.qq.com/ams/send/handle`,
     headers: $.toObj($.read(`zsfc_headers`)),
@@ -264,6 +283,7 @@ async function claimGift(giftId, giftName) {
   // 输出日志，开始领取礼物
   $.log(`🧑‍💻 开始领取${giftName}`);
 
+  // 发送 POST 请求，领取礼物
   return new Promise(resolve => {
     $.post(options, (err, resp, data) => {
       if (data) {
@@ -287,34 +307,67 @@ async function claimGift(giftId, giftName) {
   })
 }
  
+/**
+ * 创建一个名为 Env 的构造函数，用于处理环境相关操作。
+ * @param {string} name - 环境名称
+ */
 function Env(name) {
-  LN = typeof $loon != `undefined`
-  SG = typeof $httpClient != `undefined` && !LN
-  QX = typeof $task != `undefined`
-  read = (key) => {
-    if (LN || SG) return $persistentStore.read(key)
-    if (QX) return $prefs.valueForKey(key)
-  }
-  write = (key, val) => {
-    if (LN || SG) return $persistentStore.write(key, val); 
-    if (QX) return $prefs.setValueForKey(key, val)
-  }
-  notice = (title, subtitle, message, url) => {
-    if (LN) $notification.post(title, subtitle, message, url)
-    if (SG) $notification.post(title, subtitle, message, { url: url })
-    if (QX) $notify(title, subtitle, message, { 'open-url': url })
-  }
-  get = (url, cb) => {
-    if (LN || SG) {$httpClient.get(url, cb)}
-    if (QX) {url.method = `GET`; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
-  }
-  post = (url, cb) => {
-    if (LN || SG) {$httpClient.post(url, cb)}
-    if (QX) {url.method = `POST`; $task.fetch(url).then((resp) => cb(null, {}, resp.body))}
-  }
-  toObj = (str) => JSON.parse(str)
-  toStr = (obj) => JSON.stringify(obj)
-  log = (message) => console.log(message)
-  done = (value = {}) => {$done(value)}
-  return { name, read, write, notice, get, post, toObj, toStr, log, done }
+  // 判断当前环境是否为 Loon
+  const isLoon = typeof $loon !== "undefined";
+  // 判断当前环境是否为 Surge
+  const isSurge = typeof $httpClient !== "undefined" && !isLoon;
+  // 判断当前环境是否为 QuantumultX
+  const isQX = typeof $task !== "undefined";
+
+  // 定义 read 方法，用于读取数据
+  const read = (key) => {
+    if (isLoon || isSurge) return $persistentStore.read(key);
+    if (isQX) return $prefs.valueForKey(key);
+  };
+
+  // 定义 write 方法，用于写入数据
+  const write = (key, value) => {
+    if (isLoon || isSurge) return $persistentStore.write(key, value);
+    if (isQX) return $prefs.setValueForKey(key, value);
+  };
+
+  // 定义 notice 方法，用于发送通知
+  const notice = (title, subtitle, message, url) => {
+    if (isLoon) $notification.post(title, subtitle, message, url);
+    if (isSurge) $notification.post(title, subtitle, message, { url });
+    if (isQX) $notify(title, subtitle, message, { "open-url": url });
+  };
+
+  // 定义 get 方法，用于发送 GET 请求
+  const get = (url, callback) => {
+    if (isLoon || isSurge) $httpClient.get(url, callback);
+    if (isQX) {url.method = `GET`; $task.fetch(url).then((resp) => callback(null, {}, resp.body))};
+  };
+
+  // 定义 post 方法，用于发送 POST 请求
+  const post = (url, callback) => {
+    if (isLoon || isSurge) $httpClient.post(url, callback);
+    if (isQX) {url.method = `POST`; $task.fetch(url).then((resp) => callback(null, {}, resp.body))};
+  };
+
+  // 定义 put 方法，用于发送 PUT 请求
+  const put = (url, callback) => {
+    if (isLoon || isSurge) $httpClient.put(url, callback)
+    if (isQX) {url.method = 'PUT'; $task.fetch(url).then((resp) => callback(null, {}, resp.body))};
+  };
+
+  // 定义 toObj 方法，用于将字符串转为对象
+  const toObj = (str) => JSON.parse(str);
+
+  // 定义 toStr 方法，用于将对象转为字符串
+  const toStr = (obj) => JSON.stringify(obj);
+
+  // 定义 log 方法，用于输出日志
+  const log = (message) => console.log(message);
+
+  // 定义 done 方法，用于结束任务
+  const done = (value = {}) => $done(value);
+
+  // 返回包含所有方法的对象
+  return { name, read, write, notice, get, post, put, toObj, toStr, log, done };
 }

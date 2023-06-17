@@ -1,4 +1,7 @@
+// 获取环境变量
 const $ = Env()
+
+// 设置请求体
 var Body = {
   "product_infos": [
     {
@@ -32,13 +35,23 @@ var Body = {
   },
   "request_id": 508438507580862691
 }
-$.done({body: $.toStr(Body)})
 
+// 返回请求结果
+$.done({ body: $.toStr(Body) })
+
+// 环境变量函数
 function Env() {
-  LN = typeof $loon != "undefined"
-  SG = typeof $httpClient != "undefined" && !LN
-  QX = typeof $task != "undefined"
+  // 判断运行环境
+  LN = typeof $loon != "undefined"; // Loon
+  SG = typeof $httpClient != "undefined" && !LN; // Surge
+  QX = typeof $task != "undefined"; // Quantumult X
+
+  // 定义toStr函数，将对象转换为字符串
   toStr = (obj) => JSON.stringify(obj)
-  done = (value = {}) => {$done(value)}
+
+  // 定义done函数，返回请求结果
+  done = (value = {}) => { $done(value) }
+
+  // 返回环境变量对象
   return { toStr, done }
 }

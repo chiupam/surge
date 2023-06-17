@@ -18,7 +18,7 @@
           "name": "快速签到",
           "val": false,
           "type": "boolean",
-          "desc": "不管今天是否上班, 都进行打卡(默认关闭)"
+          "desc": "跳过节假日检测环节(默认关闭)"
         },
         {
           "id": "procuratorate_cookie",
@@ -79,59 +79,6 @@
       "icons": [
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"
-      ]
-    },
-    {
-      "id": "wskey",
-      "name": "京东值",
-      "key": [],
-      "descs_html": [
-        "<h4 align=\"center\">打开京东, 点击右上角消息</a></h4>"
-      ],
-      "settings": [
-        {
-          "id": "jd_wskey",
-          "name": "抓取到 wskey 的具体值",
-          "val": "pin=xxxxxx;wskey=xxxxxx;",
-          "type": "textarea",
-          "desc": "复制它吧"
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/jd.jpeg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/jd.jpeg"
-      ]
-    },
-    {
-      "id": "MySetting",
-      "name": "通用设置",
-      "key": [],
-      "descs_html": [
-        "<h4 align=\"center\">各个脚本的共同设置</a></h4>"
-      ],
-      "settings": [
-        {
-          "id": "TG_USER_ID",
-          "name": "TG USER ID",
-          "val": "",
-          "type": "text",
-          "desc": "Telegram 的用户 ID"
-        },
-        {
-          "id": "TG_BOT_TOKEN",
-          "name": "TG BOT TOKEN",
-          "val": "",
-          "type": "text",
-          "desc": "Telegram 的机器人 API"
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/setting.jpg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/setting.jpg"
       ]
     }
   ]

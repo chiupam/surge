@@ -1,0 +1,17 @@
+#!name=YouTube Ads
+#!desc=YouTube Version: 18.22.9; Date: 2023-06-16; Verification: False
+
+# > Credit
+# @Choler & @DivineEngine & @app2smile
+# > Github
+# https://github.com/Maasea/sgmodule/tree/master
+
+[Script]
+YouTube Ads = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|reel\/reel_watch_sequence)\?,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/Maasea/sgmodule/master/Script/Youtube/dist/youtube.request.beta.js
+YouTube Ads = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting)\?,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/Maasea/sgmodule/master/Script/Youtube/dist/youtube.response.beta.js
+
+[Map Local]
+^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&oad data="https://raw.githubusercontent.com/Maasea/sgmodule/master/Script/Youtube/dist/blank.txt" header="Content-Type: application/vnd.yt-ump"
+
+[MITM]
+hostname = %APPEND% *.googlevideo.com, youtubei.googleapis.com

@@ -1,34 +1,43 @@
 /**
- * 
- * 脚本说明：提醒支付宝蚂蚁森林收取绿色能量。
- * 建议搭配小米修改步数脚本使用。
- * 
- * type: cron
- * cronexp: 1 1 7 * * *
- * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/alipay.js
- * timeout: 5
- * 
+ * 蚂蚁森林能量通知用户收取脚本
  */
 
-const $ = new Env()
+// 创建Env对象
+const $ = new Env(`🌲 蚂蚁森林收能量`);
 
+// 发送通知
 $.notice(
-  "🌲 蚂蚁森林 🌲", 
-  "", 
-  "点击立马收取296g能量！",
-  "alipay://platformapi/startapp?appId=60000002"
-)
-$.done()
+  $.name, // 标题
+  "", // 副标题
+  "点击立马收取296g能量！", // 消息内容
+  "alipay://platformapi/startapp?appId=60000002" // 跳转链接
+);
 
-function Env() {
-  LN = typeof $loon != "undefined"
-  SG = typeof $httpClient != "undefined" && !LN
-  QX = typeof $task != "undefined"
+// 完成脚本
+$.done();
+
+/**
+ * 创建Env对象
+ * @returns {Object} 包含notice和done方法的对象
+ */
+function Env(name) {
+  // 判断运行环境
+  LN = typeof $loon != "undefined"; // Loon
+  SG = typeof $httpClient != "undefined" && !LN; // Surge
+  QX = typeof $task != "undefined"; // Quantumult X
+
+  // 发送通知
   notice = (title, subtitle, message, url) => {
-    if (LN) $notification.post(title, subtitle, message, url)
-    if (SG) $notification.post(title, subtitle, message, { url: url })
-    if (QX) $notify(title, subtitle, message, { "open-url": url })
-  }
-  done = (value = {}) => {$done(value)}
-  return { notice, done }
+    if (LN) $notification.post(title, subtitle, message, url); // Loon
+    if (SG) $notification.post(title, subtitle, message, { url: url }); // Surge
+    if (QX) $notify(title, subtitle, message, { "open-url": url }); // Quantumult X
+  };
+
+  // 完成脚本
+  done = (value = {}) => {
+    $done(value);
+  };
+
+  // 返回对象
+  return { name, notice, done };
 }
