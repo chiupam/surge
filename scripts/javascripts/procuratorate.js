@@ -162,7 +162,7 @@ async function checkPunchCardAvailability(status = false) {
         return range.status;
       } else {
         // 如果没有指定打卡状态，则根据当前时间和打卡时间范围判断是否可以打卡
-        const attCheckinoutList = await GetAttCheckinoutList();
+        const attCheckinoutList = await GetAttCheckinoutList(range.status);
         if (
           (range.status === '上班打卡' && attCheckinoutList === 0) || // 上班打卡时段，且当天还未进行过上班打卡
           (range.status === '下班打卡' && (attCheckinoutList === 0 || attCheckinoutList === 1)) // 下班打卡时段，且当天还未进行过上班打卡或下班打卡
@@ -235,9 +235,10 @@ async function checkWorkdayStatus(apiType = true) {
 
 /**
  * 获取打卡情况列表
+ * @param {string} status - 打卡状态，可选值为 '上班打卡' 或 '下班打卡'
  * @returns {Promise<number>} - Promise对象，在获取完成后解析一个数字表示打卡记录数量
  */
-async function GetAttCheckinoutList() {
+async function GetAttCheckinoutList(status) {
   // 构造请求参数
   const options = {
     url: `https://${host}/AttendanceCard/GetAttCheckinoutList?AttType=1&` +
@@ -257,9 +258,11 @@ async function GetAttCheckinoutList() {
       try {
         if (data) {
           // 解析响应数据并获取打卡记录数量
-          result = $.toObj(data).length;
+          const recordCount = $.toObj(data).length;
+          $.log(`⏰ ${status}已完成任务长度: ${recordCount}`);
+          result = recordCount;
         }
-      } catch(e) {
+      } catch (e) {
         // 发生异常时，读取快速签到设置并判断是否存在
         $.log(`⭕ 请求超时, 读取快速签到设置`);
         if ($.toObj($.read(`procuratorate_fast`))) {
@@ -342,12 +345,15 @@ async function SaveAttCheckinout(punchType) {
   $.log(`📍 经纬度: ${$.read(`procuratorate_lat`)}${lat}, ${$.read(`procuratorate_lng`)}${lng}`);
 
   // 输出日志，开始打卡操作
-  $.log(`🧑‍💻 休眠 ${randomWaitTime / 1000}s 后开始进行${punchType}...`);
+  $.log(`💤 程序休眠 ${randomWaitTime / 1000}s 后继续...`);
 
   // 发送 POST 异步请求并返回一个 Promise 对象
   return new Promise(resolve => {
     setTimeout(() => {
       $.post(options, (error, response, data) => {
+        // 在POST请求的回调函数内部输出日志
+        $.log(`🧑‍💻 开始进行${punchType}...`);
+
         if (data) {
           data = $.toObj(data);
           title = `🧑‍💼 ${punchType ? punchType : "非法操作"}${$.url ? "(点击获取最新假日表)" : ""}`;
@@ -359,12 +365,12 @@ async function SaveAttCheckinout(punchType) {
             subtitle = `✅ 打卡时间: ${currentTimeString}`;
             message = `💻 返回数据: ${data.message}`;
             $.write(`false`, `procuratorate_fast`);
-            $.log(`✅ ${data.message}`);
+            $.log(`✅ ${punchType}: ${data.message}`);
           } else {
             // 打卡失败
             subtitle = `❌ 当前时间: ${currentTimeString}`;
             message = `💻 打卡失败, 返回数据: ${$.toStr(data)}`;
-            $.log(`❌ ${$.toStr(data)}`);
+            $.log(`❌ ${punchType}: ${$.toStr(data)}`);
           }
           subtitle += `(${randomWaitTime / 1000}s)`;
           $.notice(title, subtitle, message, url);
