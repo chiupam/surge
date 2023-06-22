@@ -438,8 +438,8 @@ function getDayStatus() {
       "12-31":{"holiday":true,"name":"元旦","wage":2,"date":"2023-12-31","rest":86}}
   };
 
-  // 输出日志，用本地数据检查工作日状态
-  $.log(`🧑‍💻 用本地数据检查工作日状态...`);
+  // 输出日志，本地检查工作日状态
+  $.log(`🧑‍💻 本地检查工作日状态...`);
 
   // 判断上述假日表是否需要更新
   const latestHolidayDate = Object.values(holidays.holiday)[Object.values(holidays.holiday).length - 1].date;
@@ -449,10 +449,10 @@ function getDayStatus() {
     return null;
   } else {
     const todayStr = `${currentMonth}-${currentDay}`;
-    const holidayData = holidays.holiday[todayStr]
+    const holidayData = holidays.holiday[todayStr];
     // 判断当天是否在节假日和补休日中
     if (holidayData) {
-      return holidayData.holiday;
+      return !holidayData.holiday;
     } else {
       // 判断当天是否是一般工作日
       const dayOfWeek = currentTime.getDay();
