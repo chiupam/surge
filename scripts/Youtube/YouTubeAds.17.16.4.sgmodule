@@ -1,0 +1,19 @@
+#!name=YouTube Ads
+#!desc=YouTube Version: 17.16.4; Date: 2023-06-16; Verification: Ture
+
+# > Credit
+# @Choler & @DivineEngine & @app2smile
+# > Github
+# https://github.com/Maasea/sgmodule/tree/master
+# > Raw Javascript
+# https://raw.githubusercontent.com/Maasea/sgmodule/544affd72b002db4bcc0640f2fd5b18751f3d7a3/Script/Youtube/youtube.js
+# https://raw.githubusercontent.com/Maasea/sgmodule/544affd72b002db4bcc0640f2fd5b18751f3d7a3/Script/Youtube/youtube.src.js
+
+[MITM]
+hostname = %APPEND% *.googlevideo.com, youtubei.googleapis.com
+
+[Script]
+YouTube去广告 = type=http-response, pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting)\?, requires-body=1, binary-body-mode=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/Youtube/youtube.js
+
+[Map Local]
+^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&oad data="https://raw.githubusercontent.com/chiupam/surge/main/scripts/Youtube/blank.txt" header="Content-Type: application/vnd.yt-ump"
