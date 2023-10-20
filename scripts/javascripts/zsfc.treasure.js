@@ -1,7 +1,7 @@
 /**
  *
  * 使用方法：打开掌上飞车APP, 点击下方游戏栏，然后点击每日寻宝即可获取所需数据。
- * 注意事项：该脚本未做Cookie失效检测，引测如果运行错误请重新获取所需数据。
+ * 注意事项：目前只能每天打开掌飞并进入寻宝页面进行寻宝，非常麻烦，准备弃坑~
  *
  * hostname: bang.qq.com
  *
@@ -11,20 +11,20 @@
  * requests-body: 1
  *
  * type: cron
- * cron: 0 0-40/20 8,9 * * *
+ * cron: 0 0-40/20 17,18 * * *
  * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
  *
  * =============== Surge ===============
  * 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
- * 掌飞寻宝 =type=cron, cronexp="0 0-40/20 8,9 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=30
+ * 掌飞寻宝 =type=cron, cronexp="0 0-40/20 17,18 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=30
  *
  * =============== Loon ===============
  * http-request ^https?://bang\.qq\.com/app/speed/treasure/index\?* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, requires-body=true, timeout=60, tag=掌飞寻宝Cookie
- * cron "0 0-40/20 8,9 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
+ * cron "0 0-40/20 17,18 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
  *
  * =============== Quan X ===============
  * ^https?://bang\.qq\.com/app/speed/treasure/index\?* url script-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
- * 0 0-40/20 8,9 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
+ * 0 0-40/20 17,18 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
  *
  */
 
@@ -67,6 +67,14 @@ const isreq = typeof $request !== 'undefined';
   } else {
     // 处理非请求时的逻辑
 
+    // 检查用户今天是否打开过寻宝页面
+    const date = (new Date().getDate()).toString();
+    if (!$.read(`zsfc_treasure_date`)) $.write(date, `zsfc_treasure_date`);
+    if (date != $.read(`zsfc_treasure_date`)) {
+      $.log(`❌ 今天未进过寻宝页面`);
+      return;
+    }
+
     // 获取内存数据
     $.memoryData = $.toObj($.read(`zsfc_treasure_data`));
 
@@ -107,7 +115,8 @@ const isreq = typeof $request !== 'undefined';
     }
 
     // 这个脚本不发送通知，静默运行
-    // $.notice($.name, ``, ``, ``)
+    // $.notice($.name, ``, ``, ``);
+    $.write(date, `zsfc_treasure_date`);
   }
 })()
   .catch((e) => $.notice($.name, '❌ 未知错误无法寻宝', e, ''))

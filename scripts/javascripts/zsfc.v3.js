@@ -1,6 +1,6 @@
 /**
  *
- * 使用方法：打开掌上飞车APP, 点击咨询栏的签到（每日福利）即可，无需点击签到，否则脚本无法正确运行。
+ * 使用方法：打开掌上飞车APP, 点击咨询栏的签到（每日福利）即可，无需点击签到。
  * 注意事项：每月需手动打开一次掌上飞车APP并进入签到页面，以重新抓包更新礼包数据，为此需要每日运行两次脚本
  *
  * hostname: comm.ams.game.qq.com
@@ -100,13 +100,13 @@ const isreq = typeof $request !== 'undefined';
     }
 
     // 获取本月签到礼物列表
-    const signInGifts = await getSignInGifts()
+    const signInGifts = await getSignInGifts();
 
     // 进行每日签到
-    await dailyCheckin(signInGifts['每日签到'])
+    await dailyCheckin(signInGifts['每日签到']);
 
     // 获取本月累签天数
-    const totalSignInDay = await getTotalSignInDays()
+    const totalSignInDay = await getTotalSignInDays();
 
     // 初始化 signInInfoArray 数组
     let signInInfoArray = [];
@@ -123,7 +123,7 @@ const isreq = typeof $request !== 'undefined';
     }
 
     if (signInInfoArray.length) {
-      $.log(`🎉 共有 ${signInInfoArray.length} 个礼包待领取`)
+      $.log(`🎉 共有 ${signInInfoArray.length} 个礼包待领取`);
     }
 
     // 遍历礼包数组，领取奖励
@@ -173,7 +173,7 @@ async function getSignInGifts() {
           const flowName = match[3].replace(/累计签到|领取/g, '');
           giftsDictionary[flowName] = flowId;
         }
-        $.log(`✅ 本月共有 ${Object.keys(giftsDictionary).length} 个礼包`)
+        $.log(`✅ 本月共有 ${Object.keys(giftsDictionary).length} 个礼包`);
       } else {
         $.log(`❌ 获取本月礼物列表时发生错误`);
         $.log($.toStr(err));
@@ -205,7 +205,7 @@ async function dailyCheckin(iFlowId) {
         } else {
           const sPackageName = body.modRet.sPackageName;
           $.log(`✅ 领取结果: 获得${sPackageName}`);
-          $.message = `恭喜获得：${sPackageName}`
+          $.message = `恭喜获得：${sPackageName}`;
         }
       } else {
         $.log(`❌ 进行每日签到时发生错误`);
@@ -335,6 +335,13 @@ function Env(name) {
   // 定义 toStr 方法，用于将对象转为字符串
   const toStr = (obj) => JSON.stringify(obj);
 
+  // 定义 queryStr 方法，用于将对象转为可以请求的字符串
+  const queryStr = (obj) => {
+    return Object.keys(obj)
+      .map(key => `${key}=${obj[key]}`)
+      .join('&');
+  };
+
   // 定义 log 方法，用于输出日志
   const log = (message) => console.log(message);
 
@@ -342,5 +349,5 @@ function Env(name) {
   const done = (value = {}) => $done(value);
 
   // 返回包含所有方法的对象
-  return { name, read, write, notice, get, post, put, toObj, toStr, log, done };
+  return { name, read, write, notice, get, post, put, toObj, toStr, queryStr, log, done };
 }
