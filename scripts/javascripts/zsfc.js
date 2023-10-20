@@ -22,7 +22,7 @@
  * cron "0 10 0 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车
  * 
  * =============== Quan X ===============
- * ^https://mwegame\.qq\.com/ams/sign/doSign/month url scripts-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js
+ * ^https://mwegame\.qq\.com/ams/sign/doSign/month url script-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js
  * 0 10 0 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js, tag=掌上飞车, enabled=true
  * 
 */
