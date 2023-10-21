@@ -83,6 +83,14 @@ const isreq = typeof $request !== 'undefined';
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
 
+    // 提取关键信息并生成 Object 对象，最后记录日志
+    const keyObject = {
+      'iFlowId': (matchParam(body, 'iFlowId') - 1).toString(),
+      'access_token': matchParam($request.headers.cookie, 'accessToken'),
+      'openid': matchParam($request.headers.cookie, 'openId'),
+    };
+    $.log(keyObject);
+
     // 显示签到结果通知
     $.notice($.name, '✅ 获取签到数据成功！', `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
 
@@ -146,8 +154,10 @@ const isreq = typeof $request !== 'undefined';
  * @param {string} key - 参数名
  * @returns {string}
  */
-function matchParam(body, key) {
-  const match = body.match(new RegExp(`${key}=([^&]+)`));
+function matchParam(input, key) {
+  const separator = input.includes("&") ? "&" : ";";
+  const pattern = new RegExp(`${key}=([^${separator}]+)`);
+  const match = input.match(pattern);
   return match ? match[1] : '';
 }
 

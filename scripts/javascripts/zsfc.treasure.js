@@ -55,11 +55,13 @@ const isreq = typeof $request !== 'undefined';
       "token": matchStr(url, "token"),
       "roleId": matchStr(url, "roleId"),
       "userId": matchStr(url, "userId"),
-      "areaId": matchStr(url, "areaId")
+      "areaId": matchStr(url, "areaId"),
     };
 
-    // 将数据写入内存
+    // 将数据写入内存并记录日志
     $.write($.toStr(data), `zsfc_treasure_data`);
+    $.write((new Date().getDate()).toString(), `zsfc_treasure_day`);
+    $.log(data);
 
     // 发送通知
     $.notice($.name, `✅ 获取寻宝数据成功！`, ``, ``);
@@ -69,8 +71,8 @@ const isreq = typeof $request !== 'undefined';
 
     // 检查用户今天是否打开过寻宝页面
     const date = (new Date().getDate()).toString();
-    if (!$.read(`zsfc_treasure_date`)) $.write(date, `zsfc_treasure_date`);
-    if (date != $.read(`zsfc_treasure_date`)) {
+    if (!$.read(`zsfc_treasure_day`)) $.write(date, `zsfc_treasure_day`);
+    if (date != $.read(`zsfc_treasure_day`)) {
       $.log(`❌ 今天未进过寻宝页面`);
       return;
     }
@@ -116,7 +118,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 这个脚本不发送通知，静默运行
     // $.notice($.name, ``, ``, ``);
-    $.write(date, `zsfc_treasure_date`);
+    $.write(date, `zsfc_treasure_day`);
   }
 })()
   .catch((e) => $.notice($.name, '❌ 未知错误无法寻宝', e, ''))
