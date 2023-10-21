@@ -48,88 +48,44 @@
       "name": "掌上飞车",
       "keys": [],
       "descs_html": [
-        "<h4 align=\"center\">获取数据方法：掌上飞车APP => 下方咨询栏 => 签到(每日福利) </a></h4>"
+        "<h4 align=\"center\">掌飞签到：掌上飞车APP => 签到(每日福利) </a></h4>",
+        "<h4 align=\"center\">掌飞寻宝：掌上飞车APP => 寻宝(今日大吉) </a></h4>",
+        "<h4 align=\"center\">使用以上两种方式可以获取更全面的数据</a></h4>",
+        "<h4 align=\"center\">选做：掌上飞车APP => 下方游戏 => 掌飞商城 </a></h4>"
       ],
       "settings": [
         {
-          "id": "zsfc_url",
-          "name": "签到地址",
+          "id": "zsfc_iFlowId",
+          "name": "当月签到ID",
           "val": "",
           "type": "text",
-          "desc": "每日签到的地址"
+          "desc": "当月每日签到的ID"
         },
         {
-          "id": "zsfc_headers",
-          "name": "签到请求头",
-          "val": "",
-          "type": "textarea",
-          "desc": "每日签到的请求头"
-        },
-        {
-          "id": "zsfc_param",
-          "name": "签到请求体",
-          "val": "",
-          "type": "textarea",
-          "desc": "每日签到的请求体"
-        },
-        {
-          "id": "zsfc_time",
-          "name": "获取数据时间",
+          "id": "zsfc_token",
+          "name": "掌上飞车令牌",
           "val": "",
           "type": "text",
-          "desc": "获取到以上数据的时间"
+          "desc": "掌上飞车APP的本次生效令牌，重开APP则失效"
+        },
+        {
+          "id": "zsfc_accessToken",
+          "name": "掌上飞车访问令牌",
+          "val": "",
+          "type": "text",
+          "desc": "掌上飞车APP的访问令牌"
+        },
+        {
+          "id": "zsfc_roleId",
+          "name": "掌上飞车登录QQ账号",
+          "val": "",
+          "type": "text",
+          "desc": "当前登录掌上飞车的QQ账号"
         }
       ],
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge",
       "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js",
-      "icons": [
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
-        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"
-      ]
-    },
-    {
-      "id": "zsfc.shop.online",
-      "name": "掌飞商城",
-      "keys": [],
-      "descs_html": [
-        "<h4 align=\"center\">获取数据方法：掌上飞车APP => 下方游戏栏 => 掌上商城</h4>",
-        "<h4 align=\"center\">道具名称只能填写以下其中之一</h4>",
-        "<h4 align=\"center\">雷诺、进气系统、燃料系统、点火系统、引擎系统、防护装置、普通粒子推进、普通阿尔法离合、重生宝珠LV1、效率宝珠LV1、效率宝珠LV2</h4>"
-      ],
-      "settings": [
-        {
-          "id": "zsfc_bang_shopname",
-          "name": "道具名称",
-          "val": "",
-          "type": "text",
-          "desc": "有点券或消费券时进行消费购物"
-        },
-        {
-          "id": "zsfc_bang_url",
-          "name": "余额地址",
-          "val": "",
-          "type": "text",
-          "desc": "获取余额的地址"
-        },
-        {
-          "id": "zsfc_bang_referer",
-          "name": "购物请求头",
-          "val": "",
-          "type": "textarea",
-          "desc": "发起购物请求的请求头"
-        },
-        {
-          "id": "zsfc_bang_data",
-          "name": "购物请求体",
-          "val": "",
-          "type": "textarea",
-          "desc": "发起购物请求的请求体"
-        }
-      ],
-      "author": "@chiupam",
-      "repo": "https://github.com/chiupam/surge",
-      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.shop.online.js",
       "icons": [
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"

@@ -45,26 +45,28 @@ const isreq = typeof $request !== 'undefined';
   if (isreq) {
     // 处理请求时的逻辑
 
+    // 提取请求的URL和其他数据
     const url = $request.url;
     const cookie = $request.headers.cookie;
 
-    // 处理所需的键值
-    const data = {
-      "accessToken": matchStr(cookie, "access_token"),
-      "openid": matchStr(cookie, "openid"),
-      "token": matchStr(url, "token"),
-      "roleId": matchStr(url, "roleId"),
-      "userId": matchStr(url, "userId"),
-      "areaId": matchStr(url, "areaId"),
+    // 初始化 dataToWrite 词典，填充待写入内存的键值对
+    const dataToWrite = {
+      "zsfc_accessToken": matchStr(url, "accessToken"),
+      "zsfc_openid": matchStr(cookie, "openid"),
+      "zsfc_token": matchStr(url, "token"),
+      "zsfc_roleId": matchStr(url, "roleId"),
+      "zsfc_userId": matchStr(url, "userId"),
+      "zsfc_areaId": matchStr(url, "areaId"),
+      'zsfc_uin': matchStr(url, "uin"),
+      'zsfc_treasure_day': (new Date().getDate()).toString()
     };
+    $.log(dataToWrite);
 
-    // 将数据写入内存并记录日志
-    $.write($.toStr(data), `zsfc_treasure_data`);
-    $.write((new Date().getDate()).toString(), `zsfc_treasure_day`);
-    $.log(data);
+    // 将请求数据写入内存
+    Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
 
     // 发送通知
-    $.notice($.name, `✅ 获取寻宝数据成功！`, ``, ``);
+    $.notice($.name, `✅ 获取寻宝数据成功！`, `此脚本需每天打开掌上飞车APP并进入一次寻宝页面`, ``);
 
   } else {
     // 处理非请求时的逻辑
@@ -76,9 +78,6 @@ const isreq = typeof $request !== 'undefined';
       $.log(`❌ 今天未进过寻宝页面`);
       return;
     }
-
-    // 获取内存数据
-    $.memoryData = $.toObj($.read(`zsfc_treasure_data`));
 
     // 获取地图数据
     $.mapData = await fetchMapData();
@@ -143,7 +142,12 @@ function matchStr(input, key) {
  * @returns {Promise<object>} 包含地图数据的 Promise 对象。
  */
 async function fetchMapData() {
-  const url = `https://bang.qq.com/app/speed/treasure/index?roleId=${$.memoryData.roleId}&uin=${$.memoryData.roleId}&areaId=${$.memoryData.areaId}`;
+  const params = {
+    'roleId': $.read(`zsfc_roleId`),
+    'uin': $.read(`zsfc_uin`),
+    'areaId': $.read(`zsfc_areaId`),
+  };
+  const url = `https://bang.qq.com/app/speed/treasure/index?${$.queryStr(params)}`;
   $.log(`🧑‍💻 正在获取地图数据`);
   let mapData = {};
 
@@ -198,7 +202,7 @@ async function performTreasureAction(action) {
     url:`https://bang.qq.com/app/speed/treasure/ajax/${action}DigTreasure`,
     headers: {
       "Referer": "https://bang.qq.com/app/speed/treasure/index",
-      "Cookie": `access_token=${$.memoryData.accessToken}; acctype=qc; appid=1105330667; openid=${$.memoryData.openid}`
+      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
     body: $.queryStr({
       "mapId": $.mapData.mapId,
@@ -206,11 +210,11 @@ async function performTreasureAction(action) {
       // 普通寻宝1 600s -- 快捷寻宝2 10s
       // "type": $.mapData.isVip + 1,
       "type": "1",  // 懒得检查是否为紫钻了，统统使用普通寻宝
-      "areaId": $.memoryData.areaId,
-      "roleId": $.memoryData.roleId,
-      "userId": $.memoryData.userId,
-      "uin": $.memoryData.roleId,
-      "token": $.memoryData.token
+      "areaId": $.read(`zsfc_areaId`),
+      "roleId": $.read(`zsfc_roleId`),
+      "userId": $.read(`zsfc_userId`),
+      "uin": $.read(`zsfc_roleId`),
+      "token": $.read(`zsfc_token`)
     })
   };
 
@@ -260,13 +264,13 @@ async function claimTreasureReward(flowId) {
   const options = {
     url: `https://act.game.qq.com/ams/ame/amesvr?ameVersion=0.3&iActivityId=468228`,
     headers: {
-      "Cookie": `access_token=${$.memoryData.accessToken}; acctype=qc; appid=1105330667; openid=${$.memoryData.openid}`
+      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
     body: $.queryStr({
       'appid': '1105330667',
-      'sArea': $.memoryData.areaId,
-      'sRoleId': $.memoryData.roleId,
-      'accessToken': $.memoryData.accessToken,
+      'sArea': $.read(`zsfc_areaId`),
+      'sRoleId': $.read(`zsfc_roleId`),
+      'accessToken': $.read(`zsfc_accessToken`),
       'iActivityId': "468228",
       'iFlowId': flowId,
       'g_tk': '1842395457',

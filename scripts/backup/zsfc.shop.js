@@ -50,19 +50,43 @@ const isreq = typeof $request !== 'undefined';
   if (isreq) {
     // 处理请求阶段
 
-    // 提取请求的URL并去除引号
-    const url = $.toStr($request.url).replace(/^"|"$/g, '');
-    const cookie = $request.headers.cookie;
+    const url = $.toStr($request.url).replace(/^"|"$/g, '');  // 提取请求的URL并去除引号
+
+    // 定义需要提取的请求参数
+    const paramValue = [
+      "roleName", "roleLevel", "roleId", "uin", "nickname", "areaName",
+      "serverName", "serverId", "areaId", "isMainRole", "isapp",
+      "userId", "token", "appOpenid", "uniqueRoleId", "gameId", "subGameId",
+      "cGameId", "roleJob", "secret", "env", "openid", "toOpenid"
+    ];
+
+    // 需要添加的附加参数
+    const extraParams = {
+      steamid: '0', openType: '1', isother: '0', platid: 'false',
+      cleId: 'false',  from: 'false', pay_type: '1', isapp: '1'
+    };
+
+    // 提取请求中的参数
+    const filteredParams = extractParams(url, paramValue);
+    const data = generateQueryString({ ...filteredParams, ...extraParams });
+
+    // 提取请求中的引用参数
+    const refererValue = [
+      "serverName", "appid", "areaName", "roleName", "gameName",
+      "nickname", "isMainRole", "appOpenid", "roleId", "areaId",
+      "toUin", "roleJob", "serverId", "accessToken", "gameId", "subGameId",
+      "token", "cGameId", "uniqueRoleId", "acctype", "accType", "uin",
+      "roleLevel", "userId"
+    ];
+
+    const filteredReferer = extractParams(url, refererValue);
+    const referer = generateQueryString(filteredReferer);
 
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
-      "zsfc_accessToken": matchStr(url, "accessToken"),
-      "zsfc_openid": matchStr(cookie, "openid"),
-      "zsfc_token": matchStr(url, "token"),
-      "zsfc_roleId": matchStr(url, "roleId"),
-      "zsfc_userId": matchStr(url, "userId"),
-      "zsfc_areaId": matchStr(url, "areaId"),
-      'zsfc_uin': matchStr(url, "uin"),
+      'zsfc_bang_url': url,
+      'zsfc_bang_referer': referer,
+      'zsfc_bang_data': data
     };
     $.log(dataToWrite);
 
@@ -163,17 +187,56 @@ const isreq = typeof $request !== 'undefined';
   .finally(() => $.done());
 
 /**
- * 从输入字符串中提取指定关键字的值。
- *
- * @param {string} input - 输入字符串，要从中提取关键字的值。
- * @param {string} key - 要提取的关键字。
- * @returns {string} - 返回匹配到的关键字值，如果没有匹配到则返回空字符串。
+  * @description 从字符串中提取参数并返回指定键名的参数值
+  * @param {string} str - 包含参数的字符串
+  * @param {Array<string>} argument - 需要提取的参数键名
+  * @returns {object} 包含提取的参数键值对的对象
+  */
+function extractParams(str, argument) {
+  // 创建正则表达式，用于匹配参数键值对
+  const regex = /([^&=]+)=([^&]+)/g;
+
+  // 创建一个空对象，用于存储提取的参数键值对
+  const extractedParams = {};
+
+  // 用于迭代匹配参数的正则表达式结果
+  let match;
+
+  // 遍历字符串以匹配参数，并将它们存储在 extractedParams 对象中
+  while ((match = regex.exec(str))) {
+    // 提取参数名
+    const paramName = match[1];
+
+    // 提取参数值
+    let paramValue = match[2];
+
+    // 将参数键值对存储在 extractedParams 对象中
+    extractedParams[paramName] = paramValue;
+  }
+
+  // 创建一个空对象，用于存储筛选后的参数键值对
+  const filteredParams = {};
+
+  // 遍历需要提取的参数键名
+  for (const paramName of argument) {
+    // 将符合参数键名的键值对存储在 filteredParams 对象中
+    filteredParams[paramName] = extractedParams[paramName];
+  }
+
+  // 返回包含筛选后的参数键值对的对象
+  return filteredParams;
+}
+
+/**
+ * @description 生成查询字符串
+ * @param {object} argument - 包含键值对的对象
+ * @returns {string} 包含 key=value 键值对的查询字符串
  */
-function matchStr(input, key) {
-  const separator = input.includes("&") ? "&" : ";";
-  const pattern = new RegExp(`${key}=([^${separator}]+)`);
-  const match = input.match(pattern);
-  return match ? match[1] : '';
+function generateQueryString(argument) {
+  return Object.entries(argument)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&')
+    .replace(/undefined|"/g, '');
 }
 
 /**
@@ -282,27 +345,13 @@ async function getPackInfo(argument) {
   // 根据参数值设置状态文本
   const statu = (argument === "before") ? "当前" : "剩余";
 
-  // 获取 URL 中的查询参数
-  const params = {
-    'areaId': $.read(`zsfc_areaId`),
-    'accessToken': $.read(`zsfc_accessToken`),
-    'token': $.read(`zsfc_token`),
-    'uin': $.read(`zsfc_uin`),
-    'userId': $.read(`zsfc_userId`),
-  };
-
-  // 配置请求选项
-  const options = {
-    url: `https://bang.qq.com/app/speed/mall/main2?${$.queryStr(params)}`
-  };
-
   // 输出日志，表示开始获取点券和消费券
   $.log(`🧑‍💻 开始获取${statu}点券和消费券`);
 
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
     // 发送 GET 请求，获取点券和消费券信息
-    $.get(options, (err, resp, data) => {
+    $.get({ url: $.read(`zsfc_bang_url`) }, (err, resp, data) => {
       if (data) {
         // 将响应数据转换为字符串
         const body = data.toString();
@@ -338,17 +387,10 @@ async function purchaseItem(name, count, id, idx) {
   const options = {
     url: `https://bang.qq.com/app/speed/mall/getPurchase`,
     headers: {
-      "Referer": `https://bang.qq.com/app/speed/mall/detail2`
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "Referer": `https://bang.qq.com/app/speed/mall/detail2?itemId=${id}&${$.read("zsfc_bang_referer")}`
     },
-    body: $.queryStr({
-      'areaId': $.read(`zsfc_areaId`),
-      'token': $.read(`zsfc_token`),
-      'userId': $.read(`zsfc_userId`),
-      'uin': $.read(`zsfc_uin`),
-      'pay_type': "1",
-      'commodity_id': id,
-      'price_idx': idx
-    })
+    body: `${$.read(`zsfc_bang_data`)}&commodity_id=${id}&price_idx=${idx}`
   };
 
   // 返回一个 Promise 对象，用于异步操作
