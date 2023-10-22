@@ -1,196 +1,312 @@
 """
-该文件只适用于 青龙 面板中运行，并在面板中添加以下 3 个环境变量
+青龙专用，掌飞签到后进行购物
 
-speed_iFlowId
-speed_access_token
-speed_openid
+抓包脚本:
+    见此仓库中的 JavaScript 目录
 
-具体情况可参考本仓库中的 JavaScript 脚本
+环境变量：
+     ZSFC_CONFIG  ==> 掌飞寻宝日志输出的全部内容
+    ZSFC_iFlowdId ==> 掌上飞车日志输出内容中的iFlowId
+    ZSFC_SHOPNAME ==> 掌飞商店需要购买的道具名称，部分支持
+
+注意事项：
+    1.环境变量填写进 config.sh 配置文件中，无法填入环境变量中
+        export ZSFC_CONFIG=''
+        export ZSFC_iFlowdId=''
+        export ZSFC_SHOPNAME=''
+    2.多变量使用 & 进行分割，或者使用 @ 进行分割
+    3.购物仅支持购买，不填写则默认从普通改装道具中（除防护装置外）按月份排序购买
+        雷诺
+        进气系统、燃料系统、点火系统、引擎系统、防护装置
+        普通粒子推进、普通阿尔法离合
+        重生宝珠LV1、效率宝珠LV1、效率宝珠LV2
+    4.本脚本不使用异步请求的方式发起请求，因为本身就不需要抢 0 点执行
 
 """
 
-import asyncio
-import re
+import datetime
+import json
 import os
-from datetime import datetime
+import re
 
-import aiohttp
+import requests
 
 
-async def get_sign_in_gifts(iFlowId, access_token, openid, session):
-    """
-    获取签到礼包信息
+class CouponScraper:
+    def __init__(self, environ):
+        self.iFlowdId = os.environ.get("ZSFC_iFlowdId")
+        self.session = requests.session()
+        self.roleId = environ.get('zsfc_roleId', '')
+        self.accessToken = environ.get('zsfc_accessToken', '')
+        self.openId = environ.get('zsfc_openid', '')
+        self.areaId = environ.get('zsfc_areaId', '')
+        self.userId = environ.get('zsfc_userId', '')
+        self.token = environ.get('zsfc_token', '')
+        self.uin = environ.get('zsfc_uin', '')
+        self.shopIdDict = {
+            "雷诺": {"itemId": "12720", "price_idx": {"180天": {"index": "0", "price": 12200}}},
+            "进气系统": {"itemId": "12377", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "燃料系统": {"itemId": "12378", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "点火系统": {"itemId": "12376", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "引擎系统": {"itemId": "12380", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "防护装置": {"itemId": "96597", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "普通粒子推进": {"itemId": "64025", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "普通阿尔法离合": {"itemId": "65028", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+            "重生宝珠LV1": {"itemId": "21983", "price_idx": {"3个": {"index": "0", "price": 2600}, "2个": {"index": "1", "price": 1800}, "1个": {"index": "2", "price": 990}, "4个": {"index": "3", "price": 3390}}},
+            "效率宝珠LV1": {"itemId": "21977", "price_idx": {"3个": {"index": "0", "price": 2600}, "2个": {"index": "1", "price": 1800}, "1个": {"index": "2", "price": 990}, "4个": {"index": "3", "price": 3390}}},
+            "效率宝珠LV2": {"itemId": "21978", "price_idx": {"3个": {"index": "0", "price": 13000}, "2个": {"index": "1", "price": 9000}, "1个": {"index": "2", "price": 4900}, "4个": {"index": "3", "price": 16990}}}
+        }
+        print(f"👨‍💻 当前用户：{self.roleId}")
 
-    参数:
-        iFlowId (int): 当前签到流程的标识符
-        access_token (str): 用户访问令牌
-        openid (str): 用户的唯一标识符
-        session (aiohttp.ClientSession): aiohttp客户端会话
+    @staticmethod
+    def isLastDays(N):
+        today = datetime.date.today()
+        for day in range(1, N + 1):
+            nextDay = today + datetime.timedelta(days=day)
+            if today.month != nextDay.month:
+                return True
+        return False
 
-    返回:
-        gifts_dictionary (dict): 包含签到礼包信息的字典，礼包名称映射到对应的标识符
-    """
-    url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
-    headers = {
-        "Cookie": (
-            f"access_token={access_token}; "
-            "acctype=qc; "
-            "appid=1105330667; "
-            f"openid={openid}; "
-        )
-    }
-    data = {
-        "iActivityId": "587170",
-        "g_tk": "1842395457",
-        "sServiceType": "speed",
-        "iFlowId": iFlowId
-    }
-    async with session.post(url, headers=headers, data=data) as response:
-        data = await response.json(content_type="text/html")
-        gifts_dictionary = {}
-        flow_regex = r'#(\d+)#:{#flow_id#:(\d+),#flow_name#:#([^#]+)#'
-        matches = re.findall(flow_regex, data['modRet']['sOutValue1'])
+    @staticmethod
+    def getGameItem():
+        if os.environ.get('ZSFC_SHOPNAME'):
+            return os.environ.get('ZSFC_SHOPNAME')
+
+        gameItems = [
+            "进气系统",
+            "燃料系统",
+            "点火系统",
+            "引擎系统"
+        ]
+        return gameItems[datetime.date.today().month % len(gameItems)]
+
+    def getShopItems(self, itemName, inputMoney):
+        totalCount, shopArrays, itemCounts, itemPrices = 0, [], [], []
+        itemCounts = sorted([int(re.search(r'(\d+)', key).group()) for key in self.shopIdDict[itemName]['price_idx'].keys()], reverse=True)
+        itemPrices = sorted([priceData['price'] for priceData in self.shopIdDict[itemName]['price_idx'].values()], reverse=True)
+        for m in range(len(itemPrices)):
+            maxItems = inputMoney // itemPrices[m]
+            totalCount += maxItems * itemCounts[m]
+            inputMoney -= maxItems * itemPrices[m]
+            index = self.shopIdDict[itemName]['price_idx'].get(f"{itemCounts[m]}天") or self.shopIdDict[itemName]['price_idx'].get(f"{itemCounts[m]}个")
+            for _ in range(maxItems):
+                shopArray = {
+                    "name": itemName,
+                    "count": itemCounts[m],
+                    "id": self.shopIdDict[itemName]['itemId'],
+                    "idx": index['index']
+                }
+                shopArrays.append(shopArray)
+            if inputMoney < itemPrices[-1]:
+                break
+        return shopArrays, totalCount if totalCount else 0
+
+    def getSignInGifts(self):
+        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+
+        headers = {
+            "Cookie": (
+                f"access_token={self.accessToken}; "
+                "acctype=qc; "
+                "appid=1105330667; "
+                f"openid={self.openId}; "
+            )
+        }
+
+        data = {
+            "iActivityId": "587170",
+            "g_tk": "1842395457",
+            "sServiceType": "speed",
+            "iFlowId": self.iFlowdId
+        }
+
+        response = self.session.post(url, headers=headers, data=data)
+        response.encoding = 'utf-8'
+
+        giftsDict = {}
+        regex = r'#(\d+)#:{#flow_id#:(\d+),#flow_name#:#([^#]+)#'
+        matches = re.findall(regex, response.json()['modRet']['sOutValue1'])
+
         for match in matches:
-            flow_id = match[0]
-            flow_name = match[2].replace("累计签到", "").replace("领取", "")
-            gifts_dictionary[flow_name] = flow_id
-        print(f"本月共有 {len(gifts_dictionary)} 个礼包")
-        return gifts_dictionary
+            flowName = match[2].replace("累计签到", "").replace("领取", "")
+            giftsDict[flowName] = match[0]
+        return giftsDict
 
+    def dailyCheckIn(self, dailyFlowId):
+        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
 
-async def daily_check_in(iFlowId, access_token, openid, session):
-    url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
-    headers = {
-        "Cookie": (
-            f"access_token={access_token}; "
-            "acctype=qc; "
-            "appid=1105330667; "
-            f"openid={openid}; "
-        )
-    }
-    data = {
-        "iActivityId": "587170",
-        "g_tk": "1842395457",
-        "sServiceType": "speed",
-        "iFlowId": iFlowId
-    }
-    async with session.post(url, headers=headers, data=data) as response:
-        data = await response.json(content_type="text/html")
-        if "已经" in data['msg']:
-            print(f"签到结果: {data['flowRet']['sMsg']}")
+        headers = {
+            "Cookie": (
+                f"access_token={self.accessToken}; "
+                "acctype=qc; "
+                "appid=1105330667; "
+                f"openid={self.openId}; "
+            )
+        }
+
+        data = {
+            "iActivityId": "587170",
+            "g_tk": "1842395457",
+            "sServiceType": "speed",
+            "iFlowId": dailyFlowId
+        }
+
+        response = self.session.post(url, headers=headers, data=data)
+        response.encoding = 'utf-8'
+
+        if "已经" in response.json()['msg']:
+            print(f"⭕ 签到结果: {response.json()['flowRet']['sMsg']}")
         else:
-            print(f"领取结果: 获得{data['modRet']['sPackageName']}")
+            print(f"✅ 签到成功: 获得{response.json()['modRet']['sPackageName']}")
 
+    def getTotalSignInDays(self):
+        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
 
-async def get_total_sign_in_days(iFlowId, access_token, openid, session):
-    """
-    执行每日签到或领取礼包
+        headers = {
+            "Cookie": (
+                f"access_token={self.accessToken}; "
+                "acctype=qc; "
+                "appid=1105330667; "
+                f"openid={self.openId}; "
+            )
+        }
 
-    参数:
-        iFlowId (int): 当前签到流程的标识符
-        access_token (str): 用户访问令牌
-        openid (str): 用户的唯一标识符
-        session (aiohttp.ClientSession): aiohttp客户端会话
+        data = {
+            "iActivityId": "587170",
+            "g_tk": "1842395457",
+            "sServiceType": "speed",
+            "iFlowId": int(self.iFlowdId) + 1
+        }
 
-    返回:
-        无
-    """
-    url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
-    headers = {
-        "Cookie": (
-            f"access_token={access_token}; "
-            "acctype=qc; "
-            "appid=1105330667; "
-            f"openid={openid}; "
-        )
-    }
-    data = {
-        "iActivityId": "587170",
-        "g_tk": "1842395457",
-        "sServiceType": "speed",
-        "iFlowId": int(iFlowId) + 1
-    }
-    async with session.post(url, headers=headers, data=data) as response:
-        data = await response.json(content_type="text/html")
-        total_sign_in_days = int(data['modRet']['sOutValue1'].split(":")[1])
-        missed_days = datetime.now().day - total_sign_in_days
-        missed_days_text = f"(漏签 {missed_days} 天)" if missed_days != 0 else ""
-        print(f"累计签到 {total_sign_in_days} 天{missed_days_text}")
-        return total_sign_in_days
+        response = self.session.post(url, headers=headers, data=data)
+        response.encoding = 'utf-8'
 
+        totalSignInDays = int(response.json()['modRet']['sOutValue1'].split(":")[1])
+        missedDays = datetime.datetime.now().day - totalSignInDays
+        missedDays = f"(漏签 {missedDays} 天)" if missedDays != 0 else ""
+        print(f"⏰ 累计签到 {totalSignInDays} 天{missedDays}")
+        return totalSignInDays
 
-async def claim_gift(gift_id, gift_name, access_token, openid, session):
-    """
-    领取指定礼包
+    def claimGift(self, awardFlowId):
+        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+        headers = {
+            "Cookie": (
+                f"access_token={self.accessToken}; "
+                "acctype=qc; "
+                "appid=1105330667; "
+                f"openid={self.openId}; "
+            )
+        }
+        data = {
+            "iActivityId": "587170",
+            "g_tk": "1842395457",
+            "sServiceType": "speed",
+            "iFlowId": awardFlowId
+        }
 
-    参数:
-        gift_id (int): 礼包的标识符
-        gift_name (str): 礼包的名称
-        access_token (str): 用户访问令牌
-        openid (str): 用户的唯一标识符
-        session (aiohttp.ClientSession): aiohttp客户端会话
+        response = self.session.post(url, headers=headers, data=data)
+        response.encoding = 'utf-8'
 
-    返回:
-        无
-    """
-
-    url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
-    headers = {
-        "Cookie": (
-            f"access_token={access_token}; "
-            "acctype=qc; "
-            "appid=1105330667; "
-            f"openid={openid}; "
-        )
-    }
-    data = {
-        "iActivityId": "587170",
-        "g_tk": "1842395457",
-        "sServiceType": "speed",
-        "iFlowId": gift_id
-    }
-    print(f"开始领取{gift_name}")
-    async with session.post(url, headers=headers, data=data) as response:
-        data = await response.json(content_type="text/html")
-        if "已经" in data['msg']:
-            print(f"领取结果: {data['flowRet']['sMsg']}")
+        if "已经" in response.json()['msg']:
+            print(f"⭕ 领取结果: {response.json()['flowRet']['sMsg']}")
         else:
-            print(f"领取结果: 获得{data['modRet']['sPackageName']}")
+            print(f"✅ 领取结果: 获得{response.json()['modRet']['sPackageName']}")
+
+    def scrapeCouponInfo(self):
+        url = "https://bang.qq.com/app/speed/mall/main2"
+
+        params = {
+            'accessToken': self.accessToken,
+            'areaId': self.areaId,
+            'userId': self.userId,
+            'token': self.token,
+            'uin': self.uin,
+        }
+
+        response = self.session.get(url, params=params)
+        response.encoding = 'utf-8'
+
+        pattern = r'<span>点券<b id="super_money">(\d+)</b></span><span>消费券<b id="coupons">(\d+)</b></span>'
+        match = re.search(pattern, response.text)
+
+        if match:
+            return {
+                "money": int(match.group(1)),
+                "coupons": int(match.group(2))
+            }
+        else:
+            return False
+
+    def purchaseItem(self, inputData):
+        url = "https://bang.qq.com/app/speed/mall/getPurchase"
+
+        headers = {
+            "Referer": "https://bang.qq.com/app/speed/mall/detail2"
+        }
+
+        data = {
+            'areaId': self.areaId,
+            'userId': self.userId,
+            'token': self.token,
+            'uin': self.uin,
+            'pay_type': '1',
+            'commodity_id': inputData['id'],
+            'price_idx': inputData['idx']
+        }
+
+        response = self.session.post(url, headers=headers, data=data)
+        response.encoding = 'utf-8'
+
+        if response.json()['res'] == 0:
+            return inputData['count']
+        else:
+            print(f"❌ 购买{inputData['count']}个{inputData['name']}时失败，{response.json()['msg']}")
+            return 0
 
 
-async def main():
+if __name__ == "__main__":
+    configs = os.environ.get("ZSFC_CONFIG")
+    configLists = configs.split('&') if '&' in configs else configs.split('@')
+    for config in configLists:
+        scraper = CouponScraper(json.loads(config))
+        signInGifts = scraper.getSignInGifts()
+        scraper.dailyCheckIn(signInGifts['每日签到'])
+        totalSignInDay = scraper.getTotalSignInDays()
 
-    iFlowId = os.environ.get("speed_iFlowId")
-    access_token_lists = os.environ.get("speed_access_token").split("&")
-    openid_lists = os.environ.get("speed_openid").split("&")
-    date = datetime.now()
+        signInInfoLists = []
+        if signInGifts.get(f"{totalSignInDay}天"):
+            signInInfoLists.append(signInGifts[f"{totalSignInDay}天"])
 
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for access_token, openid in zip(access_token_lists, openid_lists):
-            signInGifts = await get_sign_in_gifts(iFlowId, access_token, openid, session)
+        formattedDate = f"{datetime.datetime.now().month}月{datetime.datetime.now().day}日"
+        if signInGifts.get(formattedDate):
+            signInInfoLists.append(signInGifts[formattedDate])
 
-            tasks.append(asyncio.create_task(daily_check_in(signInGifts['每日签到'], access_token, openid, session)))
+        if len(signInInfoLists):
+            for i in signInInfoLists:
+                scraper.claimGift(i)
 
-            totalSignInDay = await get_total_sign_in_days(iFlowId, access_token, openid, session)
+        shopName = scraper.getGameItem()
+        backPack = scraper.scrapeCouponInfo()
 
-            signInInfoArray = []
-            formatted_date = f"{date.month}月{date.day}日"
-
-            if signInGifts.get(f"{totalSignInDay}天"):
-                signInInfoArray.append({"code": signInGifts[f"{totalSignInDay}天"], "title": "累签奖励"})
-
-            if signInGifts.get(formatted_date):
-                signInInfoArray.append({"code": signInGifts[formatted_date], "title": "特别福利"})
-
-            if len(signInInfoArray):
-                print(f"共有 {len(signInInfoArray)} 个礼包待领取")
-
-            for signInInfo in signInInfoArray:
-                code, title = signInInfo["code"], signInInfo["title"]
-                tasks.append(asyncio.create_task(claim_gift(code, title, access_token, openid, session)))
-
-        await asyncio.gather(*tasks)
-
-if __name__ == '__main__':
-    asyncio.run(main())
+        if not backPack:
+            print(f"❌ 购物 Cookie 已过期，请更新 ZSFC_CONFIG 环境变量\n")
+        else:
+            money, coupons = backPack['money'], backPack['coupons']
+            print(f"✅ 当前共有{money}点券，{coupons}消费券")
+            shopLists, totalCounts = scraper.getShopItems(shopName, money + coupons if scraper.isLastDays(3) else coupons)
+            if totalCounts:
+                print(f"✅ 共计可购买{totalCounts}个{shopName}")
+                successBuyCounts = 0
+                for shopDict in shopLists:
+                    successBuyCounts += scraper.purchaseItem(shopDict)
+                failedBuyCounts = totalCounts - successBuyCounts
+                if successBuyCounts > 0:
+                    log = f"🎉 成功购买${successBuyCounts}个{shopName}"
+                    if failedBuyCounts > 0:
+                        log += f"（未成功购买{failedBuyCounts}个）"
+                else:
+                    log = f"❌ 全部购买失败，共计{totalCounts}个"
+                backPack = scraper.scrapeCouponInfo()
+                print(f"✅ 现在剩余{backPack['money']}点券，{backPack['coupons']}消费券\n")
+            else:
+                print(f"⭕ {'余额' if scraper.isLastDays(3) else '消费券'}不足以购买{shopName}\n")

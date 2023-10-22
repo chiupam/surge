@@ -55,6 +55,13 @@
       ],
       "settings": [
         {
+          "id": "zsfc_roleId",
+          "name": "掌上飞车登录QQ账号",
+          "val": "",
+          "type": "text",
+          "desc": "当前登录掌上飞车的QQ账号"
+        },
+        {
           "id": "zsfc_iFlowId",
           "name": "当月签到ID",
           "val": "",
@@ -69,23 +76,16 @@
           "desc": "掌上飞车APP的本次生效令牌，重开APP则失效"
         },
         {
-          "id": "zsfc_accessToken",
-          "name": "掌上飞车访问令牌",
+          "id": "zsfc_bang_shopname",
+          "name": "掌上飞车商店购买道具",
           "val": "",
           "type": "text",
-          "desc": "掌上飞车APP的访问令牌"
-        },
-        {
-          "id": "zsfc_roleId",
-          "name": "掌上飞车登录QQ账号",
-          "val": "",
-          "type": "text",
-          "desc": "当前登录掌上飞车的QQ账号"
+          "desc": "掌上飞车APP的购买道具名称，仅部分支持，具体查看脚本"
         }
       ],
       "author": "@chiupam",
       "repo": "https://github.com/chiupam/surge",
-      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.js",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.v3.js",
       "icons": [
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"
