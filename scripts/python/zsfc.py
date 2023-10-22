@@ -32,17 +32,18 @@ import re
 import requests
 
 
-class CouponScraper:
-    def __init__(self, environ):
-        self.iFlowdId = os.environ.get("ZSFC_iFlowdId")
+class QQSpeedApplication:
+    def __init__(self):
         self.session = requests.session()
-        self.roleId = environ.get('zsfc_roleId', '')
-        self.accessToken = environ.get('zsfc_accessToken', '')
-        self.openId = environ.get('zsfc_openid', '')
-        self.areaId = environ.get('zsfc_areaId', '')
-        self.userId = environ.get('zsfc_userId', '')
-        self.token = environ.get('zsfc_token', '')
-        self.uin = environ.get('zsfc_uin', '')
+        self.config = None
+        self.iFlowdId = None
+        self.roleId = None
+        self.accessToken = None
+        self.openId = None
+        self.areaId = None
+        self.userId = None
+        self.token = None
+        self.uin = None
         self.shopIdDict = {
             "雷诺": {"itemId": "12720", "price_idx": {"180天": {"index": "0", "price": 12200}}},
             "进气系统": {"itemId": "12377", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
@@ -56,7 +57,6 @@ class CouponScraper:
             "效率宝珠LV1": {"itemId": "21977", "price_idx": {"3个": {"index": "0", "price": 2600}, "2个": {"index": "1", "price": 1800}, "1个": {"index": "2", "price": 990}, "4个": {"index": "3", "price": 3390}}},
             "效率宝珠LV2": {"itemId": "21978", "price_idx": {"3个": {"index": "0", "price": 13000}, "2个": {"index": "1", "price": 9000}, "1个": {"index": "2", "price": 4900}, "4个": {"index": "3", "price": 16990}}}
         }
-        print(f"👨‍💻 当前用户：{self.roleId}")
 
     @staticmethod
     def isLastDays(N):
@@ -263,50 +263,65 @@ class CouponScraper:
             print(f"❌ 购买{inputData['count']}个{inputData['name']}时失败，{response.json()['msg']}")
             return 0
 
+    def run(self):
+        configs = os.environ.get("ZSFC_CONFIG")
+        configLists = configs.split('&') if '&' in configs else configs.split('@')
+        self.iFlowdId = os.environ.get("ZSFC_iFlowdId")
+
+        for config in configLists:
+            self.config = json.loads(config)
+            self.roleId = self.config.get('zsfc_roleId', '')
+            self.accessToken = self.config.get('zsfc_accessToken', '')
+            self.openId = self.config.get('zsfc_openid', '')
+            self.areaId = self.config.get('zsfc_areaId', '')
+            self.userId = self.config.get('zsfc_userId', '')
+            self.token = self.config.get('zsfc_token', '')
+            self.uin = self.config.get('zsfc_uin', '')
+            print(f"👨‍💻 当前用户: {self.roleId}")
+
+            signInGifts = self.getSignInGifts()
+            self.dailyCheckIn(signInGifts['每日签到'])
+            totalSignInDay = self.getTotalSignInDays()
+
+            signInInfoLists = []
+            if signInGifts.get(f"{totalSignInDay}天"):
+                signInInfoLists.append(signInGifts[f"{totalSignInDay}天"])
+
+            formattedDate = f"{datetime.datetime.now().month}月{datetime.datetime.now().day}日"
+            if signInGifts.get(formattedDate):
+                signInInfoLists.append(signInGifts[formattedDate])
+
+            if len(signInInfoLists):
+                for i in signInInfoLists:
+                    self.claimGift(i)
+
+            shopName = self.getGameItem()
+            backPack = self.scrapeCouponInfo()
+
+            if backPack:
+                money, coupons = backPack['money'], backPack['coupons']
+                print(f"✅ 当前共有{money}点券，{coupons}消费券")
+                shopLists, totalCounts = self.getShopItems(shopName, money + coupons if self.isLastDays(3) else coupons)
+                if totalCounts:
+                    print(f"✅ 共计可购买{totalCounts}个{shopName}")
+                    successBuyCounts = 0
+                    for shopDict in shopLists:
+                        successBuyCounts += self.purchaseItem(shopDict)
+                    failedBuyCounts = totalCounts - successBuyCounts
+                    if successBuyCounts > 0:
+                        log = f"🎉 成功购买${successBuyCounts}个{shopName}"
+                        if failedBuyCounts > 0:
+                            log += f"（未成功购买{failedBuyCounts}个）"
+                    else:
+                        log = f"❌ 全部购买失败，共计{totalCounts}个"
+                    backPack = self.scrapeCouponInfo()
+                    print(f"{log}\n✅ 现在剩余{backPack['money']}点券，{backPack['coupons']}消费券\n")
+                else:
+                    print(f"⭕ {'余额' if self.isLastDays(3) else '消费券'}不足以购买{shopName}\n")
+            else:
+                print(f"❌ 购物 Cookie 已过期，请更新 ZSFC_CONFIG 环境变量\n")
+
 
 if __name__ == "__main__":
-    configs = os.environ.get("ZSFC_CONFIG")
-    configLists = configs.split('&') if '&' in configs else configs.split('@')
-    for config in configLists:
-        scraper = CouponScraper(json.loads(config))
-        signInGifts = scraper.getSignInGifts()
-        scraper.dailyCheckIn(signInGifts['每日签到'])
-        totalSignInDay = scraper.getTotalSignInDays()
-
-        signInInfoLists = []
-        if signInGifts.get(f"{totalSignInDay}天"):
-            signInInfoLists.append(signInGifts[f"{totalSignInDay}天"])
-
-        formattedDate = f"{datetime.datetime.now().month}月{datetime.datetime.now().day}日"
-        if signInGifts.get(formattedDate):
-            signInInfoLists.append(signInGifts[formattedDate])
-
-        if len(signInInfoLists):
-            for i in signInInfoLists:
-                scraper.claimGift(i)
-
-        shopName = scraper.getGameItem()
-        backPack = scraper.scrapeCouponInfo()
-
-        if not backPack:
-            print(f"❌ 购物 Cookie 已过期，请更新 ZSFC_CONFIG 环境变量\n")
-        else:
-            money, coupons = backPack['money'], backPack['coupons']
-            print(f"✅ 当前共有{money}点券，{coupons}消费券")
-            shopLists, totalCounts = scraper.getShopItems(shopName, money + coupons if scraper.isLastDays(3) else coupons)
-            if totalCounts:
-                print(f"✅ 共计可购买{totalCounts}个{shopName}")
-                successBuyCounts = 0
-                for shopDict in shopLists:
-                    successBuyCounts += scraper.purchaseItem(shopDict)
-                failedBuyCounts = totalCounts - successBuyCounts
-                if successBuyCounts > 0:
-                    log = f"🎉 成功购买${successBuyCounts}个{shopName}"
-                    if failedBuyCounts > 0:
-                        log += f"（未成功购买{failedBuyCounts}个）"
-                else:
-                    log = f"❌ 全部购买失败，共计{totalCounts}个"
-                backPack = scraper.scrapeCouponInfo()
-                print(f"✅ 现在剩余{backPack['money']}点券，{backPack['coupons']}消费券\n")
-            else:
-                print(f"⭕ {'余额' if scraper.isLastDays(3) else '消费券'}不足以购买{shopName}\n")
+    speed = QQSpeedApplication()
+    speed.run()

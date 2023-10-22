@@ -81,7 +81,7 @@ const isreq = typeof $request !== 'undefined';
     $.log(dataToWrite);
 
     // 显示签到结果通知
-    $.notice($.name, '✅ 获取签到数据成功！', `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
+    $.notice($.name, `✅ 获取签到数据成功（${dataToWrite.zsfc_iFlowId}）`, `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
 
   } else {
     /**
