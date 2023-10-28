@@ -49,6 +49,9 @@ const isreq = typeof $request !== 'undefined';
     const url = $request.url;
     const cookie = $request.headers.cookie;
 
+    // 对比 token 是否发生变化
+    if ($.read(`zsfc_token`) == matchStr(url, "token")) return;
+
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
       "zsfc_accessToken": matchStr(url, "accessToken"),
