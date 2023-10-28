@@ -309,7 +309,7 @@ class QQSpeedApplication:
                         successBuyCounts += self.purchaseItem(shopDict)
                     failedBuyCounts = totalCounts - successBuyCounts
                     if successBuyCounts > 0:
-                        log = f"🎉 成功购买${successBuyCounts}个{shopName}"
+                        log = f"🎉 成功购买{successBuyCounts}个{shopName}"
                         if failedBuyCounts > 0:
                             log += f"（未成功购买{failedBuyCounts}个）"
                     else:
