@@ -51,7 +51,7 @@ class logger {
 
   static log(message) {
     message = `[${this.id}] [ LOG ] ${message}`;
-    console.log(message);
+    // console.log(message);  // 无谓的log
   }
 
   static error(message) {
