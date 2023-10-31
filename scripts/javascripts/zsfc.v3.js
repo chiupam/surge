@@ -69,6 +69,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
+      'zsfc_iActivityId': (matchParam(body, 'iActivityId')).toString(),
       'zsfc_iFlowId': (matchParam(body, 'iFlowId') - 1).toString(),
       'zsfc_accessToken': matchParam(cookie, 'accessToken'),
       'zsfc_openid': matchParam(cookie, 'openId'),
@@ -156,12 +157,12 @@ function matchParam(input, key) {
  */
 async function getSignInGifts() {
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
   },
     body: $.queryStr({
-      "iActivityId": "587170",
+      "iActivityId": $.read(`zsfc_iActivityId`),
       "g_tk": "1842395457",
       "sServiceType": "speed",
       "iFlowId": $.read(`zsfc_iFlowId`)
@@ -197,12 +198,12 @@ async function getSignInGifts() {
  */
 async function dailyCheckin(iFlowId) {
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
   },
   body: $.queryStr({
-    "iActivityId": "587170",
+    "iActivityId": $.read(`zsfc_iActivityId`),
     "g_tk": "1842395457",
     "sServiceType": "speed",
     "iFlowId": iFlowId
@@ -238,12 +239,12 @@ async function dailyCheckin(iFlowId) {
 async function getTotalSignInDays() {
   let totalSignInDays;
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
     body: $.queryStr({
-      "iActivityId": "587170",
+      "iActivityId": $.read(`zsfc_iActivityId`),
       "g_tk": "1842395457",
       "sServiceType": "speed",
       "iFlowId": $.read(`zsfc_iFlowId`) * 1 + 1
@@ -274,12 +275,12 @@ async function getTotalSignInDays() {
  */
 async function claimGift(giftId, giftName) {
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
     body: $.queryStr({
-      "iActivityId": "587170",
+      "iActivityId": $.read(`zsfc_iActivityId`),
       "g_tk": "1842395457",
       "sServiceType": "speed",
       "iFlowId": giftId
