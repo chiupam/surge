@@ -1,7 +1,7 @@
 /**
  *
  * 使用方法：打开掌上飞车APP, 点击咨询栏的签到（每日福利）即可，无需点击签到。
- * 注意事项：每月需手动打开一次掌上飞车APP并进入签到页面，以重新抓包更新礼包数据，为此需要每日运行两次脚本
+ * 注意事项：每月需手动打开一次掌上飞车APP并进入签到页面，以重新抓包更新礼包数据，为此需要每日运行两次脚本；如果账号信息没有发生根本性变化的话，抓取 Cookie 等信息就不会被执行
  *
  * hostname: comm.ams.game.qq.com
  *
@@ -48,7 +48,7 @@ const isreq = typeof $request !== 'undefined';
      */
 
     // 设置触发脚本的间隔时间, 单位为秒
-    const interval = 120;
+    const interval = 3;
     // 不能触发 requests 脚本，程序终止
     if (Date.now() - $.read(`zsfc_timestamp`) <= interval * 1000) return;
 
@@ -77,13 +77,18 @@ const isreq = typeof $request !== 'undefined';
       'zsfc_time': new Date().toLocaleString().toString(),
       'zsfc_month': (new Date().getMonth() + 1).toString()
     };
+
+    // 如果所有条件都满足，则立即终止程序
+    const keysToCheck = ['zsfc_iActivityId', 'zsfc_iFlowId', 'zsfc_accessToken', 'zsfc_openid'];
+    if (keysToCheck.every(key => dataToWrite[key] === $.read(key))) return;
+
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
 
     // 输出到日志只输出特定的键值对
-    // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
-    // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
-    $.log(dataToWrite)
+    const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
+    $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
+    // $.log(dataToWrite)
 
     // 显示签到结果通知
     $.notice($.name, `✅ 获取签到数据成功（${dataToWrite.zsfc_iFlowId}/${dataToWrite.zsfc_iActivityId}）`, `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
@@ -95,8 +100,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 检查用户本月是否打开过签到页面
     const month = (new Date().getMonth() + 1).toString();
-    if (!$.read(`zsfc_month`)) $.write(month, `zsfc_month`);
-    if (month != $.read(`zsfc_month`)) {
+    if (!$.read(`zsfc_month`) || month != $.read(`zsfc_month`)) {
       $.notice($.name, `❌ 本月未打开过掌上飞车APP`, `每月需打开一次掌上飞车APP并进到签到页面`);
       return;
     }
@@ -105,12 +109,7 @@ const isreq = typeof $request !== 'undefined';
       url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
       headers: {
         "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
-    },
-      body: $.queryStr({
-        "iActivityId": $.read(`zsfc_iActivityId`),
-        "g_tk": "1842395457",
-        "sServiceType": "speed"
-      })
+    }
     };
 
     // 获取本月签到礼物列表
@@ -173,7 +172,12 @@ function matchParam(input, key) {
  */
 async function getSignInGifts(option) {
   const options = option;
-  options.body += `&iFlowId=${$.read(`zsfc_iFlowId`)}`;
+  options.body = $.queryStr({
+    "iActivityId": $.read(`zsfc_iActivityId`),
+    "g_tk": "1842395457",
+    "sServiceType": "speed",
+    "iFlowId": $.read(`zsfc_iFlowId`)
+  });
   $.log(`🧑‍💻 开始获取本月礼物列表`);
   let giftsDictionary = {};
   return new Promise(resolve => {
@@ -204,7 +208,12 @@ async function getSignInGifts(option) {
  */
 async function dailyCheckin(option, iFlowId) {
   const options = option;
-  options.body += `&iFlowId=${iFlowId}`;
+  options.body = $.queryStr({
+    "iActivityId": $.read(`zsfc_iActivityId`),
+    "g_tk": "1842395457",
+    "sServiceType": "speed",
+    "iFlowId": iFlowId
+  });
   $.log(`🧑‍💻 开始进行每日签到`);
   return new Promise(resolve => {
     $.post(options, (err, resp, data) => {
@@ -234,7 +243,12 @@ async function dailyCheckin(option, iFlowId) {
  */
 async function getTotalSignInDays(option) {
   const options = option;
-  options.body += `&iFlowId=${$.read(`zsfc_iFlowId`) * 1 + 1}`;
+  options.body = $.queryStr({
+    "iActivityId": $.read(`zsfc_iActivityId`),
+    "g_tk": "1842395457",
+    "sServiceType": "speed",
+    "iFlowId": $.read(`zsfc_iFlowId`) * 1 + 1
+  });
   let totalSignInDays;
   $.log(`🧑‍💻 开始获取累签天数`);
   return new Promise(resolve => {

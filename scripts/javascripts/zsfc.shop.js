@@ -76,6 +76,7 @@ const isreq = typeof $request !== 'undefined';
     // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
     // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
     $.log(dataToWrite)
+    $.log(`token: ${dataToWrite.zsfc_token}`)
 
     // 发送通知
     $.notice($.name, `✅ 获取商城数据成功！`, `请不要再次打开掌上飞车APP, 否则 Cookie 将失效！`);

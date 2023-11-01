@@ -72,6 +72,7 @@ const isreq = typeof $request !== 'undefined';
     // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
     // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
     $.log(dataToWrite)
+    $.log(`token: ${dataToWrite.zsfc_token}`)
 
     // 发送通知
     $.notice($.name, `✅ 获取寻宝数据成功！`, `此脚本需每天打开掌上飞车APP并进入一次寻宝页面`, ``);

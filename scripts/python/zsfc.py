@@ -269,8 +269,8 @@ class QQSpeedApplication:
     def run(self):
         configs = os.environ.get("ZSFC_CONFIG")
         configLists = configs.split('&') if '&' in configs else configs.split('@')
-        self.iActivityId = os.environ.get("ZSFC_iActivityId")
-        self.iFlowdId = os.environ.get("ZSFC_iFlowdId")
+        self.iActivityId = os.environ.get("ZSFC_iActivityId") if os.environ.get("ZSFC_iActivityId") else os.environ.get("ZSFC_iFlowdId").split("/")[-1]
+        self.iFlowdId = os.environ.get("ZSFC_iFlowdId").split("/")[0] if "/" in os.environ.get("ZSFC_iFlowdId") else os.environ.get("ZSFC_iFlowdId")
 
         for config in configLists:
             self.config = json.loads(config)

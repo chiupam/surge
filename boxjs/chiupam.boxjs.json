@@ -83,7 +83,7 @@
           "desc": "掌上飞车APP的购买道具名称，仅部分支持，具体查看脚本"
         },
         {
-          "id": "zsfc_timestamp",
+          "id": "zsfc_time",
           "name": "数据获取时间",
           "val": "",
           "type": "text",
