@@ -55,18 +55,18 @@
       ],
       "settings": [
         {
-          "id": "zsfc_roleId",
-          "name": "掌上飞车登录QQ账号",
+          "id": "zsfc_iActivityId",
+          "name": "掌上飞车活动id",
           "val": "",
           "type": "text",
-          "desc": "当前登录掌上飞车的QQ账号"
+          "desc": "当月每日签到的活动ID"
         },
         {
           "id": "zsfc_iFlowId",
-          "name": "当月签到ID",
+          "name": "掌上飞车签到id",
           "val": "",
           "type": "text",
-          "desc": "当月每日签到的ID"
+          "desc": "当月每日签到的流水ID"
         },
         {
           "id": "zsfc_token",
@@ -81,6 +81,13 @@
           "val": "",
           "type": "text",
           "desc": "掌上飞车APP的购买道具名称，仅部分支持，具体查看脚本"
+        },
+        {
+          "id": "zsfc_timestamp",
+          "name": "数据获取时间",
+          "val": "",
+          "type": "text",
+          "desc": ""
         }
       ],
       "author": "@chiupam",

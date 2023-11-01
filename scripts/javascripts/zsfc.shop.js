@@ -59,6 +59,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
+      'zsfc_iActivityId': $.read(`zsfc_iActivityId`),  // 掌飞商城无法抓取，只能读取签到页面的脚本获取情况
       "zsfc_accessToken": matchStr(url, "accessToken"),
       "zsfc_openid": matchStr(cookie, "openid"),
       "zsfc_token": matchStr(url, "token"),
@@ -67,10 +68,14 @@ const isreq = typeof $request !== 'undefined';
       "zsfc_areaId": matchStr(url, "areaId"),
       'zsfc_uin': matchStr(url, "uin"),
     };
-    $.log(dataToWrite);
 
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
+
+    // 输出到日志只输出特定的键值对
+    // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
+    // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
+    $.log(dataToWrite)
 
     // 发送通知
     $.notice($.name, `✅ 获取商城数据成功！`, `请不要再次打开掌上飞车APP, 否则 Cookie 将失效！`);

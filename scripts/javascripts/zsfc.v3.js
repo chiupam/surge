@@ -79,10 +79,14 @@ const isreq = typeof $request !== 'undefined';
     };
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
-    $.log(dataToWrite);
+
+    // 输出到日志只输出特定的键值对
+    // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
+    // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
+    $.log(dataToWrite)
 
     // 显示签到结果通知
-    $.notice($.name, `✅ 获取签到数据成功（${dataToWrite.zsfc_iFlowId}）`, `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
+    $.notice($.name, `✅ 获取签到数据成功（${dataToWrite.zsfc_iFlowId}/${dataToWrite.zsfc_iActivityId}）`, `${interval}秒后请不要再点击本页面中的任何按钮，否则脚本会失效！`);
 
   } else {
     /**
@@ -97,14 +101,26 @@ const isreq = typeof $request !== 'undefined';
       return;
     }
 
+    const option = {
+      url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
+      headers: {
+        "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
+    },
+      body: $.queryStr({
+        "iActivityId": $.read(`zsfc_iActivityId`),
+        "g_tk": "1842395457",
+        "sServiceType": "speed"
+      })
+    };
+
     // 获取本月签到礼物列表
-    const signInGifts = await getSignInGifts();
+    const signInGifts = await getSignInGifts(option);
 
     // 进行每日签到
-    await dailyCheckin(signInGifts['每日签到']);
+    await dailyCheckin(option, signInGifts['每日签到']);
 
     // 获取本月累签天数
-    const totalSignInDay = await getTotalSignInDays();
+    const totalSignInDay = await getTotalSignInDays(option);
 
     // 初始化 signInInfoArray 数组
     let signInInfoArray = [];
@@ -127,7 +143,7 @@ const isreq = typeof $request !== 'undefined';
     // 遍历礼包数组，领取奖励
     for (let signInInfo of signInInfoArray) {
       let { code, title } = signInInfo;
-      await claimGift(code, title);
+      await claimGift(option, code, title);
     }
 
     // 显示签到结果通知
@@ -155,19 +171,9 @@ function matchParam(input, key) {
  * @description 获取签到信息，并返回签到礼物列表
  * @returns {Promise<Array>} 返回一个包含本月礼物的数组的 Promise。
  */
-async function getSignInGifts() {
-  const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
-    headers: {
-      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
-  },
-    body: $.queryStr({
-      "iActivityId": $.read(`zsfc_iActivityId`),
-      "g_tk": "1842395457",
-      "sServiceType": "speed",
-      "iFlowId": $.read(`zsfc_iFlowId`)
-    })
-  };
+async function getSignInGifts(option) {
+  const options = option;
+  options.body += `&iFlowId=${$.read(`zsfc_iFlowId`)}`;
   $.log(`🧑‍💻 开始获取本月礼物列表`);
   let giftsDictionary = {};
   return new Promise(resolve => {
@@ -196,19 +202,9 @@ async function getSignInGifts() {
  * @param {string} iFlowId - 每日签到礼包的 iFlowId
  * @returns {Promise<Array>} 返回一个包含本月礼物的数组的 Promise。
  */
-async function dailyCheckin(iFlowId) {
-  const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
-    headers: {
-      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
-  },
-  body: $.queryStr({
-    "iActivityId": $.read(`zsfc_iActivityId`),
-    "g_tk": "1842395457",
-    "sServiceType": "speed",
-    "iFlowId": iFlowId
-    })
-  };
+async function dailyCheckin(option, iFlowId) {
+  const options = option;
+  options.body += `&iFlowId=${iFlowId}`;
   $.log(`🧑‍💻 开始进行每日签到`);
   return new Promise(resolve => {
     $.post(options, (err, resp, data) => {
@@ -236,20 +232,10 @@ async function dailyCheckin(iFlowId) {
  * @description 获取累签天数的情况
  * @returns {Promise<string>} 返回累签天数
  */
-async function getTotalSignInDays() {
+async function getTotalSignInDays(option) {
+  const options = option;
+  options.body += `&iFlowId=${$.read(`zsfc_iFlowId`) * 1 + 1}`;
   let totalSignInDays;
-  const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
-    headers: {
-      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
-    },
-    body: $.queryStr({
-      "iActivityId": $.read(`zsfc_iActivityId`),
-      "g_tk": "1842395457",
-      "sServiceType": "speed",
-      "iFlowId": $.read(`zsfc_iFlowId`) * 1 + 1
-      })
-  };
   $.log(`🧑‍💻 开始获取累签天数`);
   return new Promise(resolve => {
     $.post(options, (err, resp, data) => {
@@ -273,19 +259,9 @@ async function getTotalSignInDays() {
  * @param {string} giftId 礼物 ID
  * @param {string} giftName 礼物名称
  */
-async function claimGift(giftId, giftName) {
-  const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
-    headers: {
-      "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
-    },
-    body: $.queryStr({
-      "iActivityId": $.read(`zsfc_iActivityId`),
-      "g_tk": "1842395457",
-      "sServiceType": "speed",
-      "iFlowId": giftId
-      })
-  };
+async function claimGift(option, giftId, giftName) {
+  const options = option;
+  options.body += `&iFlowId=${giftId}`;
   return new Promise(resolve => {
     $.post(options, (err, resp, data) => {
       if (data) {

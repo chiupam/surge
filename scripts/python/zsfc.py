@@ -8,12 +8,14 @@
      ZSFC_CONFIG  ==> 掌飞寻宝日志输出的全部内容
     ZSFC_iFlowdId ==> 掌上飞车日志输出内容中的iFlowId
     ZSFC_SHOPNAME ==> 掌飞商店需要购买的道具名称，部分支持
+   ZSFC_iActivityId ==> 掌上飞车日志输出内容中的iActivityId
 
 注意事项：
     1.环境变量填写进 config.sh 配置文件中，无法填入环境变量中
         export ZSFC_CONFIG=''
         export ZSFC_iFlowdId=''
         export ZSFC_SHOPNAME=''
+        export ZSFC_iActivityId=''
     2.多变量使用 & 进行分割，或者使用 @ 进行分割
     3.购物仅支持购买，不填写则默认从普通改装道具中（除防护装置外）按月份排序购买
         雷诺
@@ -44,6 +46,7 @@ class QQSpeedApplication:
         self.userId = None
         self.token = None
         self.uin = None
+        self.iActivityId = None
         self.shopIdDict = {
             "雷诺": {"itemId": "12720", "price_idx": {"180天": {"index": "0", "price": 12200}}},
             "进气系统": {"itemId": "12377", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
@@ -102,7 +105,7 @@ class QQSpeedApplication:
         return shopArrays, totalCount if totalCount else 0
 
     def getSignInGifts(self):
-        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+        url = f"https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId={self.iActivityId}"
 
         headers = {
             "Cookie": (
@@ -114,7 +117,7 @@ class QQSpeedApplication:
         }
 
         data = {
-            "iActivityId": "587170",
+            "iActivityId": self.iActivityId,
             "g_tk": "1842395457",
             "sServiceType": "speed",
             "iFlowId": self.iFlowdId
@@ -133,7 +136,7 @@ class QQSpeedApplication:
         return giftsDict
 
     def dailyCheckIn(self, dailyFlowId):
-        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+        url = f"https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId={self.iActivityId}"
 
         headers = {
             "Cookie": (
@@ -145,7 +148,7 @@ class QQSpeedApplication:
         }
 
         data = {
-            "iActivityId": "587170",
+            "iActivityId": self.iActivityId,
             "g_tk": "1842395457",
             "sServiceType": "speed",
             "iFlowId": dailyFlowId
@@ -160,7 +163,7 @@ class QQSpeedApplication:
             print(f"✅ 签到成功: 获得{response.json()['modRet']['sPackageName']}")
 
     def getTotalSignInDays(self):
-        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+        url = f"https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId={self.iActivityId}"
 
         headers = {
             "Cookie": (
@@ -172,7 +175,7 @@ class QQSpeedApplication:
         }
 
         data = {
-            "iActivityId": "587170",
+            "iActivityId": self.iActivityId,
             "g_tk": "1842395457",
             "sServiceType": "speed",
             "iFlowId": int(self.iFlowdId) + 1
@@ -188,7 +191,7 @@ class QQSpeedApplication:
         return totalSignInDays
 
     def claimGift(self, awardFlowId):
-        url = "https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=587170"
+        url = f"https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId={self.iActivityId}"
         headers = {
             "Cookie": (
                 f"access_token={self.accessToken}; "
@@ -198,7 +201,7 @@ class QQSpeedApplication:
             )
         }
         data = {
-            "iActivityId": "587170",
+            "iActivityId": self.iActivityId,
             "g_tk": "1842395457",
             "sServiceType": "speed",
             "iFlowId": awardFlowId
@@ -266,6 +269,7 @@ class QQSpeedApplication:
     def run(self):
         configs = os.environ.get("ZSFC_CONFIG")
         configLists = configs.split('&') if '&' in configs else configs.split('@')
+        self.iActivityId = os.environ.get("ZSFC_iActivityId")
         self.iFlowdId = os.environ.get("ZSFC_iFlowdId")
 
         for config in configLists:
