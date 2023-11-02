@@ -48,7 +48,7 @@ const isreq = typeof $request !== 'undefined';
      */
 
     // 设置触发脚本的间隔时间, 单位为秒
-    const interval = 3;
+    const interval = 300;
     // 不能触发 requests 脚本，程序终止
     if (Date.now() - $.read(`zsfc_timestamp`) <= interval * 1000) return;
 
