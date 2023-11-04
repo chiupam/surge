@@ -81,13 +81,6 @@
           "val": "",
           "type": "text",
           "desc": "掌上飞车APP的购买道具名称，仅部分支持，具体查看脚本"
-        },
-        {
-          "id": "zsfc_time",
-          "name": "数据获取时间",
-          "val": "",
-          "type": "text",
-          "desc": ""
         }
       ],
       "author": "@chiupam",
@@ -96,6 +89,44 @@
       "icons": [
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg",
         "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/zsfc.jpeg"
+      ]
+    },
+    {
+      "id": "QLAPI",
+      "name": "青龙API参数设置",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\"> 青龙面板 => 系统设置 => 应用设置 </a></h4>",
+        "<h4 align=\"center\"> 相应的应用必须拥有 “环境变量” 权限 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "ql_url",
+          "name": "青龙面板地址",
+          "val": "",
+          "type": "text",
+          "desc": "建议填写外网地址，任何时候都可以调用成功"
+        },
+        {
+          "id": "ql_client_id",
+          "name": "青龙应用ClientID",
+          "val": "",
+          "type": "text",
+          "desc": "青龙面板应用设置中的应用ID"
+        },
+        {
+          "id": "ql_client_secret",
+          "name": "青龙应用ClientSecret",
+          "val": "",
+          "type": "text",
+          "desc": "青龙面板应用设置中的应用Secret"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "icons": [
+        "https://qn.whyour.cn/logo.png",
+        "https://qn.whyour.cn/logo.png"
       ]
     }
   ]
