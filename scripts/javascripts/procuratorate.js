@@ -97,10 +97,8 @@ let isreq = typeof $request !== 'undefined';
         return;
       }
 
-      $.log('✅ 当天是工作日, 进行打卡');
-
       // 检查打卡类型是否符合条件
-      const punchType = await checkPunchCardAvailability();
+      const punchType = checkPunchCardAvailability();
 
       // 判断是否需要进行打卡
       if (!punchType) {
@@ -203,9 +201,6 @@ async function checkWorkdayStatus(apiType = true) {
     timeout: 10000 // 设置请求超时时间为10秒
   };
 
-  // 输出日志，开始使用接口检查工作日状态
-  $.log(`🧑‍💻 开始使用接口检查工作日状态...`);
-
   // 发送 GET 异步请求并返回一个 Promise 对象
   return new Promise(resolve => {
     $.get(options, (error, response, data) => {
@@ -247,9 +242,6 @@ async function GetAttCheckinoutList(status) {
          `Mid=${$.read(`procuratorate_Mid`)}`,
     timeout: 10000
   };
-
-  // 输出日志，开始获取打卡情况
-  $.log(`🧑‍💻 开始获取打卡情况...`);
 
   // 发送 POST 异步请求并返回一个 Promise 对象
   return new Promise(resolve => {
@@ -339,7 +331,7 @@ async function SaveAttCheckinout(punchType) {
   };
 
   // 生成随机等待时间（单位：毫秒）
-  const randomWaitTime = Math.floor(Math.random() * 29000) + 1000; // 随机等待时间为 1 到 30 秒之间
+  const randomWaitTime = Math.floor(Math.random() * 5000) + 1000; // 随机等待时间为 1 到 6 秒之间
 
   // 输出日志，记录经纬度具体情况
   $.log(`📍 经纬度: ${$.read(`procuratorate_lat`)}${lat}, ${$.read(`procuratorate_lng`)}${lng}`);
