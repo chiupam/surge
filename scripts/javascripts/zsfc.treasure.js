@@ -54,7 +54,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
-      'zsfc_iActivityId': $.read(`zsfc_iActivityId`),  // 掌飞商城无法抓取，只能读取签到页面的脚本获取情况
+      'zsfc_iActivityId': $.read(`zsfc_iActivityId`),  // 掌飞寻宝无法抓取，只能读取签到页面的脚本获取情况
       "zsfc_accessToken": matchStr(url, "accessToken"),
       "zsfc_openid": matchStr(cookie, "openid"),
       "zsfc_token": matchStr(url, "token"),
@@ -62,28 +62,51 @@ const isreq = typeof $request !== 'undefined';
       "zsfc_userId": matchStr(url, "userId"),
       "zsfc_areaId": matchStr(url, "areaId"),
       'zsfc_uin': matchStr(url, "uin"),
-      'zsfc_treasure_day': (new Date().getDate()).toString()
+      'zsfc_day': (new Date().getDate()).toString()
     };
 
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
-
-    // 输出到日志只输出特定的键值对
-    // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
-    // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
     $.log(dataToWrite)
-    $.log(`token: ${dataToWrite.zsfc_token}`)
 
     // 发送通知
     $.notice($.name, `✅ 获取寻宝数据成功！`, `此脚本需每天打开掌上飞车APP并进入一次寻宝页面`, ``);
+
+    // 检查并设置青龙相关变量
+    if ($.read(`ql_url`) && $.read(`ql_client_id`) && $.read(`ql_client_secret`) && $.toObj($.read(`zsfc_upload_config`))) {
+      const qlUrlCache = $.read(`ql_url`);
+      $.qlUrl = qlUrlCache.charAt(qlUrlCache.length - 1) === '/' ? qlUrlCache.slice(0, -1) : qlUrlCache;
+      $.qlId = $.read(`ql_client_id`);
+      $.qlSecret = $.read(`ql_client_secret`);
+      $.qlToken = await qlToken();
+
+      const qlEnvsName = `ZSFC_CONFIG`;
+      const qlEnvsValue = $.toStr(dataToWrite);
+      const qlEnvsRemarks = `掌飞商城`;
+
+      // 获取青龙面板令牌，若成功则执行后续操作
+      if ($.qlToken) {
+        const qlEnvsNewBody = await qlEnvsSearch(qlEnvsName, qlEnvsValue, qlEnvsRemarks);
+        if (!qlEnvsNewBody) return;  // 环境变量的值没有发生变化，不需要进行操作
+
+        // 检查并处理环境变量的返回值类型
+        if (Array.isArray(qlEnvsNewBody)) {
+          // 暂时无法完成新增操作，后续再修改
+          $.log(`⭕ 手动添加名为 ${qlEnvsName} 变量`);
+        } else {
+          await qlEnvsEdit(qlEnvsNewBody);
+        }
+      } else {
+        $.log("❌ 无法获取 token，请检查青龙相关配置");
+      }
+    }
 
   } else {
     // 处理非请求时的逻辑
 
     // 检查用户今天是否打开过寻宝页面
     const date = (new Date().getDate()).toString();
-    if (!$.read(`zsfc_treasure_day`)) $.write(date, `zsfc_treasure_day`);
-    if (date != $.read(`zsfc_treasure_day`)) {
+    if (date != $.read(`zsfc_day`)) {
       $.log(`❌ 今天未进过寻宝页面`);
       return;
     }
@@ -126,7 +149,6 @@ const isreq = typeof $request !== 'undefined';
 
     // 这个脚本不发送通知，静默运行
     // $.notice($.name, ``, ``, ``);
-    $.write(date, `zsfc_treasure_day`);
   }
 })()
   .catch((e) => $.notice($.name, '❌ 未知错误无法寻宝', e, ''))
@@ -296,6 +318,102 @@ async function claimTreasureReward(flowId) {
         $.log($.toStr(error));
       }
       resolve(sPackageName);
+    });
+  });
+}
+
+/**
+ * @description 获取青龙面板令牌
+ * @returns {Promise<string|boolean>} 返回一个包含青龙面板令牌或布尔值的 Promise。
+ */
+async function qlToken() {
+  let accessToken; // 更具体的变量名，表示访问令牌
+  const options = {
+    url: `${$.qlUrl}/open/auth/token?client_id=${$.qlId}&client_secret=${$.qlSecret}`
+  };
+  return new Promise(resolve => {
+    $.get(options, (err, resp, data) => {
+      if (data) {
+        const responseBody = $.toObj(data);
+        if (responseBody.code === 200) {
+          accessToken = responseBody.data.token;
+        } else {
+          accessToken = false;
+        }
+      }
+      resolve(accessToken);
+    });
+  });
+}
+
+/**
+ * @description 搜索环境变量并生成新的请求体部分参数
+ * @param {string} envsName - 新环境变量的名称
+ * @param {string} envsValue - 新环境变量的具体值
+ * @param {string} envsRemarks - 新环境变量的备注名
+ * @returns {Promise<object|Array|boolean>} 返回一个请求体对象或列表或布尔值的 Promise。
+ */
+async function qlEnvsSearch(envsName, envsValue, envsRemarks) {
+  let requestPayload; // 代表请求体的变量名更具体
+  const options = {
+    url: `${$.qlUrl}/open/envs?searchValue=${envsName}`,
+    headers: { "Authorization": `Bearer ${$.qlToken}` }
+  };
+  return new Promise(resolve => {
+    $.get(options, (err, resp, data) => {
+      if (data) {
+        const responseBody = $.toObj(data).data;
+        if (responseBody.length === 1) {
+          // 找到匹配的环境变量，生成单个请求体对象
+          const matchingEnv = responseBody[0];
+          if (matchingEnv.value === envsValue) {
+            requestPayload = false;
+          } else {
+            requestPayload = {
+              'id': matchingEnv.id,
+              'name': envsName,
+              'value': envsValue,
+              'remarks': envsRemarks
+            };
+          }
+        } else {
+          // 未找到匹配的环境变量，生成包含一个对象的数组
+          requestPayload = [{
+            'name': envsName,
+            'value': envsValue,
+            'remarks': envsRemarks
+          }];
+        }
+      }
+      resolve(requestPayload);
+    });
+  });
+}
+
+/**
+ * @description 编辑青龙面板的环境变量
+ * @param {object} data - 请求参数
+ */
+async function qlEnvsEdit(data) {
+  const options = {
+    url: `${$.qlUrl}/open/envs`,
+    headers: { "Authorization": `Bearer ${$.qlToken}` },
+    body: data
+  };
+  $.log(options.body)
+  return new Promise(resolve => {
+    // 判断请求方法（post还是put）
+    const requestMethod = Array.isArray(data) ? $.post : $.put;
+    requestMethod(options, (err, resp, responseData) => {
+      if (responseData) {
+        let body = $.toObj(responseData);
+        // 根据返回的状态码处理结果
+        if (body.code !== 200) {
+          $.log(`❌ 上传青龙面板失败`);
+          $.log(body)
+        }
+      }
+      resolve(); // 完成Promise
     });
   });
 }

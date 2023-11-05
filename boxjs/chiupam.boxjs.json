@@ -81,6 +81,20 @@
           "val": "",
           "type": "text",
           "desc": "掌上飞车APP的购买道具名称，仅部分支持，具体查看脚本"
+        },
+        {
+          "id": "zsfc_upload_id",
+          "name": "上传掌飞签到数据",
+          "val": "true",
+          "type": "boolean",
+          "desc": "将获取到的掌飞签到数据上传到青龙面板"
+        },
+        {
+          "id": "zsfc_upload_config",
+          "name": "上传掌飞寻宝和商店数据",
+          "val": "false",
+          "type": "boolean",
+          "desc": "将获取到的掌飞寻宝和商店数据上传到青龙面板"
         }
       ],
       "author": "@chiupam",
@@ -93,7 +107,7 @@
     },
     {
       "id": "QLAPI",
-      "name": "青龙API参数设置",
+      "name": "青龙API",
       "keys": [],
       "descs_html": [
         "<h4 align=\"center\"> 青龙面板 => 系统设置 => 应用设置 </a></h4>",

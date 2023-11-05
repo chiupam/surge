@@ -49,7 +49,7 @@ const option = {
 };
 
 /**
- * 主函数，用于执行打卡操作或设置请求数据
+ * 主函数，用于执行签到操作或设置请求数据
  */
 (async () => {
   if (isRequest) {
@@ -81,8 +81,6 @@ const option = {
     const dataToWrite = {
       'zsfc_iActivityId': ($.iActivityId).toString(),
       'zsfc_iFlowId': ($.iFlowId).toString(),
-      'zsfc_accessToken': cookieToWrite.zsfc_accessToken,
-      'zsfc_openid': cookieToWrite.zsfc_openid,
       'zsfc_month': (new Date().getMonth() + 1).toString()
     }
 
@@ -97,24 +95,28 @@ const option = {
     $.notice($.name, `✅ 获取签到数据成功`, `流水ID：${$.iFlowId}，活动ID：${$.iActivityId}`);
 
     // 检查并设置青龙相关变量
-    if ($.read(`ql_url`) && $.read(`ql_client_id`) && $.read(`ql_client_secret`)) {
+    if ($.read(`ql_url`) && $.read(`ql_client_id`) && $.read(`ql_client_secret`) && $.toObj($.read(`zsfc_upload_id`))) {
       const qlUrlCache = $.read(`ql_url`);
       $.qlUrl = qlUrlCache.charAt(qlUrlCache.length - 1) === '/' ? qlUrlCache.slice(0, -1) : qlUrlCache;
       $.qlId = $.read(`ql_client_id`);
       $.qlSecret = $.read(`ql_client_secret`);
       $.qlToken = await qlToken();
 
+      const qlEnvsName = `ZSFC_iFlowdId`;
+      const qlEnvsValue = `${$.iFlowId}/${$.iActivityId}`;
+      const qlEnvsRemarks = `掌飞签到`;
+
       // 获取青龙面板令牌，若成功则执行后续操作
       if ($.qlToken) {
-        const qlEnvsBody = await qlEnvsSearch(`${$.iFlowId}/${$.iActivityId}`);
-        if (!qlEnvsBody) return;  // 环境变量的值没有发生变化，不需要进行操作
+        const qlEnvsNewBody = await qlEnvsSearch(qlEnvsName, qlEnvsValue, qlEnvsRemarks);
+        if (!qlEnvsNewBody) return;  // 环境变量的值没有发生变化，不需要进行操作
 
         // 检查并处理环境变量的返回值类型
-        if (Array.isArray(qlEnvsBody)) {
+        if (Array.isArray(qlEnvsNewBody)) {
           // 暂时无法完成新增操作，后续再修改
-          $.log("⭕ 手动添加名为 ZSFC_iFlowdId 变量");
+          $.log(`⭕ 手动添加名为 ${qlEnvsName} 变量`);
         } else {
-          await qlEnvsEdit(qlEnvsBody);
+          await qlEnvsEdit(qlEnvsNewBody);
         }
       } else {
         $.log("❌ 无法获取 token，请检查青龙相关配置");
@@ -229,8 +231,8 @@ async function getSignInGifts() {
 
 /**
  * @description 每日签到函数
+ * @param {object} option - 部分请求对象
  * @param {string} iFlowId - 每日签到礼包的 iFlowId
- * @returns {Promise<Array>} 返回一个包含本月礼物的数组的 Promise。
  */
 async function dailyCheckin(option, iFlowId) {
   const options = option;
@@ -265,6 +267,7 @@ async function dailyCheckin(option, iFlowId) {
 
 /**
  * @description 获取累签天数的情况
+ * @param {object} option - 部分请求对象
  * @returns {Promise<string>} 返回累签天数
  */
 async function getTotalSignInDays(option) {
@@ -296,6 +299,7 @@ async function getTotalSignInDays(option) {
 
 /**
  * @description 领取礼物函数
+ * @param {object} option - 部分请求对象
  * @param {string} giftId 礼物 ID
  * @param {string} giftName 礼物名称
  */
@@ -353,13 +357,15 @@ async function qlToken() {
 
 /**
  * @description 搜索环境变量并生成新的请求体部分参数
- * @param {string} newValue - 新的环境变量具体值
- * @returns {Promise<object|boolean>} 返回一个请求体对象或布尔值的 Promise。
+ * @param {string} envsName - 新环境变量的名称
+ * @param {string} envsValue - 新环境变量的具体值
+ * @param {string} envsRemarks - 新环境变量的备注名
+ * @returns {Promise<object|Array|boolean>} 返回一个请求体对象或列表或布尔值的 Promise。
  */
-async function qlEnvsSearch(newValue) {
+async function qlEnvsSearch(envsName, envsValue, envsRemarks) {
   let requestPayload; // 代表请求体的变量名更具体
   const options = {
-    url: `${$.qlUrl}/open/envs?searchValue=ZSFC_iFlowdId`,
+    url: `${$.qlUrl}/open/envs?searchValue=${envsName}`,
     headers: { "Authorization": `Bearer ${$.qlToken}` }
   };
   return new Promise(resolve => {
@@ -369,22 +375,22 @@ async function qlEnvsSearch(newValue) {
         if (responseBody.length === 1) {
           // 找到匹配的环境变量，生成单个请求体对象
           const matchingEnv = responseBody[0];
-          if (matchingEnv.value === newValue) {
+          if (matchingEnv.value === envsValue) {
             requestPayload = false;
           } else {
             requestPayload = {
               'id': matchingEnv.id,
-              'name': 'ZSFC_iFlowdId',
-              'value': newValue,
-              'remarks': '掌飞签到'
+              'name': envsName,
+              'value': envsValue,
+              'remarks': envsRemarks
             };
           }
         } else {
           // 未找到匹配的环境变量，生成包含一个对象的数组
           requestPayload = [{
-            'name': 'ZSFC_iFlowdId',
-            'value': newValue,
-            'remarks': '掌飞签到'
+            'name': envsName,
+            'value': envsValue,
+            'remarks': envsRemarks
           }];
         }
       }
