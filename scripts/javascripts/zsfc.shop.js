@@ -1,11 +1,9 @@
 /**
  *
  * 使用方法：打开掌上飞车APP, 点击下方游戏栏，然后点击掌飞商城即可获取所需数据。
+ * 注意事项：如需购买掌飞商店中的指定商品，请订阅boxjs链接，并在掌上飞车应用中填写在售商品的完整名称
  *
  * boxjs订阅地址：https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json
- *
- * 关于boxjs应用中的道具名称，只能填写以下道具中的其中一个，但我推荐购买改装道具，因为这样可以尽量用光点券
- * 雷诺、进气系统、燃料系统、点火系统、引擎系统、防护装置、普通粒子推进、普通阿尔法离合、重生宝珠LV1、效率宝珠LV1、效率宝珠LV2
  *
  * hostname: bang.qq.com
  *
@@ -84,21 +82,15 @@ const isreq = typeof $request !== 'undefined';
   } else {
     // 执行购物阶段
 
-    // 定义商品信息（目前只支持买着下面的东西，因为我懒得爬取了）
-    const shopIdArray = {
-      "雷诺": {"itemId": "12720", "price_idx": {"180天": {"index": "0", "price": 12200}}}, // 雷诺不购买30天的，有点浪费点券和消费券
-      "进气系统": {"itemId": "12377", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-      "燃料系统": {"itemId": "12378", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-      "点火系统": {"itemId": "12376", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-      "引擎系统": {"itemId": "12380", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-      "防护装置": {"itemId": "96597", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
+    // 读取要购买的商品名称并生成商品列表
+    shopName = $.read(`zsfc_bang_shopname`);
+    if (!shopName) shopName = autoGetGameItem();
+    const shopIdArray = await searchShop(shopName);
 
-      "普通粒子推进": {"itemId": "64025", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-      "普通阿尔法离合": {"itemId": "65028", "price_idx": {"10个": {"index": "0", "price": 3500}, "5个": {"index": "1", "price": 2000}, "1个": {"index": "2", "price": 500}, "50个": {"index": "3", "price": 17500}}},
-
-      "重生宝珠LV1": {"itemId": "21983", "price_idx": {"3个": {"index": "0", "price": 2600}, "2个": {"index": "1", "price": 1800}, "1个": {"index": "2", "price": 990}, "4个": {"index": "3", "price": 3390}}},
-      "效率宝珠LV1": {"itemId": "21977", "price_idx": {"3个": {"index": "0", "price": 2600}, "2个": {"index": "1", "price": 1800}, "1个": {"index": "2", "price": 990}, "4个": {"index": "3", "price": 3390}}},
-      "效率宝珠LV2": {"itemId": "21978", "price_idx": {"3个": {"index": "0", "price": 13000}, "2个": {"index": "1", "price": 9000}, "1个": {"index": "2", "price": 4900}, "4个": {"index": "3", "price": 16990}}}
+    // 无法在掌上商城中搜索到相关商品时终止程序
+    if (!Object.keys(shopIdArray).length) {
+      $.notice($.name, `❌ ${shopName} 未在商店中售卖`, `请在掌上商城中认真核对商品名称`);
+      return;
     }
 
     // 获取当前点券和消费券
@@ -117,10 +109,6 @@ const isreq = typeof $request !== 'undefined';
     const beforeLog = `✅ 当前共有${moneyBefore}点券，${couponsBefore}消费券`;
     $.log(beforeLog);
     $.subtitle = beforeLog;
-
-    // 读取要购买的商品名称
-    shopName = $.read(`zsfc_bang_shopname`);
-    if (!shopName) shopName = autoGetGameItem();
 
     // 获取购物包
     const [shopArray, totalCount] = getShopItems(shopName, shopIdArray[shopName],
@@ -186,6 +174,52 @@ function matchStr(input, key) {
 }
 
 /**
+ * @description 处理输入对象，转换成输出对象
+ * @param {Object} inputObject - 输入对象
+ * @returns {Object} 处理后的输出对象
+ */
+function processInput(inputObj) {
+  // 从输入对象中获取相关属性
+  const szItems = inputObj.szItems[0];
+  const szPrices = inputObj.szPrices;
+
+  // 定义一个映射，将不同的 ItemAvailPeriod 映射为相应的 ItemNum
+  const itemNumMappings = {
+    "4320,720,": "180,30",
+    "4320,720,-1,": "180,30,永久",
+    "720,168,-1,": "30,7,永久",
+    "168,720,-1,": "7,30,永久",
+    "-1,": "永久",
+  };
+
+  // 如果 ItemNum 为空，根据映射设置 ItemNum
+  if (szItems.ItemNum === "") {
+    szItems.ItemNum = itemNumMappings[szItems.ItemAvailPeriod] || "";
+  }
+
+  // 去除szItems.ItemNum末尾的逗号
+  if (szItems.ItemNum.endsWith(',')) {
+    szItems.ItemNum = szItems.ItemNum.slice(0, -1);
+  }
+
+  // 构建输出对象
+  const outputObj = {
+    [inputObj.szName]: {
+      itemId: inputObj.iId,
+      price_idx: Object.fromEntries(szItems.ItemNum.split(',').map((item_num, i) => [
+        item_num,
+        {
+          index: i.toString(),
+          price: szPrices[i] && szPrices[i].SuperMoneyPrice ? parseInt(szPrices[i].SuperMoneyPrice, 10) : 0
+        }
+      ]))
+    }
+  };
+
+  return outputObj;
+}
+
+/**
  * @description 检查今天是否是当月的最后几天
  * @param {number} N - 要检查的倒数第N天
  * @returns {boolean} true 表示今天是当月的倒数第N天，false 表示反之
@@ -217,7 +251,7 @@ function isLastDays(N) {
 function autoGetGameItem() {
   // 定义游戏道具的列表，包括普通改装道具和进阶改装道具
   const gameItems = [
-    "进气系统", "燃料系统", "点火系统", "引擎系统", // 普通改装道具
+    "进气系统+1", "燃料系统+1", "点火装置+1", "引擎装置+1", // 普通改装道具
     // "普通粒子推进", "普通阿尔法离合" // 进阶改装道具，我不需要，注释掉了
   ];
 
@@ -277,6 +311,50 @@ function getShopItems(name, item, money) {
   }
 
   return [shopArray, totalCounts ? totalCounts : 0];
+}
+
+/**
+ * @description 根据商品名称搜索商品信息
+ * @param {string} shopName - 要搜索的商品名称
+ * @returns {Promise<Object>} 包含商品信息的 Promise 对象
+ */
+async function searchShop(shopName) {
+  // 初始化目标商品对象
+  let targetShopObject = {};
+
+  // 获取 URL 中的查询参数
+  const params = {
+    'uin': $.read(`zsfc_uin`),
+    'userId': $.read(`zsfc_userId`),
+    'token': $.read(`zsfc_token`),
+    'start': '0',
+    'paytype': '1',
+    'order': '2',
+    'text': encodeURIComponent(shopName)
+  };
+
+  // 构建请求选项
+  const options = {
+    url: `https://bang.qq.com/app/speed/mall/search?${$.queryStr(params)}`,
+    headers: { Referer: `https://bang.qq.com/app/speed/mall/main2` },
+  };
+
+  // 返回一个 Promise 对象，用于异步操作
+  return new Promise(resolve => {
+    // 发送 POST 请求，获取商品信息
+    $.post(options, (err, resp, data) => {
+      if (data) {
+        const body = $.toObj(data);
+        const targetObject = body.data.find(item => item.szName === shopName);
+        if (targetObject) {
+          // 处理商品信息，将结果赋给目标商品对象
+          targetShopObject = processInput(targetObject);
+        }
+      }
+      // 解析 Promise，将结果对象传递给 resolve 函数
+      resolve(targetShopObject);
+    });
+  });
 }
 
 /**
