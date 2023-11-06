@@ -111,31 +111,31 @@ const isreq = typeof $request !== 'undefined';
     $.subtitle = beforeLog;
 
     // 获取购物包
-    const [shopArray, totalCount] = getShopItems(shopName, shopIdArray[shopName],
+    const [shopArray, totalCount, unit] = getShopItems(shopName, shopIdArray[shopName],
       isLastDays(3) ? moneyBefore + couponsBefore : couponsBefore
     );
 
     // 开始购物循环
     if (shopArray.length) {
-      $.log(`✅ 共计可购买${totalCount}个${shopName}`);
+      $.log(`✅ 预计可购买${totalCount ? totalCount : ""}${unit}${shopName}`);
       let successBuyCounts = 0;
       let failedBuyCounts = 0;
 
       // 开始购物
-      $.log(`✅ 开始购买${totalCount}个${shopName}`);
       for (let buyInfo of shopArray) {
         let { name, count, id, idx } = buyInfo;
         successBuyCounts += await purchaseItem(name, count, id, idx);
       }
-      failedBuyCounts = totalCount - successBuyCounts;
+      failedBuyCounts = totalCount - (successBuyCounts === 999 ? 1 : successBuyCounts);
 
       if (successBuyCounts > 0) {
-        $.message = `🎉 成功购买${successBuyCounts}个${shopName}`;
+        successBuyCounts === 999 ? successBuyCounts = "" : successBuyCounts;
+        $.message = `🎉 成功购买${successBuyCounts}${unit}${shopName}`;
         if (failedBuyCounts > 0) {
-          $.message += `（未成功购买${failedBuyCounts}个）`;
+          $.message += `（未成功购买${failedBuyCounts}${unit}）`;
         }
       } else {
-        $.message = `❌ 全部购买失败，共计${totalCount}个`;
+        $.message = `❌ 全部购买失败，共计${totalCount ? totalCount : ""}${unit}`;
       }
       $.log($.message)
 
@@ -175,48 +175,43 @@ function matchStr(input, key) {
 
 /**
  * @description 处理输入对象，转换成输出对象
- * @param {Object} inputObject - 输入对象
+ * @param {Object} shopInfo - 输入对象
  * @returns {Object} 处理后的输出对象
  */
-function processInput(inputObj) {
-  // 从输入对象中获取相关属性
-  const szItems = inputObj.szItems[0];
-  const szPrices = inputObj.szPrices;
+function processInput(shopInfo) {
+  // 初始化一些变量
+  let resultObject = {};
+  let price_idx = {};
+  let item = shopInfo.szItems[0];
 
-  // 定义一个映射，将不同的 ItemAvailPeriod 映射为相应的 ItemNum
-  const itemNumMappings = {
-    "4320,720,": "180,30",
-    "4320,720,-1,": "180,30,永久",
-    "720,168,-1,": "30,7,永久",
-    "168,720,-1,": "7,30,永久",
-    "-1,": "永久",
-  };
-
-  // 如果 ItemNum 为空，根据映射设置 ItemNum
-  if (szItems.ItemNum === "") {
-    szItems.ItemNum = itemNumMappings[szItems.ItemAvailPeriod] || "";
+  // 准备工作：去除可能的逗号结尾
+  if (item.ItemNum) {
+    item.ItemNum = item.ItemNum.slice(0, -1);
+  } else {
+    item.ItemAvailPeriod = item.ItemAvailPeriod.slice(0, -1);
   }
 
-  // 去除szItems.ItemNum末尾的逗号
-  if (szItems.ItemNum.endsWith(',')) {
-    szItems.ItemNum = szItems.ItemNum.slice(0, -1);
-  }
+  // 对每个项目数量或可用期限和价格执行逻辑
+  let itemArray = (item.ItemNum ? item.ItemNum : item.ItemAvailPeriod).split(',');
 
-  // 构建输出对象
-  const outputObj = {
-    [inputObj.szName]: {
-      itemId: inputObj.iId,
-      price_idx: Object.fromEntries(szItems.ItemNum.split(',').map((item_num, i) => [
-        item_num,
-        {
-          index: i.toString(),
-          price: szPrices[i] && szPrices[i].SuperMoneyPrice ? parseInt(szPrices[i].SuperMoneyPrice, 10) : 0
-        }
-      ]))
-    }
+  // 构建 price_idx 词典信息
+  itemArray.forEach((value, index) => {
+    let key = item.ItemNum ? value : (value === "-1" ? "999" : (Number(value) / 24).toString());
+    let itemPrice = shopInfo.szPrices[index].SuperMoneyPrice;
+    price_idx[key] = {
+      index: index.toString(),  // 价格索引
+      price: itemPrice
+    };
+  });
+
+  // 构建最终结果对象，包括单位信息
+  resultObject[shopInfo.szName] = {
+    price_idx: price_idx,
+    itemId: shopInfo.iId,
+    unit: item.ItemNum ? "个" : "天"  // 根据 ItemNum 存在与否确定单位
   };
 
-  return outputObj;
+  return resultObject;
 }
 
 /**
@@ -289,18 +284,25 @@ function getShopItems(name, item, money) {
   let shopArray = [];
 
   for (let i = 0; i < itemPrices.length; i++) {
+    // 商品数量索引
+    let shopIdx = item.price_idx[itemCounts[i]].index;
+    
+    // 如果购买的商品可以购买永久且当前余额可以购买永久
+    if (itemCounts[i] === 999 && money > itemPrices[i]) {
+      shopArray.push({"name": name, "count": "999", "id": item.itemId, "idx": shopIdx});
+      item.unit = "永久"
+      break;
+    }
+
     // 计算当前余额可以购买的最大道具数量
     const maxItems = Math.floor(money / itemPrices[i]); // 这是一个计算出的整数，表示根据当前余额和道具价格，最多可以购买的道具数量。
     totalCounts += maxItems * itemCounts[i]; // 这是一个累加的变量，用于跟踪购买的总道具数量。
     money -= maxItems * itemPrices[i]; // 这是当前可用的余额。在每次购买道具后，余额会根据购买的道具数量和价格进行更新，以反映购买后的余额。
 
     if (maxItems) {
-      // 获取当前道具的索引
-      const index = item.price_idx[`${itemCounts[i]}天`] || item.price_idx[`${itemCounts[i]}个`];
-
       // 将可购买的道具添加到购物列表
       for (let m = 0; m < maxItems; m++) {
-        shopArray.push({"name": name, "count": itemCounts[i].toString(), "id": item.itemId, "idx": index.index});
+        shopArray.push({"name": name, "count": itemCounts[i].toString(), "id": item.itemId, "idx": shopIdx});
       }
     }
 
@@ -309,8 +311,8 @@ function getShopItems(name, item, money) {
       break;
     }
   }
-
-  return [shopArray, totalCounts ? totalCounts : 0];
+  
+  return [shopArray, totalCounts ? totalCounts : 0, item.unit];
 }
 
 /**
@@ -328,8 +330,8 @@ async function searchShop(shopName) {
     'userId': $.read(`zsfc_userId`),
     'token': $.read(`zsfc_token`),
     'start': '0',
-    'paytype': '1',
-    'order': '2',
+    'paytype': '1',  // 按点券筛选
+    'order': '2', // 按点券筛选
     'text': encodeURIComponent(shopName)
   };
 
@@ -384,7 +386,7 @@ async function getPackInfo(argument) {
   };
 
   // 输出日志，表示开始获取点券和消费券
-  $.log(`🧑‍💻 开始获取${statu}点券和消费券`);
+  if (statu === "before") $.log(`🧑‍💻 开始获取${statu}点券和消费券`);
 
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
