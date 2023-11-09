@@ -98,7 +98,7 @@ let isreq = typeof $request !== 'undefined';
       }
 
       // 检查打卡类型是否符合条件
-      const punchType = checkPunchCardAvailability();
+      const punchType = await checkPunchCardAvailability();
 
       // 判断是否需要进行打卡
       if (!punchType) {

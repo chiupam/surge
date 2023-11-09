@@ -11,20 +11,20 @@
  * requests-body: 1
  *
  * type: cron
- * cron: 0 0-40/20 17,18 * * *
+ * cron: 0 0-59/12 17 * * *
  * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
  *
  * =============== Surge ===============
  * 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
- * 掌飞寻宝 =type=cron, cronexp="0 0-40/20 17,18 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=30
+ * 掌飞寻宝 =type=cron, cronexp="0 0-59/12 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=30
  *
  * =============== Loon ===============
  * http-request ^https?://bang\.qq\.com/app/speed/treasure/index\?* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, requires-body=true, timeout=60, tag=掌飞寻宝Cookie
- * cron "0 0-40/20 17,18 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
+ * cron "0 0-59/12 17 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
  *
  * =============== Quan X ===============
  * ^https?://bang\.qq\.com/app/speed/treasure/index\?* url script-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
- * 0 0-40/20 17,18 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
+ * 0 0-59/12 17 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
  *
  */
 

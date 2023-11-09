@@ -76,8 +76,15 @@
           "desc": "掌上飞车APP的本次生效令牌，重开APP则失效"
         },
         {
-          "id": "zsfc_bang_shopname",
+          "id": "zsfc_shop",
           "name": "掌上飞车商店购买道具",
+          "val": "false",
+          "type": "boolean",
+          "desc": "是否自动执行购买操作，默认不执行"
+        },
+        {
+          "id": "zsfc_bang_shopname",
+          "name": "掌上飞车商店购买的道具完整名称",
           "val": "",
           "type": "text",
           "desc": "掌上飞车APP的购买道具名称，仅支持在售的点券商品"
