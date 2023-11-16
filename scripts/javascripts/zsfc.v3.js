@@ -49,7 +49,7 @@ const isRequest = typeof $request !== 'undefined';
 
     if ($request.url.includes(`amesvr`)) {
       /**
-       * 以下获取签到数据
+       * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 以下获取签到数据 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
        */
 
       // 提取请求数据
@@ -119,7 +119,7 @@ const isRequest = typeof $request !== 'undefined';
       }
     } else {
       /**
-       * 以下获取商城数据
+       * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 以下获取商城数据 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
        */
 
       // 提取请求的URL并去除引号
@@ -156,15 +156,12 @@ const isRequest = typeof $request !== 'undefined';
 
   } else {
     /**
-     * 以下进行签到阶段
+     * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 以下进行签到阶段 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
      */
 
     // 检查用户本月是否打开过签到页面
     const month = (new Date().getMonth() + 1).toString();
-    if (month != $.read(`zsfc_month`)) {
-      $.notice(`🏎️ 掌上飞车`, `❌ 本月未打开过掌上飞车APP`, `每月需打开一次掌上飞车APP并进到签到页面`);
-      return;
-    }
+    if (month != $.read(`zsfc_month`)) return $.notice(`🏎️ 掌上飞车`, `❌ 本月未打开过掌上飞车APP`, `每月需打开一次掌上飞车APP并进到签到页面`);
 
     // 获取本月签到礼物列表
     const signInGifts = await getSignInGifts();
@@ -204,40 +201,27 @@ const isRequest = typeof $request !== 'undefined';
 
 
     /**
-     * 以下进行购物阶段
+     * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 以下进行购物阶段 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
      */
 
-    // 读取到设置不进行购物
-    if (!$.toObj($.read(`zsfc_shop`))) {
-      $.log(`⭕ 设置为不执行购物`)
-      return;
-    }
-
     // 读取到没有获取过商城数据
-    if (!$.read(`zsfc_token`)) {
-      $.notice(`🏎️ 掌飞购物`, `❌ 请先获取商城数据`, `请打开掌上飞车，点击游戏，最后点击掌上商城即可`);
-      return;
-    }
+    if (!$.read(`zsfc_token`)) return $.notice(`🏎️ 掌飞购物`, `❌ 请先获取商城数据`, `打开掌上飞车，点击游戏并进入掌上商城`);
+
+    // 获取当前点券和消费券
+    const packBefore = await getPackInfo(`before`);
+
+    // Cookie 已过期，程序终止
+    if (!packBefore) return $.log(`❌ Cookie 已过期，请重新获取`), $.notice(`🏎️ 掌飞购物`, `❌ Cookie 已过期`, `打开掌上飞车，点击游戏并进入掌上商城`);
+
+    // 读取到设置不进行购物
+    if (!$.toObj($.read(`zsfc_shop`))) return $.log(`⭕ 设置为不执行购物`);
 
     // 读取要购买的商品名称并生成商品列表
     const shopName = $.read(`zsfc_bang_shopname`) || autoGetGameItem();
     const shopIdArray = await searchShop(shopName);
 
     // 无法在掌上商城中搜索到相关商品时终止程序
-    if (!Object.keys(shopIdArray).length) {
-      $.notice(`🏎️ 掌飞购物`, `❌ ${shopName} 未在商店中售卖`, `请在掌上商城中认真核对商品名称`);
-      return;
-    }
-
-    // 获取当前点券和消费券
-    const packBefore = await getPackInfo(`before`);
-
-    // Cookie 已过期，程序终止
-    if (!packBefore) {
-      $.log(`❌ Cookie 已过期，请重新获取`)
-      $.notice(`🏎️ 掌飞购物`, `❌ Cookie 已过期`, `请打开掌上飞车，点击游戏，最后点击掌上商城即可`);
-      return;
-    }
+    if (!Object.keys(shopIdArray).length) return $.notice(`🏎️ 掌飞购物`, `❌ ${shopName} 未在商店中售卖`, `请在掌上商城中认真核对商品名称`);
 
     // 获取当前余额
     const moneyBefore = packBefore.money * 1;
@@ -247,31 +231,35 @@ const isRequest = typeof $request !== 'undefined';
     $.subtitle = beforeLog;
 
     // 获取购物包
-    const [shopArray, totalCount, unit] = getShopItems(shopName, shopIdArray[shopName],
-      isLastDays(3) ? moneyBefore + couponsBefore : couponsBefore
-    );
+    const [shopArray, totalCount, unit] = getShopItems(shopIdArray, packBefore);
 
     // 开始购物循环
     if (shopArray.length) {
-      $.log(`✅ 预计可购买${totalCount ? totalCount : ""}${unit}${shopName}`);
       let successBuyCounts = 0;
       let failedBuyCounts = 0;
 
+      const estimatedBydCounts = totalCount === 999 ? "1个" : totalCount;
+      const caption = totalCount === 999 ? "永久" : unit;
+
+      $.log(`✅ 预计可购买${estimatedBydCounts}${caption}${shopName}`);
+
       // 开始购物
       for (let buyInfo of shopArray) {
-        let { name, count, id, idx } = buyInfo;
-        successBuyCounts += await purchaseItem(name, count, id, idx);
+        let { count, id, idx } = buyInfo;
+        successBuyCounts += await purchaseItem(shopName, count, id, idx);
       }
-      failedBuyCounts = totalCount - (successBuyCounts === 999 ? 1 : successBuyCounts);
 
       if (successBuyCounts > 0) {
-        successBuyCounts === 999 ? successBuyCounts = "" : successBuyCounts;
-        $.shopMsg = `🎉 成功购买${successBuyCounts}${unit}${shopName}`;
+        // 购买永久道具后为避免重复购买自动禁用购买脚本并重置道具名称
+        if (totalCount === 999) $.write(`false`, `zsfc_shop`), $.write(``, `zsfc_bang_shopname`);
+
+        $.shopMsg = `🎉 成功购买${estimatedBydCounts}${caption}${shopName}`;
+        failedBuyCounts = estimatedBydCounts - successBuyCounts;
         if (failedBuyCounts > 0) {
-          $.shopMsg += `（未成功购买${failedBuyCounts}${unit}）`;
+          $.shopMsg += `（未成功购买${failedBuyCounts}${caption}）`;
         }
       } else {
-        $.shopMsg = `❌ 全部购买失败，共计${totalCount ? totalCount : ""}${unit}`;
+        $.shopMsg = `❌ 全部购买失败，共计${estimatedBydCounts}${caption}${shopName}`;
       }
       $.log($.shopMsg)
 
@@ -310,72 +298,6 @@ function matchParam(input, key) {
 }
 
 /**
- * @description 掌飞购物相关函数，处理输入对象，转换成输出对象
- * @param {Object} shopInfo - 输入对象
- * @returns {Object} 处理后的输出对象
- */
-function processInput(shopInfo) {
-  // 初始化一些变量
-  let resultObject = {};
-  let price_idx = {};
-  let item = shopInfo.szItems[0];
-
-  // 准备工作：去除可能的逗号结尾
-  if (item.ItemNum) {
-    item.ItemNum = item.ItemNum.slice(0, -1);
-  } else {
-    item.ItemAvailPeriod = item.ItemAvailPeriod.slice(0, -1);
-  }
-
-  // 对每个项目数量或可用期限和价格执行逻辑
-  let itemArray = (item.ItemNum ? item.ItemNum : item.ItemAvailPeriod).split(',');
-
-  // 构建 price_idx 词典信息
-  itemArray.forEach((value, index) => {
-    let key = item.ItemNum ? value : (value === "-1" ? "999" : (Number(value) / 24).toString());
-    let itemPrice = shopInfo.szPrices[index].SuperMoneyPrice;
-    price_idx[key] = {
-      index: index.toString(),  // 价格索引
-      price: itemPrice
-    };
-  });
-
-  // 构建最终结果对象，包括单位信息
-  resultObject[shopInfo.szName] = {
-    price_idx: price_idx,
-    itemId: shopInfo.iId,
-    unit: item.ItemNum ? "个" : "天"  // 根据 ItemNum 存在与否确定单位
-  };
-
-  return resultObject;
-}
-
-/**
- * @description 掌飞购物相关函数，检查今天是否是当月的最后几天
- * @param {number} N - 要检查的倒数第N天
- * @returns {boolean} true 表示今天是当月的倒数第N天，false 表示反之
- */
-function isLastDays(N) {
-  // 获取当前日期的 Date 对象
-  const today = new Date();
-
-  // 迭代从1到N的整数，用于检查倒数第N天
-  for (let i = 1; i <= N; i++) {
-    // 创建一个新的 Date 对象，表示明天的日期
-    const nextDay = new Date(today);
-    nextDay.setDate(today.getDate() + i);
-
-    // 检查如果明天的月份不等于今天的月份，则表示今天是当月的倒数第N天
-    if (today.getMonth() !== nextDay.getMonth()) {
-      return true;
-    }
-  }
-
-  // 如果没有在循环中返回 true，表示今天不是当月的倒数第N天
-  return false;
-}
-
-/**
  * @description 掌飞购物相关函数，获取当前月份对应的游戏道具。
  * @returns {string} 返回当前月份对应的游戏道具名称。
  */
@@ -386,69 +308,91 @@ function autoGetGameItem() {
     // "普通粒子推进", "普通阿尔法离合" // 进阶改装道具，我不需要，注释掉了
   ];
 
-  // 获取当前月份（加1是因为月份从0开始）
-  const currentMonth = new Date().getMonth() + 1;
-
   // 计算当前月份对应的游戏道具的索引
-  const index = (currentMonth - 1) % gameItems.length;
+  const index = new Date().getMonth() % gameItems.length;
 
   // 返回当前月份对应的游戏道具名称
   return gameItems[index];
 }
 
 /**
- * @description 掌飞购物相关函数，根据当前余额和道具价格生成购物列表
- * @param {string} name - 道具名称
- * @param {object} item - 包含道具价格信息的对象
- * @param {number} money - 当前可用余额
- * @returns {[array, number, str]} - 一个包含待购物对象、总购物数量和计数单位的数组
+ * @description 掌飞购物相关函数，获取商店物品信息。
+ * @param {object} shopInfo - 商店信息对象
+ * @param {object} overage - 用户余额对象
+ * @returns {[array, number, str]} - 返回购买的物品数组、总数和单位信息的数组
  */
-function getShopItems(name, item, money) {
-  // 获取道具价格的所有可购买数量，并由高到低排序
-  const itemCounts = Object.keys(item.price_idx)
-    .map((key) => parseInt(key.match(/\d+/)))
-    .filter((num) => !isNaN(num))
-    .sort((a, b) => b - a);
+function getShopItems(shopInfo, overage) {
+  // 获取今天的日期和本月剩余天数是否小于等于3天
+  const today = new Date();
+  const day = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const lastDay = (day - today.getDate()) <= 3;
 
-  // 获取道具价格的所有价格，并由高到低排序
-  const itemPrices = Object.values(item.price_idx)
-    .map((priceData) => priceData.price)
-    .sort((a, b) => b - a);
+  // 创建一个包含商店信息和物品数据的对象
+  const info = {"Id": shopInfo.iId, "data": []};
+  
+  // 判断商店类型并获取相应的物品数值
+  const shopType = shopInfo.szItems[0].ItemNum !== "";
+  const values = shopType ? shopInfo.szItems[0].ItemNum : shopInfo.szItems[0].ItemAvailPeriod;
+  
+  // 将物品数值转换成数组
+  const numArray = values.split(',').filter(item => item !== '').map((item) => {
+    if (item === "-1") return 999;
+    return shopType ? parseInt(item) : parseInt(item) / 24;
+  });
+  
+  // 根据价格排序物品数据
+  const sortedData = shopInfo.szPrices.map((price, index) => ({
+    price: parseInt(price.SuperMoneyPrice), count: numArray[index], idx: index
+  })).sort((a, b) => b.count - a.count);
+  
+  // 将排序后的数据存入 info 对象
+  sortedData.forEach(({ price, count, idx }) => {
+    info.data.push({ count, price, idx });
+  });
 
-  // 初始化总购物数量和购物列表
-  let totalCounts = 0;
-  let shopArray = [];
+  // 初始化总数、物品数组和剩余金钱
+  let totalCount = 0;
+  let items = [];
+  let remMoney = lastDay ? overage.money + overage.coupons : overage.coupons;
 
-  for (let i = 0; i < itemPrices.length; i++) {
-    // 商品数量索引
-    let shopIdx = item.price_idx[itemCounts[i]].index;
-    
-    // 如果购买的商品可以购买永久且当前余额可以购买永久
-    if (itemCounts[i] === 999 && money > itemPrices[i]) {
-      shopArray.push({"name": name, "count": "999", "id": item.itemId, "idx": shopIdx});
-      item.unit = "永久"
+  const data = info.data;
+  const amount = data.length - 1;
+
+  for (let m = 0; m < data.length; m++) {
+    let itemIndex = data[m].idx;
+
+    // 判断是否购买永久物品
+    if (data[m].count === 999 && remMoney > data[m].price) {
+      items.push({"count": 999, "id": info.Id, "idx": itemIndex});
+      totalCount = data[m].count;
+      info.unit = "永久";
       break;
     }
 
-    // 计算当前余额可以购买的最大道具数量
-    const maxItems = Math.floor(money / itemPrices[i]); // 这是一个计算出的整数，表示根据当前余额和道具价格，最多可以购买的道具数量。
-    totalCounts += maxItems * itemCounts[i]; // 这是一个累加的变量，用于跟踪购买的总道具数量。
-    money -= maxItems * itemPrices[i]; // 这是当前可用的余额。在每次购买道具后，余额会根据购买的道具数量和价格进行更新，以反映购买后的余额。
+    // 计算最大可购买的物品数量并更新总数和剩余金钱
+    const maxPurchasableItems = Math.floor(remMoney / data[m].price);  // 这是一个计算出的整数，表示根据当前余额和道具价格，最多可以购买的道具数量。
+    totalCount += maxPurchasableItems * data[m].count; // 这是一个累加的变量，用于跟踪购买的总道具数量。
+    remMoney -= maxPurchasableItems * data[m].price; // 这是当前可用的余额。在每次购买道具后，余额会根据购买的道具数量和价格进行更新，以反映购买后的余额。
 
-    if (maxItems) {
-      // 将可购买的道具添加到购物列表
-      for (let m = 0; m < maxItems; m++) {
-        shopArray.push({"name": name, "count": itemCounts[i].toString(), "id": item.itemId, "idx": shopIdx});
-      }
+    // 将购买的物品加入数组
+    for (let n = 0; n < maxPurchasableItems; n++) {
+      items.push({"count": data[m].count, "id": info.Id, "idx": itemIndex});
     }
 
-    // 如果当前余额不足以购买最便宜的道具，跳出循环
-    if (money < itemPrices[itemPrices.length - 1]) {
+    // 判断是否可以购买最后一个物品
+    if (remMoney < data[amount].price) {
+      const meetsThreshold = remMoney > data[amount].price / Number($.read(`zsfc_shop_threshold`));
+      const canAffordLastItem = remMoney + overage.money >= data[amount].price;
+
+      if (meetsThreshold && canAffordLastItem) {
+        items.push({"count": data[amount].count, "id": info.Id, "idx": data[amount].idx});
+        totalCount += data[amount].count;
+      }
       break;
     }
   }
-  
-  return [shopArray, totalCounts ? totalCounts : 0, item.unit];
+
+  return [items, totalCount, shopType ? "个" : "天"];
 }
 
 /**
@@ -664,11 +608,7 @@ async function searchShop(shopName) {
     $.post(options, (err, resp, data) => {
       if (data) {
         const body = $.toObj(data);
-        const targetObject = body.data.find(item => item.szName === shopName);
-        if (targetObject) {
-          // 处理商品信息，将结果赋给目标商品对象
-          targetShopObject = processInput(targetObject);
-        }
+        targetShopObject = body.data.find(item => item.szName === shopName);
       }
       // 解析 Promise，将结果对象传递给 resolve 函数
       resolve(targetShopObject);
@@ -773,7 +713,7 @@ async function purchaseItem(name, count, id, idx) {
           $.log(`❌ ${msg}`);
         } else {
           // 如果购买成功，将成功购买的道具数量设置为购买数量
-          totalCount = count * 1;
+          totalCount = count;
         }
       } else {
         // 如果发生错误，输出错误消息和错误信息

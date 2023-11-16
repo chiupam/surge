@@ -11,20 +11,20 @@
  * requests-body: 1
  *
  * type: cron
- * cron: 0 0-59/12 17 * * *
+ * cron: 0 0-59/10 17 * * *
  * script-path: https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
  *
  * =============== Surge ===============
- * 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
- * 掌飞寻宝 =type=cron, cronexp="0 0-59/12 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=30
+ * 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=70
+ * 掌飞寻宝 =type=cron, cronexp="0 0-59/10 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=70
  *
  * =============== Loon ===============
- * http-request ^https?://bang\.qq\.com/app/speed/treasure/index\?* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, requires-body=true, timeout=60, tag=掌飞寻宝Cookie
- * cron "0 0-59/12 17 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
+ * http-request ^https?://bang\.qq\.com/app/speed/treasure/index\?* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, requires-body=true, timeout=70, tag=掌飞寻宝Cookie
+ * cron "0 0-59/10 17 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝
  *
  * =============== Quan X ===============
  * ^https?://bang\.qq\.com/app/speed/treasure/index\?* url script-request-body https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js
- * 0 0-59/12 17 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
+ * 0 0-59/10 17 * * * https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, tag=掌飞寻宝, enabled=true
  *
  */
 
@@ -67,10 +67,12 @@ const isreq = typeof $request !== 'undefined';
 
     // 将请求数据写入内存
     Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
-    $.log(dataToWrite)
 
-    // 发送通知
-    $.notice($.name, `✅ 获取寻宝数据成功！`, `此脚本需每天打开掌上飞车APP并进入一次寻宝页面`, ``);
+    // 写入日志并发送通知
+    if ($.toObj($.read(`zsfc_treasure_log`) || `true`)) {
+      $.log(dataToWrite);
+      $.notice($.name, `✅ 获取寻宝数据成功！`, `此脚本需每天打开掌上飞车APP并进入一次寻宝页面`, ``);
+    }
 
     // 检查并设置青龙相关变量
     if ($.read(`ql_url`) && $.read(`ql_client_id`) && $.read(`ql_client_secret`) && $.toObj($.read(`zsfc_upload_config`))) {
@@ -121,6 +123,9 @@ const isreq = typeof $request !== 'undefined';
     $.log(`✅ 最高解锁星级：${'⭐️'.repeat($.mapData.starId * 1)}`);
     $.log(`✅ 今日大吉地图：${$.mapData.mapName}`);
 
+    // 等待当前分钟数除以3的秒数时间
+    await wait((new Date().getMinutes()) / 3);
+
     // 开始查询目前的寻宝状态
     treasureData = await performTreasureAction(`start`);
 
@@ -166,6 +171,14 @@ function matchStr(input, key) {
   const pattern = new RegExp(`${key}=([^${separator}]+)`);
   const match = input.match(pattern);
   return match ? match[1] : '';
+}
+
+/**
+ * @description 等待一段时候。
+ * @returns {Promise} Promise 
+ */
+async function wait(s) {
+  return new Promise((resolve) => setTimeout(resolve, s * 1000))
 }
 
 /**
@@ -249,6 +262,7 @@ async function performTreasureAction(action) {
     })
   };
 
+  // 发送 POST 异步请求并返回一个 Promise 对象
   return new Promise(resolve => {
     $.post(options, (error, response, data) => {
       if (data) {

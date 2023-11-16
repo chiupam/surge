@@ -6,16 +6,13 @@
 掌上飞车Cookie = type=http-request, pattern=^https?://(comm\.ams\.game\.qq\.com/ams/ame/amesvr*|bang\.qq\.com/app/speed/mall/main2\?*), requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.v3.js, script-update-interval=0, timeout=5
 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
 掌上飞车 =type=cron, cronexp="0 10 0,21 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.v3.js, script-update-interval=0, timeout=60
-掌飞寻宝 =type=cron, cronexp="0 */12 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
+掌飞寻宝 =type=cron, cronexp="0 */10 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=300
 
 # > 百度贴吧app
 百度贴吧Cookie = type=http-request ,pattern=^https?:\/\/(c\.tieba\.baidu\.com|180\.97\.\d+\.\d+)\/c\/s\/login ,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/tieba/tieba_signin.js, script-update-interval=0, timeout=15
 百度贴吧Cookie = type=http-request ,pattern=^https?:\/\/c\.tieba\.baidu\.com\/c\/s\/channelIconConfig ,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/tieba/tieba_signin.js, script-update-interval=0, timeout=15
 百度贴吧Cookie = type=http-request ,pattern=^https?:\/\/tiebac\.baidu\.com\/c\/u\/follow\/getFoldedMessageUserInfo ,script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/tieba/tieba_signin.js, script-update-interval=0, timeout=15
 百度贴吧 = type=cron, cronexp="0 0 0,12 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/script/tieba/tieba_signin.js, script-update-interval=0, timeout=60
-
-# > 蚂蚁森林通知收能量
-蚂蚁森林通知收能量 = type=cron, cronexp="1 5 9 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/alipay.js, script-update-interval=0, timeout=10
 
 [MITM]
 hostname = %APPEND% comm.ams.game.qq.com, bang.qq.com, tieba.baidu.com, c.tieba.baidu.com, tiebac.baidu.com

@@ -55,39 +55,39 @@
       ],
       "settings": [
         {
-          "id": "zsfc_iActivityId",
-          "name": "掌上飞车活动id",
-          "val": "",
-          "type": "text",
-          "desc": "当月每日签到的活动ID"
-        },
-        {
-          "id": "zsfc_iFlowId",
-          "name": "掌上飞车签到id",
-          "val": "",
-          "type": "text",
-          "desc": "当月每日签到的流水ID"
-        },
-        {
-          "id": "zsfc_token",
-          "name": "掌上飞车令牌",
-          "val": "",
-          "type": "text",
-          "desc": "掌上飞车APP的本次生效令牌，重开APP则失效"
-        },
-        {
           "id": "zsfc_shop",
-          "name": "掌上飞车商店购买道具",
+          "name": "余额自动购买道具",
           "val": "false",
           "type": "boolean",
-          "desc": "是否自动执行购买操作，默认不执行"
+          "desc": "是否使用消费券和点券自动执行购买操作，默认不执行"
         },
         {
           "id": "zsfc_bang_shopname",
-          "name": "掌上飞车商店购买的道具完整名称",
+          "name": "道具名称",
           "val": "",
           "type": "text",
           "desc": "掌上飞车APP的购买道具名称，仅支持在售的点券商品"
+        },
+        {
+          "id": "zsfc_shop_threshold",
+          "name": "购物消耗点券选项",
+          "val": "1",
+          "type": "radios",
+          "items": [
+            {
+              "key": "1",
+              "label": "就让这些剩余的消费券浪费掉"
+            },
+            {
+              "key": "1000000",
+              "label": "只要有剩余消费券就消耗点券再买一个道具"
+            },
+            {
+              "key": "2",
+              "label": "剩余消费券大于单个道具价格的一半才再买一个道具"
+            }
+          ],
+          "desc": "购物完成后剩余的消费券是否需要彻底消耗掉，默认浪费掉"
         },
         {
           "id": "zsfc_upload_id",
