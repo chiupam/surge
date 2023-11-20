@@ -16,7 +16,7 @@
  *
  * =============== Surge ===============
  * 掌飞寻宝Cookie = type=http-request, pattern=^https?://bang\.qq\.com/app/speed/treasure/index\?*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=70
- * 掌飞寻宝 =type=cron, cronexp="0 0-59/10 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=70
+ * 掌飞寻宝 =type=cron, cronexp="0 0-59/10 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=600
  *
  * =============== Loon ===============
  * http-request ^https?://bang\.qq\.com/app/speed/treasure/index\?* script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, requires-body=true, timeout=70, tag=掌飞寻宝Cookie
@@ -123,8 +123,8 @@ const isreq = typeof $request !== 'undefined';
     $.log(`✅ 最高解锁星级：${'⭐️'.repeat($.mapData.starId * 1)}`);
     $.log(`✅ 今日大吉地图：${$.mapData.mapName}`);
 
-    // 等待当前分钟数除以3的秒数时间
-    await wait((new Date().getMinutes()) / 3);
+    // 等待当前分钟数除以5的秒数时间
+    await wait((new Date().getMinutes()) / 5);
 
     // 开始查询目前的寻宝状态
     treasureData = await performTreasureAction(`start`);
@@ -175,10 +175,14 @@ function matchStr(input, key) {
 
 /**
  * @description 等待一段时候。
+ * @param {number} s - 等待时长。
  * @returns {Promise} Promise 
  */
-async function wait(s) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000))
+ async function wait(s) {
+  $.log(`💤 程序休眠 ${s}s 后继续...`);
+  return new Promise((resolve) => {
+    setTimeout(resolve, s * 1000);
+  });
 }
 
 /**
@@ -199,27 +203,37 @@ async function fetchMapData() {
     $.get(url, (error, response, data) => {
       if (data) {
         // 提取userInfo和mapInfo的数据
-        const userInfoMatch = data.match(/window\.userInfo\s*=\s*eval\('([^']+)'\);/);
-        const mapInfoMatch = data.match(/window\.mapInfo\s*=\s*eval\('([^']+)'\);/);
+        const [userInfoData, mapInfoData] = [
+          data.match(/window\.userInfo\s*=\s*eval\('([^']+)'\);/)?.[1],
+          data.match(/window\.mapInfo\s*=\s*eval\('([^']+)'\);/)?.[1]
+        ].map(match => match && eval(`(${match})`));    
 
-        const userInfoData = eval(`(${userInfoMatch[1]})`);
-        const mapInfoData = eval(`(${mapInfoMatch[1]})`);
+        // 固定 iFlowId 列表
+        const iFlowIdArray = {
+          "1": ["856152", "856155"],  // 1星
+          "2": ["856156", "856157"],  // 2星，100次
+          "3": ["856158", "856159"],  // 3星，300次
+          "4": ["856160", "856161"],  // 4星，500次
+          "5": ["856162", "856163"],  // 5星，紫钻地图
+          "6": ["856164", "856165"]   // 6星，皇族地图
+        };
 
-        const unlockedStars = Object.keys(userInfoData.starInfo).filter(starId => userInfoData.starInfo[starId] === 1);
-        const highestUnlockedStarId = Math.max(...unlockedStars);
-        const luckyMap = mapInfoData[highestUnlockedStarId].find(map => map.isdaji === 1);
-        const iFlowIdRegex = `${highestUnlockedStarId} == i ${highestUnlockedStarId == 6 ? "&&" : "\\?"} \\(M\\.getLb\\((\\d+), e\\), B\\.getLb\\((\\d+), e\\)\\)`;
+        // 获取地图最高解锁星级
+        const highestUnlockedStarId = Math.max(
+          ...Object.keys(userInfoData.starInfo)  // 转化为数组
+          .filter(starId => userInfoData.starInfo[starId] === 1)
+        );
 
-        const iFlowIdArrRegex = new RegExp(iFlowIdRegex, 'g');
-        const iFlowIdArrMatch = iFlowIdArrRegex.exec(data);
-        const iFlowIdArr = iFlowIdArrMatch ? [parseInt(iFlowIdArrMatch[1]), parseInt(iFlowIdArrMatch[2])] : [];
+        // 获取大吉地图信息
+        const luckyMap = mapInfoData[highestUnlockedStarId]
+          .find(map => map.isdaji === 1);
 
         mapData = {
           starId: highestUnlockedStarId,
           mapId: luckyMap.id,
           isVip: userInfoData.vip_flag,
           mapName: luckyMap.name,
-          iFlowId: iFlowIdArr
+          iFlowId: iFlowIdArray[highestUnlockedStarId]
         };
       } else {
         $.log(`❌ 获取地图数据时发生错误`);
@@ -252,8 +266,7 @@ async function performTreasureAction(action) {
       "mapId": $.mapData.mapId,
       "starId": $.mapData.starId,
       // 普通寻宝1 600s -- 快捷寻宝2 10s
-      // "type": $.mapData.isVip + 1,
-      "type": "1",  // 懒得检查是否为紫钻了，统统使用普通寻宝
+      "type": $.mapData.isVip ? 2 : 1,
       "areaId": $.read(`zsfc_areaId`),
       "roleId": $.read(`zsfc_roleId`),
       "userId": $.read(`zsfc_userId`),
