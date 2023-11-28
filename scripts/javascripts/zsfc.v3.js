@@ -379,8 +379,8 @@ function getShopItems(shopInfo, overage) {
       items.push({"count": data[m].count, "id": info.Id, "idx": itemIndex});
     }
 
-    // 判断是否可以购买最后一个物品
-    if (remMoney < data[amount].price) {
+    // 非月尾判断是否可以购买最后一个物品
+    if (remMoney < data[amount].price && !lastDay) {
       const meetsThreshold = remMoney > data[amount].price / Number($.read(`zsfc_shop_threshold`));
       const canAffordLastItem = remMoney + overage.money >= data[amount].price;
 
@@ -658,8 +658,8 @@ async function getPackInfo(argument) {
         coupons = body.match(/<b id="coupons">(\d+)<\/b>/)[1];
 
         // 将点券和消费券数量存储在结果对象中
-        result.money = money;
-        result.coupons = coupons;
+        result.money = Number(money);
+        result.coupons = Number(coupons);
       } else {
         // 如果获取失败，将结果对象设置为 false
         result = false;

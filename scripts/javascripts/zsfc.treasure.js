@@ -108,13 +108,11 @@ const isreq = typeof $request !== 'undefined';
 
     // 检查用户今天是否打开过寻宝页面
     const date = (new Date().getDate()).toString();
-    if (date != $.read(`zsfc_day`)) {
-      $.log(`❌ 今天未进过寻宝页面`);
-      return;
-    }
+    if (date != $.read(`zsfc_day`)) return $.log(`❌ 今天未进过寻宝页面`);
 
     // 获取地图数据
     $.mapData = await fetchMapData();
+    if (!Object.keys($.mapData).length) return $.log(`❌ 无法获取地图信息`);
 
     // 尊贵的紫钻用户
     if ($.mapData.isVip) $.log(`💎 尊贵的紫钻用户`);
@@ -124,10 +122,11 @@ const isreq = typeof $request !== 'undefined';
     $.log(`✅ 今日大吉地图：${$.mapData.mapName}`);
 
     // 等待当前分钟数除以5的秒数时间
-    await wait((new Date().getMinutes()) / 5);
+    // await wait((new Date().getMinutes()) / 5);
 
     // 开始查询目前的寻宝状态
     treasureData = await performTreasureAction(`start`);
+    if (!treasureData.timeLeft) return $.log(`❌ 无法获取寻宝状态`);
 
     if (treasureData.ending) {
       // 寻宝完成，先结束寻宝再领取奖励
