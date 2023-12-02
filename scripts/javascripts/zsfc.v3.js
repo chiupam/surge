@@ -68,27 +68,27 @@ const isRequest = typeof $request !== 'undefined';
   
       // 将请求数据写入内存
       Object.entries(cookieToWrite).forEach(([key, value]) => $.write(value, key));
-  
-      // 发起请求检验 iActivityId 和 iFlowId 是否为需要的值，如果返回的对象中不存在任何一个键值对则立即终止程序
-      if (!Object.keys(await getSignInGifts()).length) return;
-  
+
+      // 发起请求检验 iActivityId 和 iFlowId 是否为需要的值
+      if (!Object.keys(await getSignInGifts()).length || !(await getTotalSignInDays())) return;
+
       // 初始化 dataToWrite 词典，填充待写入内存的键值对
       const dataToWrite = {
         'zsfc_iActivityId': ($.iActivityId).toString(),
         'zsfc_iFlowId': ($.iFlowId).toString(),
         'zsfc_month': (new Date().getMonth() + 1).toString()
       }
-  
+
       // 如果所有键值都与内存中的值相同，则立即终止程序
       if (Object.keys(dataToWrite).every(key => dataToWrite[key] === $.read(key))) return;
-  
+
       // 将请求数据写入内存，并输出到日志中
       Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
       $.log(dataToWrite)
-  
+
       // 显示获取结果通知
       $.notice(`🏎️ 掌上飞车`, `✅ 获取签到数据成功！`, `流水ID：${$.iFlowId}，活动ID：${$.iActivityId}`);
-  
+
       // 检查并设置青龙相关变量
       if ($.read(`ql_url`) && $.read(`ql_client_id`) && $.read(`ql_client_secret`) && $.toObj($.read(`zsfc_upload_id`))) {
         const qlUrlCache = $.read(`ql_url`);
@@ -96,16 +96,16 @@ const isRequest = typeof $request !== 'undefined';
         $.qlId = $.read(`ql_client_id`);
         $.qlSecret = $.read(`ql_client_secret`);
         $.qlToken = await qlToken();
-  
+
         const qlEnvsName = `ZSFC_iFlowdId`;
         const qlEnvsValue = `${$.iFlowId}/${$.iActivityId}`;
         const qlEnvsRemarks = `掌飞签到`;
-  
+
         // 获取青龙面板令牌，若成功则执行后续操作
         if ($.qlToken) {
           const qlEnvsNewBody = await qlEnvsSearch(qlEnvsName, qlEnvsValue, qlEnvsRemarks);
           if (!qlEnvsNewBody) return;  // 环境变量的值没有发生变化，不需要进行操作
-  
+
           // 检查并处理环境变量的返回值类型
           if (Array.isArray(qlEnvsNewBody)) {
             // 暂时无法完成新增操作，后续再修改
@@ -125,10 +125,10 @@ const isRequest = typeof $request !== 'undefined';
       // 提取请求的URL并去除引号
       const url = $.toStr($request.url).replace(/^"|"$/g, '');
       const cookie = $request.headers.cookie;
-  
+
       // 对比 token 是否发生变化
       if ($.read(`zsfc_token`) == matchParam(url, "token")) return;
-  
+
       // 初始化 dataToWrite 词典，填充待写入内存的键值对
       const dataToWrite = {
         'zsfc_iActivityId': $.read(`zsfc_iActivityId`),  // 掌飞商城无法抓取，只能读取签到页面的脚本获取情况
@@ -140,15 +140,15 @@ const isRequest = typeof $request !== 'undefined';
         "zsfc_areaId": matchParam(url, "areaId"),
         'zsfc_uin': matchParam(url, "uin"),
       };
-  
+
       // 将请求数据写入内存
       Object.entries(dataToWrite).forEach(([key, value]) => $.write(value, key));
-  
+
       // 输出到日志只输出特定的键值对
       // const { zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid } = dataToWrite;
       // $.log({ zsfc_iActivityId, zsfc_iFlowId, zsfc_accessToken, zsfc_openid });
       $.log(dataToWrite)
-  
+
       // 发送通知
       $.notice(`🏎️ 掌飞购物`, `✅ 获取商城数据成功！`, `请不要再次打开掌上飞车APP, 否则 Cookie 将失效！`);
 
@@ -169,7 +169,7 @@ const isRequest = typeof $request !== 'undefined';
     // 进行每日签到
     await dailyCheckin(signInGifts['每日签到']);
 
-    // 获取本月累签天数
+    // // 获取本月累签天数
     const totalSignInDay = await getTotalSignInDays();
 
     // 初始化 signInInfoArray 数组
@@ -329,22 +329,22 @@ function getShopItems(shopInfo, overage) {
 
   // 创建一个包含商店信息和物品数据的对象
   const info = {"Id": shopInfo.iId, "data": []};
-  
+
   // 判断商店类型并获取相应的物品数值
   const shopType = shopInfo.szItems[0].ItemNum !== "";
   const values = shopType ? shopInfo.szItems[0].ItemNum : shopInfo.szItems[0].ItemAvailPeriod;
-  
+
   // 将物品数值转换成数组
   const numArray = values.split(',').filter(item => item !== '').map((item) => {
     if (item === "-1") return 999;
     return shopType ? parseInt(item) : parseInt(item) / 24;
   });
-  
+
   // 根据价格排序物品数据
   const sortedData = shopInfo.szPrices.map((price, index) => ({
     price: parseInt(price.SuperMoneyPrice), count: numArray[index], idx: index
   })).sort((a, b) => b.count - a.count);
-  
+
   // 将排序后的数据存入 info 对象
   sortedData.forEach(({ price, count, idx }) => {
     info.data.push({ count, price, idx });
@@ -450,7 +450,7 @@ async function getSignInGifts() {
 async function dailyCheckin(iFlowId) {
   // 构建请求体
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`,
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
@@ -461,7 +461,7 @@ async function dailyCheckin(iFlowId) {
       "iFlowId": iFlowId
     })
   };
-  
+
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
     // 发送 POST 请求，获取今日签到结果
@@ -495,9 +495,12 @@ async function getTotalSignInDays() {
   // 初始化总签到天数
   let totalSignInDays;
 
+  // 根据请求方式获取 iFlowId 具体值
+  let iFlowId = Number(isRequest ? $.iFlowId : $.read(`zsfc_iFlowId`));
+
   // 构建请求体
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${isRequest ? $.iActivityId : $.read(`zsfc_iActivityId`)}`,
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
@@ -505,26 +508,28 @@ async function getTotalSignInDays() {
       "iActivityId": $.read(`zsfc_iActivityId`),
       "g_tk": "1842395457",
       "sServiceType": "speed",
-      "iFlowId": $.read(`zsfc_iFlowId`) * 1 + 1
+      "iFlowId": iFlowId + 1
     })
   };
-  
+
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
     // 发送 POST 请求，获取累签天数
     $.post(options, (err, resp, data) => {
       if (data) {
-        totalSignInDays = $.toObj(data).modRet.sOutValue1.split(":")[1];
-        const missedDays = new Date().getDate() - totalSignInDays;
-        const missedDaysText = missedDays !== 0 ? `(漏签 ${missedDays} 天)` : ``;
+        try {
+          totalSignInDays = $.toObj(data).modRet.sOutValue1.split(":")[1];
+          const missedDays = new Date().getDate() - totalSignInDays;
+          const missedDaysText = missedDays !== 0 ? `(漏签 ${missedDays} 天)` : ``;
 
-        $.subtitle = `✅ 累计签到 ${totalSignInDays} 天${missedDaysText}`;
-        $.log($.subtitle);
+          $.subtitle = `✅ 累计签到 ${totalSignInDays} 天${missedDaysText}`;
+          $.log($.subtitle);
+        } catch {}
       } else {
         $.log(`❌ 获取累签天数时发生错误`);
         $.log($.toStr(err));
       }
-      resolve(totalSignInDays);
+      resolve(!isNaN(totalSignInDays) ? totalSignInDays : false);
     });
   });
 }
@@ -537,7 +542,7 @@ async function getTotalSignInDays() {
 async function claimGift(giftId, giftName) {
   // 构建请求体
   const options = {
-    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`, 
+    url: `https://comm.ams.game.qq.com/ams/ame/amesvr?iActivityId=${$.read(`zsfc_iActivityId`)}`,
     headers: {
       "Cookie": `access_token=${$.read(`zsfc_accessToken`)}; acctype=qc; appid=1105330667; openid=${$.read(`zsfc_openid`)}`
     },
@@ -733,7 +738,7 @@ async function purchaseItem(name, count, id, idx) {
  */
 async function qlToken() {
   // 初始化访问令牌
-  let accessToken; 
+  let accessToken;
 
   // 构建请求体
   const options = {
