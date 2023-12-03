@@ -150,7 +150,7 @@ const isRequest = typeof $request !== 'undefined';
       $.log(dataToWrite)
 
       // 发送通知
-      $.notice(`🏎️ 掌飞购物`, `✅ 获取商城数据成功！`, `请不要再次打开掌上飞车APP, 否则 Cookie 将失效！`);
+      $.notice(`🏎️ 掌飞购物`, `✅ 获取商城数据成功！`, `请不要再次打开掌上飞车APP, 否则商城 Cookie 将失效！`);
 
     }
 
@@ -204,6 +204,9 @@ const isRequest = typeof $request !== 'undefined';
      * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 以下进行购物阶段 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
      */
 
+    // 读取到设置不进行购物
+    if (!$.toObj($.read(`zsfc_shop`))) return $.log(`⭕ 设置为不执行购物`);
+
     // 读取到没有获取过商城数据
     if (!$.read(`zsfc_token`)) return $.notice(`🏎️ 掌飞购物`, `❌ 请先获取商城数据`, `打开掌上飞车，点击游戏并进入掌上商城`);
 
@@ -213,9 +216,6 @@ const isRequest = typeof $request !== 'undefined';
     // Cookie 已过期，程序终止
     if (!packBefore) return $.log(`❌ Cookie 已过期，请重新获取`), $.notice(`🏎️ 掌飞购物`, `❌ Cookie 已过期`, `打开掌上飞车，点击游戏并进入掌上商城`);
 
-    // 读取到设置不进行购物
-    if (!$.toObj($.read(`zsfc_shop`))) return $.log(`⭕ 设置为不执行购物`);
-
     // 读取要购买的商品名称并生成商品列表
     const shopName = $.read(`zsfc_bang_shopname`) || autoGetGameItem();
     const shopIdArray = await searchShop(shopName);
@@ -224,9 +224,7 @@ const isRequest = typeof $request !== 'undefined';
     if (!Object.keys(shopIdArray).length) return $.notice(`🏎️ 掌飞购物`, `❌ ${shopName} 未在商店中售卖`, `请在掌上商城中认真核对商品名称`);
 
     // 获取当前余额
-    const moneyBefore = packBefore.money * 1;
-    const couponsBefore = packBefore.coupons * 1;
-    const beforeLog = `✅ 当前共有${moneyBefore}点券，${couponsBefore}消费券`;
+    const beforeLog = `✅ 当前共有${packBefore.money}点券，${packBefore.coupons}消费券`;
     $.log(beforeLog);
     $.subtitle = beforeLog;
 
@@ -265,9 +263,7 @@ const isRequest = typeof $request !== 'undefined';
 
       // 获取剩余余额
       const packAfter = await getPackInfo(`after`);
-      const moneyAfter = packAfter.money * 1;
-      const couponsAfter = packAfter.coupons * 1;
-      const afterLog = `✅ 现在剩余${moneyAfter}点券，${couponsAfter}消费券`;
+      const afterLog = `✅ 现在剩余${packAfter.money}点券，${packAfter.coupons}消费券`;
       $.log(afterLog);
       $.subtitle = afterLog;
 
@@ -280,7 +276,7 @@ const isRequest = typeof $request !== 'undefined';
 
   }
 })()
-  .catch((e) => $.notice(`🏎️ 掌上飞车`, '❌ 未知错误无法打卡', e, ''))
+  .catch((e) => $.notice(`🏎️ 掌上飞车`, '❌ 未知错误无法执行', e, ''))
   .finally(() => $.done());
 
 /**

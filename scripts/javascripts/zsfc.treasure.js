@@ -126,7 +126,7 @@ const isreq = typeof $request !== 'undefined';
 
     // 开始查询目前的寻宝状态
     treasureData = await performTreasureAction(`start`);
-    if (!treasureData.timeLeft) return $.log(`❌ 无法获取寻宝状态`);
+    // if (!treasureData.timeLeft) return $.log(`❌ 无法获取寻宝状态`);
 
     if (treasureData.ending) {
       // 寻宝完成，先结束寻宝再领取奖励
