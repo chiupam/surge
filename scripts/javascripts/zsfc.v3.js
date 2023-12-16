@@ -127,7 +127,7 @@ const isRequest = typeof $request !== 'undefined';
       const cookie = $request.headers.cookie || $request.headers.Cookie;  // QX、Loon都是用的Cookie
 
       // 对比 token 是否发生变化
-      if ($.read(`zsfc_token`) == matchParam(url, "token")) return;
+      if ($.read(`zsfc_token`) === matchParam(url, "token")) return;
 
       // 初始化 dataToWrite 词典，填充待写入内存的键值对
       const dataToWrite = {

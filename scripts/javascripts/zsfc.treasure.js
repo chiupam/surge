@@ -50,7 +50,7 @@ const isreq = typeof $request !== 'undefined';
     const cookie = $request.headers.cookie || $request.headers.Cookie;  // QX、Loon都是用的Cookie
 
     // 对比 token 是否发生变化
-    if ($.read(`zsfc_token`) == matchStr(url, "token")) return;
+    // if ($.read(`zsfc_token`) === matchStr(url, "token")) return;
 
     // 初始化 dataToWrite 词典，填充待写入内存的键值对
     const dataToWrite = {
@@ -62,7 +62,7 @@ const isreq = typeof $request !== 'undefined';
       "zsfc_userId": matchStr(url, "userId"),
       "zsfc_areaId": matchStr(url, "areaId"),
       'zsfc_uin': matchStr(url, "uin"),
-      'zsfc_day': (new Date().getDate()).toString()
+      // 'zsfc_day': (new Date().getDate()).toString()
     };
 
     // 将请求数据写入内存
@@ -106,9 +106,12 @@ const isreq = typeof $request !== 'undefined';
   } else {
     // 处理非请求时的逻辑
 
+    /**
+     * 2023.12.15 发现iOS端重开掌飞不会使token过期，因此无需检测
+     */
     // 检查用户今天是否打开过寻宝页面
-    const date = (new Date().getDate()).toString();
-    if (date != $.read(`zsfc_day`)) return $.log(`❌ 今天未进过寻宝页面`);
+    // const date = (new Date().getDate()).toString();
+    // if (date != $.read(`zsfc_day`)) return $.log(`❌ 今天未进过寻宝页面`);
 
     // 获取地图数据
     $.mapData = await fetchMapData();
