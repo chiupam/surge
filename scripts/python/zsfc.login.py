@@ -16,6 +16,8 @@ def userLogin():
         returnList = [e["value"] for e in h if e["name"].lower() == x]
         return "; ".join(returnList) if j else returnList[0]
 
+    time.sleep(sleepTIme)
+
     url = "https://api2.helper.qq.com/user/login"
     headers = {
         "authority": "api2.helper.qq.com",
@@ -30,9 +32,6 @@ def userLogin():
         "accept-encoding": s("accept-encoding"),
     }
 
-    print(postData)
-    print(headers)
-
     if os.environ.get("HOSTNAME"):
         session.post(url, headers=headers, data=base64.b64decode(postData))
     else:
@@ -42,6 +41,8 @@ def userLogin():
 
 
 def checkLogSwitch():
+    time.sleep(sleepTIme)
+
     url = "https://api2.helper.qq.com/report/checklogswitch"
     body = {
         "gameId": "1003",
@@ -59,6 +60,8 @@ def checkLogSwitch():
 
 
 def fetchMapData():
+    time.sleep(sleepTIme)
+
     url = "https://bang.qq.com/app/speed/treasure/index"
     params = {
         "roleId": roleId if roleId else userData['zsfc_roleId'],
@@ -69,7 +72,8 @@ def fetchMapData():
     response = session.get(url, params=params)
     responseHtml = response.text
     leftTimes = re.search(r'id="leftTimes">(\d+)</i><span', responseHtml).group(1)
-    print("剩余次数：", leftTimes)
+
+    return leftTimes
 
 
 if __name__ == '__main__':
@@ -77,6 +81,8 @@ if __name__ == '__main__':
     loginData = os.environ.get('ZSFC_LOGIN')
     userData = json.loads(os.environ.get('ZSFC_CONFIG'))
     session = requests.session()
+
+    sleepTIme = 2.5
 
     userId, token = "", ""
 
@@ -92,9 +98,12 @@ if __name__ == '__main__':
         postData = requestsData['postData']['text']
 
     for n in range(0, 2):
-        userLogin()
-        time.sleep(2.5)
+        print(f"\n第{n + 1}次循环")
+        print(f"获取login前的寻宝次数：{fetchMapData()}")
+        print("检查未进行login前的token状态")
         checkLogSwitch()
-        time.sleep(2.5)
-        fetchMapData()
-        time.sleep(2.5)
+        print("开始进行login操作")
+        userLogin()
+        print("检查进行login后的token状态")
+        checkLogSwitch()
+        print(f"获取login后的寻宝次数：{fetchMapData()}")
