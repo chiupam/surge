@@ -12,7 +12,7 @@ import requests
 
 
 def userLogin():
-    def s(x, j=False):
+    def s(x, j=0):
         returnList = [e["value"] for e in h if e["name"].lower() == x]
         return "; ".join(returnList) if j else returnList[0]
 
@@ -23,7 +23,7 @@ def userLogin():
         "authority": "api2.helper.qq.com",
         "accept": s("accept"),
         "content-type": s("content-type"),
-        "cookie": s("cookie", j=True),
+        "cookie": s("cookie", j=1),
         "content-length": s("content-length"),
         "x-request-id": s("x-request-id"),
         "gh-header": s("gh-header"),
@@ -100,10 +100,16 @@ if __name__ == '__main__':
     for n in range(0, 2):
         print(f"\n第{n + 1}次循环")
         print(f"获取login前的寻宝次数：{fetchMapData()}")
-        print("检查未进行login前的token状态")
-        checkLogSwitch()
+
+        # 我们认为这个接口没法真正反应用户当天是否打开过掌飞APP，因此注释
+        # print("检查未进行login前的token状态")
+        # checkLogSwitch()
+
         print("开始进行login操作")
         userLogin()
-        print("检查进行login后的token状态")
-        checkLogSwitch()
+
+        # 我们认为这个接口没法真正反应用户当天是否打开过掌飞APP，因此注释
+        # print("检查进行login后的token状态")
+        # checkLogSwitch()
+
         print(f"获取login后的寻宝次数：{fetchMapData()}")
