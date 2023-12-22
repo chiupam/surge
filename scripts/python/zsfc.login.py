@@ -2,11 +2,11 @@
 测试阶段
 """
 
-import base64
-import json
-import os
-import re
-import time
+from base64 import b64decode, b64encode
+from json import loads, decoder
+from os import environ as env
+from re import search
+from time import sleep
 
 import requests
 
@@ -15,8 +15,6 @@ def userLogin():
     def s(x, j=0):
         returnList = [e["value"] for e in h if e["name"].lower() == x]
         return "; ".join(returnList) if j else returnList[0]
-
-    time.sleep(sleepTIme)
 
     url = "https://api2.helper.qq.com/user/login"
     headers = {
@@ -32,36 +30,20 @@ def userLogin():
         "accept-encoding": s("accept-encoding"),
     }
 
-    if os.environ.get("HOSTNAME"):
-        session.post(url, headers=headers, data=base64.b64decode(postData))
+    # print(postData)
+    print("‍💻 开始登录")
+
+    if env.get("HOSTNAME"):
+        session.post(url, headers=headers, data=b64decode(postData))
     else:
-        response = session.post(url, headers=headers, data=base64.b64decode(postData))
-        responseData = base64.b64encode(response.content).decode('utf-8')
+        response = session.post(url, headers=headers, data=b64decode(postData))
+        responseData = b64encode(response.content).decode('utf-8')
         print(responseData)
 
-
-def checkLogSwitch():
-    time.sleep(sleepTIme)
-
-    url = "https://api2.helper.qq.com/report/checklogswitch"
-    body = {
-        "gameId": "1003",
-        "cSystem": "iOS",
-        "cGameId": "1003",
-        "userId": userId if userId else userData['zsfc_userId'],
-        "token": token if token else userData['zsfc_token']
-    }
-
-    response = session.post(url, data=body)
-    responseJson = response.json()
-    print(responseJson)
-
-    return True if responseJson['returnMsg'] == "" else False
+    sleep(2.5)
 
 
-def fetchMapData():
-    time.sleep(sleepTIme)
-
+def fetchMapData(before):
     url = "https://bang.qq.com/app/speed/treasure/index"
     params = {
         "roleId": roleId if roleId else userData['zsfc_roleId'],
@@ -71,45 +53,42 @@ def fetchMapData():
 
     response = session.get(url, params=params)
     responseHtml = response.text
-    leftTimes = re.search(r'id="leftTimes">(\d+)</i><span', responseHtml).group(1)
+    todayCanTimes = int(search(r'"todaycanTimes":(\d+)', responseHtml).group(1))
 
-    return leftTimes
+    print(f"🏎️ 当天可寻宝次数：{todayCanTimes}" if not before else f"🏎️ 剩余寻宝次数：{todayCanTimes}")
+
+    return todayCanTimes
 
 
 if __name__ == '__main__':
-    loginJson = {}
-    loginData = os.environ.get('ZSFC_LOGIN')
-    userData = json.loads(os.environ.get('ZSFC_CONFIG'))
     session = requests.session()
 
-    sleepTIme = 2.5
+    loginJson = {}
 
-    userId, token = "", ""
+    if env.get("HOSTNAME"):
+        userData = loads(env.get('ZSFC_CONFIG'))
+        loginData = env.get('ZSFC_LOGIN')
+    else:
+        userData = {}
+        if env.get('ZSFC_LOGIN'):
+            loginData = env.get('ZSFC_LOGIN')
+        else:
+            loginData = r""
+
+    p = search(r'"text":"([^"]+)"', loginData).group(1)
+    postData = p.replace("\\", "/") if env.get("HOSTNAME") else p.replace("\\/", "/")
 
     roleId, uin, areaId = "", "", ""
 
     try:
-        loginJson = json.loads(loginData.replace("\\", ""))
-    except json.decoder.JSONDecodeError:
-        loginJson = json.loads(loginData.replace("\\/", "/"))
+        loginJson = loads(loginData.replace("\\", ""))
+    except decoder.JSONDecodeError:
+        loginJson = loads(loginData.replace("\\/", "/"))
     finally:
-        requestsData = loginJson["log"]['entries'][0]['request']
-        h = requestsData['headers']
-        postData = requestsData['postData']['text']
+        h = loginJson["log"]['entries'][0]['request']['headers']
 
-    for n in range(0, 2):
-        print(f"\n第{n + 1}次循环")
-        print(f"获取login前的寻宝次数：{fetchMapData()}")
-
-        # 我们认为这个接口没法真正反应用户当天是否打开过掌飞APP，因此注释
-        # print("检查未进行login前的token状态")
-        # checkLogSwitch()
-
-        print("开始进行login操作")
+    if fetchMapData(0) <= 1:
         userLogin()
-
-        # 我们认为这个接口没法真正反应用户当天是否打开过掌飞APP，因此注释
-        # print("检查进行login后的token状态")
-        # checkLogSwitch()
-
-        print(f"获取login后的寻宝次数：{fetchMapData()}")
+        print(f"✅ 登陆成功" if fetchMapData(1) >= 3 else "❌ 登录失败")
+    else:
+        print("⭕ 今天已登录")
