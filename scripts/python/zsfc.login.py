@@ -79,6 +79,12 @@ if __name__ == '__main__':
     postData = p.replace("\\", "/") if env.get("HOSTNAME") else p.replace("\\/", "/")
 
     roleId, uin, areaId = "", "", ""
+    if not roleId and not uin and not areaId:
+        if env.get("ZSFC_USER"):
+            roleId, uin, areaId = env.get("ZSFC_USER").split("/")
+        else:
+            zc = loads(env.get("ZSFC_CONFIG"))
+            roleId, uin, areaId = zc['zsfc_roleId'], zc['zsfc_uin'], zc['zsfc_areaId']
 
     try:
         loginJson = loads(loginData.replace("\\", ""))
