@@ -1,14 +1,34 @@
 """
-测试阶段
+青龙面板识别内容：
+new Env("掌飞登录")
+1 0 * * * zsfc_login.py
+
+脚本说明：
+    脚本处于测试阶段，不描述部署过程
 """
 
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from json import loads, decoder
 from os import environ as env
 from re import search
 from time import sleep
 
 import requests
+
+
+def fetchMapData():
+    url = "https://bang.qq.com/app/speed/treasure/index"
+    params = {
+        "roleId": roleId if roleId else userData['zsfc_roleId'],
+        "uin": uin if uin else userData['zsfc_uin'],
+        "areaId": areaId if areaId else userData['zsfc_areaId']
+    }
+
+    response = session.get(url, params=params)
+    responseHtml = response.text
+    c = int(search(r'"todaycanTimes":(\d+)', responseHtml).group(1))
+
+    return True if c >= 3 else False
 
 
 def userLogin():
@@ -30,34 +50,9 @@ def userLogin():
         "accept-encoding": s("accept-encoding"),
     }
 
-    # print(postData)
-    print("‍💻 开始登录")
-
-    if env.get("HOSTNAME"):
-        session.post(url, headers=headers, data=b64decode(postData))
-    else:
-        response = session.post(url, headers=headers, data=b64decode(postData))
-        responseData = b64encode(response.content).decode('utf-8')
-        print(responseData)
-
+    print("💻 今日未登录，开始登录")
+    session.post(url, headers=headers, data=b64decode(postData))
     sleep(2.5)
-
-
-def fetchMapData(before):
-    url = "https://bang.qq.com/app/speed/treasure/index"
-    params = {
-        "roleId": roleId if roleId else userData['zsfc_roleId'],
-        "uin": uin if uin else userData['zsfc_uin'],
-        "areaId": areaId if areaId else userData['zsfc_areaId']
-    }
-
-    response = session.get(url, params=params)
-    responseHtml = response.text
-    todayCanTimes = int(search(r'"todaycanTimes":(\d+)', responseHtml).group(1))
-
-    print(f"🏎️ 当天可寻宝次数：{todayCanTimes}" if not before else f"🏎️ 剩余寻宝次数：{todayCanTimes}")
-
-    return todayCanTimes
 
 
 if __name__ == '__main__':
@@ -66,9 +61,11 @@ if __name__ == '__main__':
     loginJson = {}
 
     if env.get("HOSTNAME"):
+        # 青龙环境
         userData = loads(env.get('ZSFC_CONFIG'))
         loginData = env.get('ZSFC_LOGIN')
     else:
+        # 本地环境
         userData = {}
         if env.get('ZSFC_LOGIN'):
             loginData = env.get('ZSFC_LOGIN')
@@ -80,11 +77,14 @@ if __name__ == '__main__':
 
     roleId, uin, areaId = "", "", ""
     if not roleId and not uin and not areaId:
+        # 有 ZSFC_USER 环境变量则读取
         if env.get("ZSFC_USER"):
             roleId, uin, areaId = env.get("ZSFC_USER").split("/")
         else:
-            zc = loads(env.get("ZSFC_CONFIG"))
-            roleId, uin, areaId = zc['zsfc_roleId'], zc['zsfc_uin'], zc['zsfc_areaId']
+            # 读取 ZSFC_CONFIG 环境变量并赋值
+            roleId = loads(env.get("ZSFC_CONFIG"))['zsfc_roleId']
+            uin = loads(env.get("ZSFC_CONFIG"))['zsfc_uin']
+            areaId = loads(env.get("ZSFC_CONFIG"))['zsfc_areaId']
 
     try:
         loginJson = loads(loginData.replace("\\", ""))
@@ -93,8 +93,9 @@ if __name__ == '__main__':
     finally:
         h = loginJson["log"]['entries'][0]['request']['headers']
 
-    if fetchMapData(0) <= 1:
-        userLogin()
-        print(f"✅ 登陆成功" if fetchMapData(1) >= 3 else "❌ 登录失败")
-    else:
+    print("🏎️ 检测今日是否已登录")
+    if fetchMapData():
         print("⭕ 今天已登录")
+    else:
+        userLogin()
+        print(f"✅ 登陆成功" if fetchMapData() else "❌ 登录失败")
