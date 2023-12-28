@@ -318,10 +318,10 @@ function autoGetGameItem() {
  * @returns {[array, number, str]} - 返回购买的物品数组、总数和单位信息的数组
  */
 function getShopItems(shopInfo, overage) {
-  // 获取今天的日期和本月剩余天数是否小于等于3天
+  // 获取今天的日期和本月剩余天数是否小于3天（月底3天的计算方式不可以为小于等于3）
   const today = new Date();
   const day = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const lastDay = (day - today.getDate()) <= 3;
+  const lastDay = (day - today.getDate()) < 3;
 
   // 创建一个包含商店信息和物品数据的对象
   const info = {"Id": shopInfo.iId, "data": []};
