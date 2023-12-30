@@ -75,7 +75,7 @@ let isreq = typeof $request !== 'undefined';
     const storedRequestBody = $.read('procuratorate_body');
     if (storedRequestBody) {
       // 检查当天是否为工作日
-      let workday = getDayStatus();
+      let workday = await getDayStatus();
 
       if (workday === null) {
         $.log('⭕ 本地假日表需要更新, 尽快更新');
@@ -96,6 +96,7 @@ let isreq = typeof $request !== 'undefined';
         }
         return;
       }
+      $.log($.toStr(workday))
 
       // 检查打卡类型是否符合条件
       const punchType = await checkPunchCardAvailability();
@@ -176,6 +177,44 @@ async function checkPunchCardAvailability(status = false) {
 }
 
 /**
+ * 获取最新的全年假期日历表
+ * @returns {Promise<object|boolean>} - Promise对象，在获取完成后解析一个对象表示全年假期日历表，或者一个布尔值
+ */
+async function getNewHolidayCalendar() {
+  // 获取当前时间
+  const currentTime = new Date();
+
+  // 获取当前时间的年份并转换为字符串
+  const currentYear = currentTime.getFullYear().toString();
+
+  // 构建请求参数
+  const options = {
+    url: `http://timor.tech/api/holiday/year/${currentYear}/`
+  };
+
+  // 输出日志
+  $.log(`🧑‍💻 获取最新的假期日历表...`);
+
+  return new Promise(resolve => {
+    $.get(options, (error, response, data) => {
+      let result;
+      try {
+        if (data) {
+          $.log(`✅ 成功获取${currentYear}年假期日历表`);
+          result = $.toObj(data);
+        }
+      } catch (e) {
+        // 发生异常
+        $.log(`⭕ 获取最新的假期日历表时发生异常`);
+        result = false;
+      } finally {
+        resolve(result);
+      }
+    })
+  })
+}
+
+/**
  * 检查工作日状态
  * @param {boolean} [apiType=true] - API类型，true表示主接口，false表示备用接口
  * @returns {Promise<boolean|null>} - 返回工作日状态，true表示工作日，false表示非工作日，null表示请求错误或获取失败
@@ -231,7 +270,7 @@ async function checkWorkdayStatus(apiType = true) {
 /**
  * 获取打卡情况列表
  * @param {string} status - 打卡状态，可选值为 '上班打卡' 或 '下班打卡'
- * @returns {Promise<number>} - Promise对象，在获取完成后解析一个数字表示打卡记录数量
+ * @returns {Promise<object>} - Promise对象，在获取完成后解析一个数字表示打卡记录数量
  */
 async function GetAttCheckinoutList(status) {
   // 构造请求参数
@@ -377,7 +416,7 @@ async function SaveAttCheckinout(punchType) {
  * 获取当前日期的工作日状态
  * @returns {boolean|null} 工作日状态，可能的取值为：true（工作日）、false（非工作日）、null（假日表需要更新）
  */
-function getDayStatus() {
+async function getDayStatus() {
   // 获取当前时间
   const currentTime = new Date();
 
@@ -391,7 +430,7 @@ function getDayStatus() {
   const currentDay = (`0` + currentTime.getDate()).slice(-2);
 
   // 定义节假日json文件内容
-  const holidays = {
+  let holidays = {
     "code":0,
     "holiday":{
       "01-01":{"holiday":true,"name":"元旦","wage":3,"date":"2023-01-01","rest":1},
@@ -438,18 +477,19 @@ function getDayStatus() {
   const latestHolidayYear = latestHolidayDate.substring(0, 4);
   if (latestHolidayYear !== currentYear.toString()) {
     $.url = `http://timor.tech/api/holiday/year/${currentYear}/`
-    return null;
+    holidays = await getNewHolidayCalendar()
+    if (!holidays) return null;
+  }
+
+  const todayStr = `${currentMonth}-${currentDay}`;
+  const holidayData = holidays.holiday[todayStr];
+  // 判断当天是否在节假日和补休日中
+  if (holidayData) {
+    return !holidayData.holiday;
   } else {
-    const todayStr = `${currentMonth}-${currentDay}`;
-    const holidayData = holidays.holiday[todayStr];
-    // 判断当天是否在节假日和补休日中
-    if (holidayData) {
-      return !holidayData.holiday;
-    } else {
-      // 判断当天是否是一般工作日
-      const dayOfWeek = currentTime.getDay();
-      return !(dayOfWeek === 6 || dayOfWeek === 0);
-    }
+    // 判断当天是否是一般工作日
+    const dayOfWeek = currentTime.getDay();
+    return !(dayOfWeek === 6 || dayOfWeek === 0);
   }
 }
 
