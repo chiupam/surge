@@ -89,7 +89,7 @@ const isreq = typeof $request !== 'undefined';
       // 获取青龙面板令牌，若成功则执行后续操作
       if ($.qlToken) {
         const qlEnvsNewBody = await qlEnvsSearch(qlEnvsName, qlEnvsValue, qlEnvsRemarks);
-        if (!qlEnvsNewBody) return;  // 环境变量的值没有发生变化，不需要进行操作
+        if (!qlEnvsNewBody) return $.log(`⭕ ${qlEnvsName}变量值没有发生变化`);  // 环境变量的值没有发生变化，不需要进行操作
 
         // 检查并处理环境变量的返回值类型
         if (Array.isArray(qlEnvsNewBody)) {
@@ -205,12 +205,17 @@ async function fetchMapData() {
   return new Promise(resolve => {
     $.get(url, (error, response, data) => {
       if (data) {
+        // 提取单天已经寻宝的次数
+        const todayTimesMatch = data.match(/"todayTimes":(?:"(\d+)"|(\d+))/);
+        
+        // 如果都没法提取就默认今天次数为0
+        const todayTimes = todayTimesMatch ? todayTimesMatch[1] || todayTimesMatch[2] : 0;
+
         // 提取userInfo和mapInfo的数据
-        const [userInfoData, mapInfoData, todaycanTimes, todayTimes] = [
+        const [userInfoData, mapInfoData, todaycanTimes] = [
           data.match(/window\.userInfo\s*=\s*eval\('([^']+)'\);/)?.[1],
           data.match(/window\.mapInfo\s*=\s*eval\('([^']+)'\);/)?.[1],
-          data.match(/"todaycanTimes":(\d+)/)?.[1],
-          data.match(/"todayTimes":(\d+)/)?.[1]
+          data.match(/"todaycanTimes":(\d+)/)?.[1]
         ].map(match => match && eval(`(${match})`));
 
         // 判断今日可寻宝次数是否用完

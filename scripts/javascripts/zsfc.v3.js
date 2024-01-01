@@ -72,8 +72,14 @@ const isRequest = typeof $request !== 'undefined';
       // 发起请求检验 iActivityId 和 iFlowId 是否为需要的值
       if (!Object.keys(await getSignInGifts()).length || !(await getTotalSignInDays())) return;
 
+      // 解码 tokenParams 端内容
+      const decodeTokenParams = decodeURIComponent(matchParam(cookie, 'tokenParams'));
+
       // 初始化 dataToWrite 词典，填充待写入内存的键值对
       const dataToWrite = {
+        'zsfc_roleId': matchParam(decodeTokenParams, 'roleId'),
+        'zsfc_uin': matchParam(decodeTokenParams, 'uin'),
+        'zsfc_areaId': matchParam(decodeTokenParams, 'areaId'),
         'zsfc_iActivityId': ($.iActivityId).toString(),
         'zsfc_iFlowId': ($.iFlowId).toString(),
         'zsfc_month': (new Date().getMonth() + 1).toString()
@@ -104,7 +110,7 @@ const isRequest = typeof $request !== 'undefined';
         // 获取青龙面板令牌，若成功则执行后续操作
         if ($.qlToken) {
           const qlEnvsNewBody = await qlEnvsSearch(qlEnvsName, qlEnvsValue, qlEnvsRemarks);
-          if (!qlEnvsNewBody) return;  // 环境变量的值没有发生变化，不需要进行操作
+          if (!qlEnvsNewBody) return $.log(`⭕ ${qlEnvsName}变量值没有发生变化`);  // 环境变量的值没有发生变化，不需要进行操作
 
           // 检查并处理环境变量的返回值类型
           if (Array.isArray(qlEnvsNewBody)) {
@@ -163,6 +169,10 @@ const isRequest = typeof $request !== 'undefined';
     const month = (new Date().getMonth() + 1).toString();
     if (month != $.read(`zsfc_month`)) return $.notice(`🏎️ 掌上飞车`, `❌ 本月未打开过掌上飞车APP`, `每月需打开一次掌上飞车APP并进到签到页面`);
 
+    // 获取会员状态
+    $.isVip = await checkIsVip();
+    if ($.isVip) $.log(`💎 尊贵的会员用户`);
+
     // 获取本月签到礼物列表
     const signInGifts = await getSignInGifts();
 
@@ -216,6 +226,9 @@ const isRequest = typeof $request !== 'undefined';
     // Cookie 已过期，程序终止
     if (!packBefore) return $.log(`❌ Cookie 已过期，请重新获取`), $.notice(`🏎️ 掌飞购物`, `❌ Cookie 已过期`, `打开掌上飞车，点击游戏并进入掌上商城`);
 
+    // 判断当天是否为本月月尾3天以内
+    $.lastDayOfMonth = checkLastDayOfMonth(3);
+
     // 读取要购买的商品名称并生成商品列表
     const shopName = $.read(`zsfc_bang_shopname`) || autoGetGameItem();
     const shopIdArray = await searchShop(shopName);
@@ -233,6 +246,7 @@ const isRequest = typeof $request !== 'undefined';
 
     // 开始购物循环
     if (shopArray.length) {
+      // 重置购买成功道具数量和失败道具数量为0
       let successBuyCounts = 0;
       let failedBuyCounts = 0;
 
@@ -241,7 +255,7 @@ const isRequest = typeof $request !== 'undefined';
 
       $.log(`✅ 预计可购买${estimatedBydCounts}${caption}${shopName}`);
 
-      // 开始购物
+      // 开始执行购物函数
       for (let buyInfo of shopArray) {
         let { count, id, idx } = buyInfo;
         successBuyCounts += await purchaseItem(shopName, count, id, idx);
@@ -268,7 +282,7 @@ const isRequest = typeof $request !== 'undefined';
       $.subtitle = afterLog;
 
     } else {
-      $.log(`⭕ 余额不足以购买${shopName}`);
+      $.log(`⭕ ${$.lastDayOfMonth ? '余额' : '消费券'}不足以购买${shopName}`);
     }
 
     // 显示购物结果通知
@@ -278,6 +292,23 @@ const isRequest = typeof $request !== 'undefined';
 })()
   .catch((e) => $.notice(`🏎️ 掌上飞车`, '❌ 未知错误无法执行', e, ''))
   .finally(() => $.done());
+
+
+/**
+ * 判断今天的日期和本月剩余天数是否小于N天。
+ *
+ * @param {number} N - 传入数字，代表本月最后N天
+ * @returns {boolean} - 返回匹布尔值
+ */
+function checkLastDayOfMonth(N) {
+  // 初始化一个表示当前日期和时间的 today 对象
+  let today = new Date();
+
+  // 获取当前月份的最后一天的日期
+  let day = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  
+  return (day - today.getDate()) < N; // 月底最后3天的计算方式是小于N而不能有等于
+}
 
 /**
  * 从输入字符串中提取指定关键字的值。
@@ -318,16 +349,12 @@ function autoGetGameItem() {
  * @returns {[array, number, str]} - 返回购买的物品数组、总数和单位信息的数组
  */
 function getShopItems(shopInfo, overage) {
-  // 获取今天的日期和本月剩余天数是否小于3天（月底3天的计算方式不可以为小于等于3）
-  const today = new Date();
-  const day = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const lastDay = (day - today.getDate()) < 3;
-
-  // 创建一个包含商店信息和物品数据的对象
+  // 创建一个包含道具信息和空白数据列表的初始对象
   const info = {"Id": shopInfo.iId, "data": []};
 
-  // 判断商店类型并获取相应的物品数值
-  const shopType = shopInfo.szItems[0].ItemNum !== "";  // 表示购买的商品是按数量购买
+  // 根据用户会员状态获取道具折扣，判断道具类型并获取相应的购买数值
+  const iMemeberRebate = $.isVip ? parseInt(shopInfo.iMemeberRebate) / 100 : 1;
+  const shopType = shopInfo.szItems[0].ItemNum !== "";  // 表示购买的道具是按数量购买
   const values = shopType ? shopInfo.szItems[0].ItemNum : shopInfo.szItems[0].ItemAvailPeriod;
 
   // 将物品数值转换成数组
@@ -336,9 +363,10 @@ function getShopItems(shopInfo, overage) {
     return shopType ? parseInt(item) : parseInt(item) / 24;
   });
 
-  // 根据价格排序物品数据
+  // 根据价格排序道具数据
   const sortedData = shopInfo.szPrices.map((price, index) => ({
-    price: parseInt(price.SuperMoneyPrice), count: numArray[index], idx: index
+    price: parseInt(price.SuperMoneyPrice) * iMemeberRebate, 
+    count: numArray[index], idx: index
   })).sort((a, b) => b.count - a.count);
 
   // 将排序后的数据存入 info 对象
@@ -348,66 +376,70 @@ function getShopItems(shopInfo, overage) {
 
   // 初始化购买总数、物品数组和投入金额
   let totalCount = 0;
-  let items = [];
-   let remMoney = lastDay ? overage.money + overage.coupons : overage.coupons;
+  let purchasedItemsList = [];
+  let remMoney = $.lastDayOfMonth ? overage.money + overage.coupons : overage.coupons;
 
-  const data = info.data;
-  const lastOne = data.length - 1;
+  // 定义商品数据、最便宜商品序列（最便宜商品序列一定是列表最后一个）
+  const itemData = info.data;
+  const cheapestItemIndex = itemData.length - 1;
 
-  for (let m = 0; m < data.length; m++) {
+  for (let m = 0; m < itemData.length; m++) {
+    // 每次循环开始前把元素添加次数重置为0
     let pushCounts = 0;
-    let itemIndex = data[m].idx;
 
-    // 判断是否购买永久物品
-    if (data[m].count === 999 && remMoney > data[m].price) {
-      items.push({"count": 999, "id": info.Id, "idx": itemIndex});
-      totalCount = data[m].count;
+    // 判断是否购买永久道具且传入的金额足够购买永久道具
+    if (itemData[m].count === 999 && remMoney > itemData[m].price) {
+      purchasedItemsList.push({"count": 999, "id": info.Id, "idx": itemData[m].idx});
+      totalCount = itemData[m].count;
       info.unit = "永久";
       break;
     }
 
     // 计算最大可购买的物品数量并更新总数和剩余金钱
-    const maxPurchasableItems = Math.floor(remMoney / data[m].price);  // 这是一个计算出的整数，表示根据当前余额和道具价格，最多可以购买的道具数量。
-    thisTimeCost = maxPurchasableItems * data[m].price;  // 这是一个累加的变量，用于跟踪本轮循环购买道具的总花费。
-    totalCount += maxPurchasableItems * data[m].count; // 这是一个累加的变量，用于跟踪购买的总道具数量。
-    remMoney -= maxPurchasableItems * data[m].price; // 这是当前可用的余额。在每次购买道具后，余额会根据购买的道具数量和价格进行更新，以反映购买后的余额。
+    const maxPurchasableItems = Math.floor(remMoney / itemData[m].price);  // 这是一个计算出的整数，表示根据当前余额和道具价格，最多可以购买的道具数量。
+    thisTimeCost = maxPurchasableItems * itemData[m].price;  // 这是一个累加的变量，用于跟踪本轮循环购买道具的总花费。
+    totalCount += maxPurchasableItems * itemData[m].count; // 这是一个累加的变量，用于跟踪购买的总道具数量。
+    remMoney -= maxPurchasableItems * itemData[m].price; // 这是当前可用的余额。在每次购买道具后，余额会根据购买的道具数量和价格进行更新，以反映购买后的余额。
 
     // 将购买的物品加入数组
     for (let n = 0; n < maxPurchasableItems; n++) {
-      items.push({"count": data[m].count, "id": info.Id, "idx": itemIndex, "cost": data[m].price});
+      purchasedItemsList.push({
+        "count": itemData[m].count, 
+        "id": info.Id, 
+        "idx": itemData[m].idx, 
+      });
       pushCounts += 1;
     }
 
     // 在购买数量道具情况下，非月尾判断是否可以购买最后一个物品
-    if (remMoney < data[lastOne].price && !lastDay && shopType) {
-      const meetsThreshold = remMoney > data[lastOne].price / Number(`1000000`);
-      const canAffordLastItem = remMoney + overage.money >= data[lastOne].price;
+    if (remMoney < itemData[cheapestItemIndex].price && !$.lastDayOfMonth && shopType) {
+      const meetsThreshold = remMoney > itemData[cheapestItemIndex].price / Number(`1000000`);
+      const canAffordLastItem = remMoney + overage.money >= itemData[cheapestItemIndex].price;
 
       // 如果满足阈值条件，且消费券加点券的和大于最便宜一个道具的价格
       if (meetsThreshold && canAffordLastItem) {
-        items.push({"count": data[lastOne].count, "id": info.Id, "idx": data[lastOne].idx, "cost": data[lastOne].price});
+        purchasedItemsList.push({
+          "count": itemData[cheapestItemIndex].count, 
+          "id": info.Id, 
+          "idx": itemData[cheapestItemIndex].idx, 
+        });
+        thisTimeCost += itemData[cheapestItemIndex].price;
+        totalCount += itemData[cheapestItemIndex].count;
         pushCounts += 1;
-        totalCount += data[lastOne].count;
-        thisTimeCost += data[lastOne].price;
       }
       
       // 本轮花费大于0且本轮消费等于倒数第二阶梯的消费价格时，清空本轮添加的购买包
-      if (thisTimeCost !== 0 && thisTimeCost === data[m - 1].price) {
-        // 计算需要保留的元素数量
-        const itemsToKeep = items.length - pushCounts;
-
-        // 计算新的元素序列
-        const newIndex = lastOne - 1;
+      if (thisTimeCost && thisTimeCost === itemData[cheapestItemIndex - 1].price) {
+        // 计算需要保留的元素数量、新的元素序列
+        const itemsToKeep = purchasedItemsList.length - pushCounts;
+        const newIndex = cheapestItemIndex - 1;
       
-        // 使用 slice 创建一个新数组，仅保留需要的元素
-        items = items.slice(0, itemsToKeep);
-      
-        // 添加新元素到数组末尾
-        items.push({
-          "count": data[newIndex].count,
+        // 使用 slice 创建一个新数组，仅保留需要的元素，并添加新元素到数组末尾
+        purchasedItemsList = purchasedItemsList.slice(0, itemsToKeep);
+        purchasedItemsList.push({
+          "count": itemData[newIndex].count,
           "id": info.Id,
-          "idx": data[newIndex].idx,
-          "cost": data[newIndex].price
+          "idx": itemData[newIndex].idx,
         });
       }
 
@@ -415,7 +447,7 @@ function getShopItems(shopInfo, overage) {
     }
   }
 
-  return [items, totalCount, shopType ? "个" : "天"];
+  return [purchasedItemsList, totalCount, shopType ? "个" : "天"];
 }
 
 /**
@@ -599,6 +631,42 @@ async function claimGift(giftId, giftName) {
         $.log($.toStr(err));
       }
       resolve();
+    });
+  });
+}
+
+/**
+ * @description 掌飞购物相关函数，判断用户是否为会员用户。
+ * @returns {Promise<object>} 包含会员状态的 Promise 对象。
+ */
+async function checkIsVip() {
+  // 初始化会员情况默认为非会员
+  let result = false;
+
+  // 构建 URL 中的 params 参数
+  const params = {
+    'roleId': $.read(`zsfc_roleId`),
+    'uin': $.read(`zsfc_uin`),
+    'areaId': $.read(`zsfc_areaId`),
+  };
+
+  // 构建所请求的 URL 地址
+  const url = `https://bang.qq.com/app/speed/treasure/index?${$.queryStr(params)}`;
+
+  // 返回一个 Promise 对象，用于异步操作
+  return new Promise(resolve => {
+    // 发送 GET 请求，获取寻宝页面数据
+    $.get(url, (error, response, data) => {
+      try {
+        if (data) {
+          // 提取userInfo和mapInfo的数据
+          const userInfoData = eval(data.match(/window\.userInfo\s*=\s*eval\('([^']+)'\);/)?.[1]);
+          result = userInfoData.vip_flag !== 0;
+        }
+      } finally {
+        // 解析 Promise，将结果对象传递给 resolve 函数
+        resolve(result);
+      }
     });
   });
 }
