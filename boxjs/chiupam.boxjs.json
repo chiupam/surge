@@ -113,6 +113,51 @@
       ]
     },
     {
+      "id": "tieba",
+      "name": "百度贴吧",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">百度贴吧签到：打开百度贴吧APP，稍等片刻即可 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "tieba_notice_model",
+          "name": "脚本弹窗通知模式选项",
+          "val": "1",
+          "type": "radios",
+          "items": [
+            {
+              "key": "1",
+              "label": "任何时候都弹窗通知"
+            },
+            {
+              "key": "2",
+              "label": "有签到失败的时候弹窗通知"
+            },
+            {
+              "key": "3",
+              "label": "任何时候都不弹窗通知"
+            }
+          ],
+          "desc": "脚本运行后是否需要弹窗通知，默认任何时候都弹窗通知"
+        },
+        {
+          "id": "tieba_cookie",
+          "name": "百度贴吧Cookie数据",
+          "val": "",
+          "type": "textarea",
+          "desc": "这里将显示百度贴吧获取到的Cookie的关键数据"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/tieba.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/tieba.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/boxjs/icon/tieba.png"
+      ]
+    },
+    {
       "id": "QLAPI",
       "name": "青龙API",
       "keys": [],

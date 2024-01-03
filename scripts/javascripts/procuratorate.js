@@ -96,7 +96,6 @@ let isreq = typeof $request !== 'undefined';
         }
         return;
       }
-      $.log($.toStr(workday))
 
       // 检查打卡类型是否符合条件
       const punchType = await checkPunchCardAvailability();
