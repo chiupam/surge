@@ -205,7 +205,7 @@ async function fetchMapData() {
   return new Promise(resolve => {
     $.get(url, (error, response, data) => {
       if (data) {
-        // 提取单天已经寻宝的次数
+        // 提取当天已经寻宝的次数
         const todayTimesMatch = data.match(/"todayTimes":(?:"(\d+)"|(\d+))/);
         
         // 如果都没法提取就默认今天次数为0
