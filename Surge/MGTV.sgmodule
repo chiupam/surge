@@ -4,33 +4,33 @@
 
 [URL Rewrite]
 # > 无用请求
-^http:\/\/[\d\.]+:\d{5}\/\?cmd=indexes - reject
+^http://[\d\.]+:\d{5}/\?cmd=indexes - reject
 # > 芒果去广告(首页左上角推广)
-^http:\/\/[\d\.]+\/odin\/c1\/(channel\/ads|skin\/config)\? - reject
+^http://[\d\.]+/odin/c1/(channel/ads|skin/config)\? - reject
 # > 芒果去广告(底部TAB红点)
-^https:\/\/damang\.api\.mgtv\.com\/station\/album\/red\/dot\? - reject
+^https://damang\.api\.mgtv\.com/station/album/red/dot\? - reject
 # > 芒果去广告(播放器界面)
-^https:\/\/hb-boom\.api\.mgtv\.com\/release\/pullReleaseInfo - reject
+^https://hb-boom\.api\.mgtv\.com/release/pullReleaseInfo - reject
 # > 芒果去广告(升级弹窗)
-^https:\/\/mobile\.api\.mgtv\.com\/v2\/mobile\/checkUpdate\? - reject
+^https://mobile\.api\.mgtv\.com/v2/mobile/checkUpdate\? - reject
 # > 芒果去广告(播放详情页)
-^http:\/\/mobile-thor\.api\.mgtv\.com\/v1\/vod\/cms\/list\? - reject
+^http://mobile-thor\.api\.mgtv\.com/v1/vod/cms/list\? - reject
 # > 芒果去广告(搜索框填充词)
-^http:\/\/mobileso\.bz\.mgtv\.com\/spotlight\/search\/v1\? - reject
+^http://mobileso\.bz\.mgtv\.com/spotlight/search/v1\? - reject
 
 [Script]
 # > source: https://github.com/Yu9191/Rewrite/blob/main/MGTV.js
-芒果SVIP(Require) = type=http-response,pattern=https://mobile-stream.api.mgtv.com/v1/video/source,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv.js,script-update-interval=0
-芒果SVIP(Require) = type=http-response,pattern=https://nuc.api.mgtv.com/GetUserInfo,requires-body=1,script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv.js,script-update-interval=0,max-size=0
-芒果SVIP(Response) = type=http-request,pattern=https://mobile-stream.api.mgtv.com/v1/video/source?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/MGTV.js,script-update-interval=0
-芒果SVIP(Response) = type=http-request,pattern=^http[s]?:\/\/mobile\.api\.mgtv\.com\/v[0-9]\/(playlist|video\/album|video\/relative|video\/list).*$,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv1.js,script-update-interval=0
-芒果SVIP(我的页面) = type=http-request,pattern=^https:\/\/me\.bz\.mgtv\.com\/v3\/module\/list\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(首页信息流) = type=http-request,pattern=^http:\/\/mob-st\.bz\.mgtv\.com\/odin\/c1\/channel\/index\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(顶部TAB) = type=http-request,pattern=^https?:\/\/dc2?\.bz\.mgtv\.com\/dynamic\/v1\/channel\/(index|vrsList)\/\w,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(底部TAB) = type=http-request,pattern=^https:\/\/mobile\.api\.mgtv\.com\/mobile\/config\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(播放详情页) = type=http-request,pattern=^https:\/\/mobile\.api\.mgtv\.com\/v10\/video\/info\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(播放详情页) = type=http-request,pattern=^https:\/\/mobile-thor\.api\.mgtv\.com\/v1\/vod\/info\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
-芒果SVIP(搜索框填充词) = type=http-request,pattern=^https?:\/\/mobileso\.bz\.mgtv\.com\/mobile\/recommend\/v2\?,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js,script-update-interval=0
+芒果SVIP(Request) = type=http-request, pattern=^http[s]?://mobile\.api\.mgtv\.com/v[0-9]/(playlist|video/album|video/relative|video/list).*$, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv1.js, script-update-interval=0
+芒果SVIP(Request) = type=http-request, pattern=^https?://mobile-stream\.api\.mgtv\.com/v1/video/source?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/MGTV.js, script-update-interval=0
+芒果SVIP(Response) = type=http-response, pattern=https://nuc.api.mgtv.com/GetUserInfo, requires-body=1, script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv.js, script-update-interval=0, max-size=0
+芒果SVIP(Response) = type=http-response, pattern=https://mobile-stream\.api\.mgtv\.com/v1/video/source?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/Yu9191/Rewrite/main/mgtv.js, script-update-interval=0
+芒果SVIP(我的页面) = type=http-response, pattern=^https://me\.bz\.mgtv\.com/v3/module/list\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(首页信息流) = type=http-response, pattern=^http://mob-st\.bz\.mgtv\.com/odin/c1/channel/index\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(顶部TAB) = type=http-response, pattern=^https?://dc2?\.bz\.mgtv\.com/dynamic/v1/channel/(index|vrsList)/\w, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(底部TAB) = type=http-response, pattern=^https://mobile\.api\.mgtv\.com/mobile/config\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(播放详情页) = type=http-response, pattern=^https://mobile\.api\.mgtv\.com/v10/video/info\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(播放详情页) = type=http-response, pattern=^https://mobile-thor\.api\.mgtv\.com/v1/vod/info\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
+芒果SVIP(搜索框填充词) = type=http-response, pattern=^https?://mobileso\.bz\.mgtv\.com/mobile/recommend/v2\?, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/RuCu6/QuanX/main/Scripts/cnftp.js, script-update-interval=0
 
 [MITM]
 hostname = %APPEND% *.mgtv.com
