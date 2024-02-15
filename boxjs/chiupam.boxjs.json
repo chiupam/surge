@@ -161,17 +161,21 @@
       "id": "xmSports",
       "name": "小米运动",
       "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">注意事项: 登录的 APP 名为 zepp life</a></h4>",
+        "<h4 align=\"center\">下载链接: <a href=\"https://apps.apple.com/cn/app/zepp-life-%E5%8E%9F%E5%B0%8F%E7%B1%B3%E8%BF%90%E5%8A%A8/id938688461\">iOS端</a> | <a href=\"https://fga1.market.xiaomi.com/download/AppStore/0f9f1f695650f4dd0b9101726f03c724604316d05/com.xiaomi.hm.health.apk\">Android端</a></h4>"
+      ],
       "settings": [
         {
           "id": "xmSportPhone",
-          "name": "小米运动APP登录手机号",
+          "name": "登录手机号",
           "val": "",
           "type": "text",
           "desc": "小米运动登录时所使用的手机号码"
         },
         {
           "id": "xmSportPassword",
-          "name": "小米运动APP登录密码",
+          "name": "登录密码",
           "val": "",
           "type": "text",
           "desc": "小米运动登录时所所需的密码"
