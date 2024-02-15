@@ -6,11 +6,6 @@ from flask import Flask, request
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET'])
-def hello():
-    return "Hello World!"
-
-
 @app.route('/', methods=['POST'])
 def xmSport():
     phoneNumber = request.form.get('phoneNumber')
@@ -37,11 +32,20 @@ def main(pn, pw):
         location = response.headers["Location"]
         code = re.compile("(?<=access=).*?(?=&)").findall(location)
         if len(code) != 0:
-            return code[0]
+            return {
+                "status": True,
+                "code": code[0]
+            }
         else:
-            return "无法获取Code值，请检查手机号码和登录密码"
+            return {
+                "status": False,
+                "code": "无法获取Code值，请检查手机号码和登录密码"
+            }
     except:
-        return "请求失败"
+        return {
+                "status": False,
+                "code": "请求失败，请稍后重试"
+            }
 
 
 if __name__ == '__main__':
