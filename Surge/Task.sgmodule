@@ -9,8 +9,7 @@
 掌上飞车 =type=cron, cronexp="0 */11 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/zsfc.treasure.js, script-update-interval=0, timeout=60
 
 # > 小米运动修改步数
-小米运动Code = type=http-request, pattern=^https?://s3-us-west-2\.amazonaws\.com/hm-registration/successsignin.html.*, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/xmSport.js, script-update-interval=0, timeout=60
-小米运动 =type=cron, cronexp="55 23 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/xmSport.js, script-update-interval=0, timeout=60
+小米运动 =type=cron, cronexp="55 22,23 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/xmSport.js, script-update-interval=0, timeout=60
 
 # > 百度贴吧app
 百度贴吧Cookie = type=http-request ,pattern=^https?://tiebac\.baidu\.com/c/u/follow/getFoldedMessageUserInfo$,script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/tieba.js, script-update-interval=0, timeout=60
