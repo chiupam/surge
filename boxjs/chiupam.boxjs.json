@@ -90,6 +90,13 @@
           "desc": "购物完成后剩余的消费券是否需要彻底消耗掉，默认浪费掉"
         },
         {
+          "id": "zsfc_forcedConsumption",
+          "name": "每周强制消费点券以完成每周任务",
+          "val": "false",
+          "type": "boolean",
+          "desc": "是否每周强制消费点券以完成每周任务，默认不强制消费"
+        },
+        {
           "id": "zsfc_upload_id",
           "name": "上传掌飞签到数据",
           "val": "true",
