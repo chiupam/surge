@@ -199,9 +199,8 @@ const isRequest = typeof $request !== 'undefined';
       consumptionTask: {iFlowId: "1028553", IdName: "花费点券"} // 任务5
     };
 
-    // 获取当天星期数并签到
-    const today = new Date().getDay();
-    var { iFlowId, IdName } = idItems.dailyReward[today];
+    // 每日签到
+    var { iFlowId, IdName } = idItems.dailyReward[new Date().getDay()];
     await claimGift(iFlowId, IdName);
 
     // 获取本月累签天数并判断是否有累签奖励
@@ -212,7 +211,6 @@ const isRequest = typeof $request !== 'undefined';
     }
 
     // 每日任务
-    // await viewFeed();  // todo 浏览动态, 可能需要用到base64
     await openBackpack();  // 浏览背包
 
     // 领取每日任务奖励
@@ -222,7 +220,7 @@ const isRequest = typeof $request !== 'undefined';
     }
 
     // 判断为周末时领取每周对局任务奖励
-    if (today === 6) {
+    if (new Date().getDay() === 6) {
       var { iFlowId, IdName } = idItems.matchTask;
       await claimGift(iFlowId, IdName);
     }
@@ -246,6 +244,12 @@ const isRequest = typeof $request !== 'undefined';
     // Cookie 已过期，程序终止
     if (!packBefore) return $.log(`❌ Cookie 已过期，请重新获取`), $.notice(`🏎️ 掌飞购物`, `❌ Cookie 已过期`, `打开掌上飞车，点击游戏并进入掌上商城`);
 
+    // 获取当前余额
+    const beforeLog = `✅ 当前共有${packBefore.money}点券，${packBefore.coupons}消费券`;
+    $.log(beforeLog);
+    if (new Date().getHours() < 16) return $.log(`🕒 每天16点后再执行购物操作`);
+    $.subtitle = beforeLog;
+
     // 判断当天是否为本月月尾2天以内
     $.lastDayOfMonth = checkLastDayOfMonth(2);
 
@@ -255,12 +259,6 @@ const isRequest = typeof $request !== 'undefined';
 
     // 无法在掌上商城中搜索到相关商品时终止程序
     if (!Object.keys(shopIdArray).length) return $.notice(`🏎️ 掌飞购物`, `❌ ${shopName} 未在商店中售卖`, `请在掌上商城中认真核对商品名称`);
-
-    // 获取当前余额
-    const beforeLog = `✅ 当前共有${packBefore.money}点券，${packBefore.coupons}消费券`;
-    $.log(beforeLog);
-    if (new Date().getHours() < 16) return $.log(`🕒 每天16点后再执行购物操作`);
-    $.subtitle = beforeLog;
 
     // 获取购物包
     const [shopArray, totalCount, unit] = getShopItems(shopIdArray, packBefore);
