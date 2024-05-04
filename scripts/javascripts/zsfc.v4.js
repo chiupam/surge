@@ -72,7 +72,7 @@ const isRequest = typeof $request !== 'undefined';
       Object.entries(cookieToWrite).forEach(([key, value]) => $.write(value, key));
 
       // 发起请求检验 iActivityId 和 iFlowId 是否为需要的值
-      if (!(await getTotalSignInDays())) return;
+      if (await getTotalSignInDays() === -1) return;
 
       // 解码 tokenParams 端内容
       const decodeTokenParams = decodeURIComponent(matchParam(cookie, 'tokenParams'));
@@ -173,7 +173,7 @@ const isRequest = typeof $request !== 'undefined';
     // todo 定义流水ID词典, 不清楚是否是周周更新或者月月更新
     idItems = {
       dailyReward: {
-        7: {iFlowId: "1028286", IdName: "周日签到"},  // 周日签到
+        0: {iFlowId: "1028286", IdName: "周日签到"},  // 周日签到
         1: {iFlowId: "1028292", IdName: "周一签到"},  // 周一签到
         2: {iFlowId: "1028291", IdName: "周二签到"},  // 周二签到
         3: {iFlowId: "1028290", IdName: "周三签到"},  // 周三签到
@@ -521,7 +521,7 @@ async function getTotalSignInDays() {
         $.log(`❌ 获取累签天数时发生错误`);
         $.log($.toStr(err));
       }
-      resolve(!isNaN(totalSignInDays) ? Number(totalSignInDays) : false);
+      resolve(!isNaN(totalSignInDays) ? Number(totalSignInDays) : -1);
     });
   });
 }
@@ -584,12 +584,9 @@ async function claimGift(giftId, giftName) {
 
 /**
  * @description 掌飞签到相关函数，浏览背包
- * @returns {Promise<object>} 包含会员状态的 Promise 对象。
+ * @returns {Promise<object>} 返回空的 Promise 对象。
  */
 async function openBackpack() {
-  // 初始化返回结果为false
-  let result = false;
-
   // 构建请求体
   const options = {
     url: `https://mwegame.qq.com/yoyo/dnf/phpgameproxypass`,
@@ -598,7 +595,8 @@ async function openBackpack() {
       areaId: $.read(`zsfc_areaId`),
       userId: $.read(`zsfc_userId`),
       token: $.read(`zsfc_token`),
-      service: `dnf_getspeedknapsack`
+      service: `dnf_getspeedknapsack`,
+      cGameId: `1003`  // 必须传入这个参数才可以完成任务
     })
   };
 
@@ -606,15 +604,8 @@ async function openBackpack() {
   return new Promise(resolve => {
     // 发送 POST 请求
     $.post(options, (error, response, data) => {
-      try {
-        if (data) {
-          let body = $.toObj(data);
-          result = body.result === 0;
-        }
-      } finally {
-        // 解析 Promise，将结果对象传递给 resolve 函数
-        resolve(result);
-      }
+      // 只需要发送请求即可, 不进行任何处理
+      resolve();
     });
   });
 }
