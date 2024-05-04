@@ -84,7 +84,6 @@ const isRequest = typeof $request !== 'undefined';
         'zsfc_areaId': matchParam(decodeTokenParams, 'areaId'),
         'zsfc_iActivityId': ($.iActivityId).toString(),
         'zsfc_iFlowId': ($.iFlowId).toString(),
-        // 'zsfc_month': (new Date().getMonth() + 1).toString()  // 5月改版后不清楚是否需要删除
       }
 
       // 如果所有键值都与内存中的值相同，则立即终止程序
@@ -192,11 +191,13 @@ const isRequest = typeof $request !== 'undefined';
       },
       dailyTask: {
         1: {iFlowId: "1028557", IdName: "查看动态"},  // 任务1
-        2: {iFlowId: "1028556", IdName: "浏览背包"},  // 任务2
+        2: {iFlowId: "1028556", IdName: "浏览背包"},  // 任务2, 只有浏览背包可以完成
         3: {iFlowId: "1028555", IdName: "游戏活跃"}  // 任务3
       },
-      matchTask: {iFlowId: "1028554", IdName: "进行游戏"},  // 任务4
-      consumptionTask: {iFlowId: "1028553", IdName: "花费点券"} // 任务5
+      weeklyTask: {
+        1: {iFlowId: "1028554", IdName: "进行游戏"},  // 任务4
+        2: {iFlowId: "1028553", IdName: "花费点券"} // 任务5
+      }
     };
 
     // 每日签到
@@ -209,9 +210,9 @@ const isRequest = typeof $request !== 'undefined';
       var { iFlowId, IdName } = idItems.accumulative[totalSignInDay];
       await claimGift(iFlowId, IdName);
     }
-
-    // 每日任务
-    await openBackpack();  // 浏览背包
+    
+    // 浏览背包
+    await openBackpack();
 
     // 领取每日任务奖励
     for (var key in idItems.dailyTask) {
@@ -220,9 +221,11 @@ const isRequest = typeof $request !== 'undefined';
     }
 
     // 判断为周末时领取每周对局任务奖励
-    if (new Date().getDay() === 6) {
-      var { iFlowId, IdName } = idItems.matchTask;
-      await claimGift(iFlowId, IdName);
+    if (new Date().getDay() === 6 || new Date().getDay() === 7) {
+      for (var key in idItems.weeklyTask) {
+        var { iFlowId, IdName } = idItems.weeklyTask[key];
+        await claimGift(iFlowId, IdName);
+      }
     }
 
     // 显示签到结果通知
@@ -279,21 +282,6 @@ const isRequest = typeof $request !== 'undefined';
         let { count, id, idx } = buyInfo;
         successBuyCounts += await purchaseItem(shopName, count, id, idx);
       }
-
-      /**
-       * ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 每周消费任务在这里执行 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-       */
-
-      // 判断领取消费任务奖励, $.successfulForcedConsumption 在 getShopItems 函数里面写
-      if ($.successfulForcedConsumption || checkLastDayOfMonth(2)) {
-        var { iFlowId, IdName } = idItems.consumptionTask;
-        await claimGift(iFlowId, IdName);
-        $.write(`0`, `zsfc_weeklyConsumptionAmount`);  // 重置每周消费点券为 0 点券
-      }
-
-      /**
-       * ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 每周消费任务在这里执行 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-       */
 
       if (successBuyCounts > 0) {
         // 购买永久道具后为避免重复购买自动禁用购买脚本并重置道具名称
@@ -412,19 +400,7 @@ function getShopItems(shopInfo, overage) {
   // 初始化购买总数、物品数组和投入金额
   let totalCount = 0;
   let purchasedItemsList = [];
-  if ($.lastDayOfMonth) {
-    var remMoney = overage.money + overage.coupons;
-  } else if (
-    new Date().getDay() === 6 &&  // 周六
-    Number($.read(`zsfc_weeklyConsumptionAmount`)) < 5000 &&   // 本周点券消费小于5000
-    $.toObj($.read(`zsfc_forcedConsumption`)) &&   // 开启了强制消费
-    overage.money >= 5000 - Number($.read(`zsfc_weeklyConsumptionAmount`))  // 当前点券余额大于等于需要补充消费点券的部分
-  ) {
-    var remMoney = 5000 - Number($.read(`zsfc_weeklyConsumptionAmount`)) + overage.coupons;
-    $.successfulForcedConsumption = true;
-  } else {
-    var remMoney = overage.coupons;
-  }
+  let remMoney = $.lastDayOfMonth ? overage.money + overage.coupons : overage.coupons;y = overage.coupons;
 
   // 定义商品数据、最便宜商品序列（最便宜商品序列一定是列表最后一个）
   const itemData = info.data;
@@ -470,8 +446,6 @@ function getShopItems(shopInfo, overage) {
           "id": info.Id, 
           "idx": itemData[cheapestItemIndex].idx, 
         });
-        moneyCost = itemData[cheapestItemIndex].price - remMoney;  // 这个应该是强制消费的点券数量
-        $.write((Number($.read(`zsfc_weeklyConsumptionAmount`)) + moneyCost).toString(), `zsfc_weeklyConsumptionAmount`);  // 更新本周消费点券数据
         thisTimeCost += itemData[cheapestItemIndex].price;
         totalCount += itemData[cheapestItemIndex].count;
         pushCounts += 1;
@@ -523,8 +497,7 @@ async function getTotalSignInDays() {
     },
     body: $.queryStr({
       "iActivityId": isRequest ? $.iActivityId : $.read(`zsfc_iActivityId`),
-      // "sServiceType": "speed",  // 这个数据不需要传
-      "iFlowId": Number(isRequest ? $.iFlowId : $.read(`zsfc_iFlowId`)), 
+      "iFlowId": isRequest ? $.iFlowId : $.read(`zsfc_iFlowId`), 
       "g_tk": "1842395457",
       "witchDay": "1",  // 不知道为什么需要传一个 witchDay 参数, 键值 1 也不清楚是什么意思
     })
@@ -575,13 +548,10 @@ async function claimGift(giftId, giftName) {
     },
     body: $.queryStr({
       "iActivityId": $.read(`zsfc_iActivityId`),
-      // "sServiceType": "speed",  // 这个数据不需要传
       "iFlowId": giftId, 
       "g_tk": "1842395457"
     })
   };
-
-  // $.log(`🧑‍💻 准备领取${giftName}奖励`);
 
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
@@ -612,38 +582,6 @@ async function claimGift(giftId, giftName) {
   });
 }
 
-// todo 查看动态的请求, 不过好像需要用到 base64, 可能无法完成
-/**
- * @description 掌飞签到相关函数，查看动态
- * @returns {Promise<object>} 包含会员状态的 Promise 对象。
- */
-async function viewFeed() {
-  // 初始化返回结果为false
-  let result = false;
-
-  // 构建请求体
-  const options = {
-    url: ``,
-    headers: ``,
-    body: ``
-  };
-
-  // 返回一个 Promise 对象，用于异步操作
-  return new Promise(resolve => {
-    // 发送 GET 请求，获取寻宝页面数据
-    $.post(options, (error, response, data) => {
-      try {
-        if (data) {
-          let body = $.toObj(data);
-        }
-      } finally {
-        // 解析 Promise，将结果对象传递给 resolve 函数
-        resolve(result);
-      }
-    });
-  });
-}
-
 /**
  * @description 掌飞签到相关函数，浏览背包
  * @returns {Promise<object>} 包含会员状态的 Promise 对象。
@@ -666,7 +604,7 @@ async function openBackpack() {
 
   // 返回一个 Promise 对象，用于异步操作
   return new Promise(resolve => {
-    // 发送 GET 请求，获取寻宝页面数据
+    // 发送 POST 请求
     $.post(options, (error, response, data) => {
       try {
         if (data) {
