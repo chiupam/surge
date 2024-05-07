@@ -509,8 +509,13 @@ async function getTotalSignInDays() {
     $.post(options, (err, resp, data) => {
       if (data) {
         try {
-          // todo 目前暂定为 sOutValue5 因为猜测 sOutValue4 是本周签到天数, 可能还需要分析 sOutValue2 漏签的情况, 以及 sOutValue7 是否可补签
-          totalSignInDays = $.toObj(data).modRet.sOutValue5;
+          // sOutValue1 累签奖励领取情况 示例: 1,0,0,0,0  说明: 1(可领取/已领取) 0(未达到签到天数)
+          // sOutValue2 周签到情况 示例: 1,1,1,1,1,1,1 说明: 1(未签到) 0(已签到)
+          // sOutValue4 月签到天数
+          // sOutValue5 周签到天数
+          // sOutValue7 补签资格 示例: 1,0 说明: 1(可以补签) 0(不可补签) / 使用情况 1(已使用) 0(未使用)
+          // sOutValue8 日常任务 示例: 1,1,1,0,0 说明: 1(可领取/已领取) 0(未完成)
+          totalSignInDays = $.toObj(data).modRet.sOutValue4;
 
           if (!isRequest) {
             $.subtitle = `📅 累计签到 ${totalSignInDays} 天`;
@@ -565,7 +570,8 @@ async function claimGift(giftId, giftName) {
         } else if (body.msg.includes(`不满足`)) {
           $.log(`⭕ ${giftName}: ${body.flowRet.sMsg}`);
         } else {
-          const sPackageName = body.modRet.sPackageName.replace(/[，,]/g, ", ");
+          const result = body.modRet.sPackageName.replace(/\s/g, "");
+          const sPackageName = result.replace(/[，,]/g, ", ");
           $.log(`✅ ${giftName}: ${sPackageName}`);
           if ($.checkInMsg) {
             $.checkInMsg += `，${sPackageName}`;
