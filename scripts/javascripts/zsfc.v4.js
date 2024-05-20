@@ -1,6 +1,4 @@
 /**
- *
- * 特别提醒: 仍然处于测试阶段, 更新频率可能比较高
  * 
  * 使用方法：打开掌上飞车APP, 点击咨询栏的签到（每日福利）即可，无需点击签到，然后点击下方游戏栏，最后点击掌飞商城即可获取所需商城数据。
  * 注意事项：1、每月需手动打开一次掌上飞车APP并进入签到页面，以重新抓包更新礼包数据，为此需要每日运行两次脚本；2、如果账号信息没有发生根本性变化的话，抓取 Cookie 等信息的脚本就不会被执行；3、如需购买掌飞商店中的指定商品，请订阅boxjs链接，并在掌上飞车应用中填写在售商品的完整名称
@@ -186,8 +184,8 @@ const isRequest = typeof $request !== 'undefined';
         5: {iFlowId: "1028380", IdName: "月签5天"},  // 月签5
         10: {iFlowId: "1028379", IdName: "月签10天"},  // 月签10
         15: {iFlowId: "1028378", IdName: "月签15天"},  // 月签15
-        20: {iFlowId: "1028377", IdName: "月签20天"},  // 月签20
-        25: {iFlowId: "1028376", IdName: "月签25天"}  // 月签25
+        20: {iFlowId: "1028377", IdName: "月签20天"},  // 月签20, 需要添加g iftPackId 参数
+        25: {iFlowId: "1028376", IdName: "月签25天"}  // 月签25, 需要添加 giftPackId 参数
       },
       dailyTask: {
         1: {iFlowId: "1028557", IdName: "查看动态"},  // 任务1
@@ -556,6 +554,11 @@ async function claimGift(giftId, giftName) {
       "iFlowId": giftId, 
       "g_tk": "1842395457"
     })
+  };
+
+  // 累签20天和25天需要选择领取奖励的序列
+  if (giftId == "1028377" || giftId == "1028376") {
+    options.body += `&giftPackId=1`;
   };
 
   // 返回一个 Promise 对象，用于异步操作
