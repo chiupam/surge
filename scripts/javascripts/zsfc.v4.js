@@ -552,7 +552,10 @@ async function claimGift(giftId, giftName) {
     body: $.queryStr({
       "iActivityId": $.read(`zsfc_iActivityId`),
       "iFlowId": giftId, 
-      "g_tk": "1842395457"
+      "g_tk": "1842395457",
+      "curl_userId": $.read(`zsfc_userId`),  // 2024.07 新增必要传参
+      "curl_qq": $.read(`zsfc_roleId`),  // 2024.07 新增必要传参
+      "curl_token": $.read(`zsfc_token`)  // 2024.07 新增必要传参
     })
   };
 
