@@ -9,8 +9,8 @@
 工作打卡 = type=cron, cronexp="30 31,51 17 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.js, script-update-interval=0, timeout=60
 
 # > 检查内网打卡服务状态
-检查打卡服务 = type=cron, cronexp="1 30,40 8 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.alive.js, script-update-interval=0, timeout=60
-检查打卡服务 = type=cron, cronexp="1 55,59 16 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.alive.js, script-update-interval=0, timeout=60
+# 检查打卡服务 = type=cron, cronexp="1 30,40 8 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.alive.js, script-update-interval=0, timeout=60
+# 检查打卡服务 = type=cron, cronexp="1 55,59 16 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/procuratorate.alive.js, script-update-interval=0, timeout=60
 
 [MITM]
 hostname = %APPEND% zhcj.kmcgjcy.cn
