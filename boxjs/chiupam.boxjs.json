@@ -32,7 +32,21 @@
           "name": "签到body",
           "val": "",
           "type": "textarea",
-          "desc": "上班打卡请求体"
+          "desc": "上班打卡的请求体"
+        },
+        {
+          "id": "procuratorate_host",
+          "name": "签到主机名",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的主机名"
+        },
+        {
+          "id": "procuratorate_agent",
+          "name": "签到用户代理",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户代理"
         }
       ],
       "author": "@chiupam",
