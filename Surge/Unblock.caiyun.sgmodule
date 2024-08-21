@@ -1,0 +1,9 @@
+#!name=Caiyun App Module
+#!desc=This is a Surge module used to collect JaveScripts on hacking for Caiyuntianqi Applicaitons.
+
+[Script]
+彩云天气 = type=http-request,pattern=^https?:\/\/(api|wrapper)\.(cyapi|caiyunapp)\.(cn|com)\/v\d\/(satellite|nafp\/origin_images),requires-body=1,max-size=0,binary-body-mode=0,script-path=https://raw.githubusercontent.com/chxm1023/Rewrite/main/caiyuntianqi.js ,script-update-interval=0
+彩云天气 = type=http-response,pattern=^https?:\/\/(biz|wrapper|starplucker)\.(cyapi|caiyunapp)\.(cn|com)\/(.+\/(user\?app_name|activity\?app_name|visitors|operation\/banners|operation\/homefeatures|config)|p\/v\d\/(vip_info|user_info|entries|privileges|trial_card\/info)),requires-body=1,max-size=0,binary-body-mode=0,script-path=https://raw.githubusercontent.com/chxm1023/Rewrite/main/caiyuntianqi.js,script-update-interval=0
+
+[MITM]
+hostname = %APPEND% *.cyapi.cn, *.caiyunapp.com
