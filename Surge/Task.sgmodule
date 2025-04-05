@@ -2,9 +2,6 @@
 #!desc=This is a Surge module used to collect JaveScripts on daily task.
 
 [Script]
-# > 小米运动修改步数
-小米运动 =type=cron, cronexp="55 22,23 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/xmSport.js, script-update-interval=0, timeout=60
-
 # > 百度贴吧app
 百度贴吧Cookie = type=http-request,pattern=^https?://tiebac\.baidu\.com/c/u/follow/getFoldedMessageUserInfo$,requires-body=0,timeout=60,script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/tieba.js,script-update-interval=43200
 百度贴吧 = type=cron,cronexp="0 0 0,12,23 * * *",wake-system=1,timeout=300,script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/tieba.js,script-update-interval=43200
