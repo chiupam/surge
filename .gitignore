@@ -23,3 +23,7 @@ yarn-error.log*
 
 # 依赖目录
 node_modules/ 
+
+# 排除src目录下除了obfuscator.js外的所有JavaScript源文件
+scripts/javascripts/src/**/*.js
+!scripts/javascripts/src/obfuscator.js 
