@@ -28,13 +28,6 @@
           "desc": "上班打卡验证信息"
         },
         {
-          "id": "procuratorate_body",
-          "name": "签到body",
-          "val": "",
-          "type": "textarea",
-          "desc": "上班打卡的请求体"
-        },
-        {
           "id": "procuratorate_host",
           "name": "签到主机名",
           "val": "",
@@ -47,6 +40,27 @@
           "val": "",
           "type": "text",
           "desc": "上班打卡的用户代理"
+        },
+        {
+          "id": "procuratorate_userDepID",
+          "name": "签到用户部门ID",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户部门ID"
+        },
+        {
+          "id": "procuratorate_userID",
+          "name": "签到用户ID",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户ID"
+        },
+        {
+          "id": "procuratorate_address",
+          "name": "签到地址",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的地址"
         }
       ],
       "author": "@chiupam",

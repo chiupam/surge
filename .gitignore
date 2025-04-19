@@ -1,0 +1,25 @@
+# macOS系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# 缩略图
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# IDE文件
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 依赖目录
+node_modules/ 
