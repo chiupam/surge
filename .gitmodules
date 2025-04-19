@@ -1,0 +1,3 @@
+[submodule "scripts/javascripts/src"]
+	path = scripts/javascripts/src
+	url = https://github.com/chiupam/obfuscatedSrc.git 
