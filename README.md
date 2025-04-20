@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.jpg" alt="logo" width="160" height="160" align="right">
+<img src="https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/chiupam.jpg" alt="logo" width="160" height="160" align="right">
 
 <h1 align="center">
   自用脚本集合
@@ -13,29 +13,29 @@
 # 部分项目介绍
 
 ### 去广告
-[![BiliBili去广告](https://img.shields.io/badge/Script-BiliBili去广告-red)](https://raw.githubusercontent.com/chiupam/surge/main/scripts/BiliBili/BiliBili.js) 
-[![YouTube去广告](https://img.shields.io/badge/Script-YouTube去广告-red)](https://raw.githubusercontent.com/chiupam/surge/main/scripts/Youtube)
+[![BiliBili去广告](https://img.shields.io/badge/Script-BiliBili去广告-red)](https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/BiliBili/BiliBili.js) 
+[![YouTube去广告](https://img.shields.io/badge/Script-YouTube去广告-red)](https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/Youtube)
 
 ## Surge 模块(很久未更新,可能已经不适用)
-[![广告拦截](https://img.shields.io/badge/Surge-广告拦截-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/AdvertisingScript.sgmodule)
-[![百度网盘](https://img.shields.io/badge/Surge-百度网盘-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/BaiduCloud.sgmodule)
-[![哔哩哔哩去广告](https://img.shields.io/badge/Surge-哔哩哔哩去广告-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/BiliBiliAds.6.74.0.sgmodule)
-[![常用脚本合集](https://img.shields.io/badge/Surge-常用脚本合集-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/Script.sgmodule)
-[![学习强国提醒](https://img.shields.io/badge/Surge-学习相关-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/Study.sgmodule)
-[![定时任务](https://img.shields.io/badge/Surge-定时任务-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/Task.sgmodule)
-[![解锁彩云天气](https://img.shields.io/badge/Surge-解锁彩云天气-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/Unblock.caiyun.sgmodule)
-[![YouTube去广告](https://img.shields.io/badge/Surge-YouTube去广告-orange)](https://raw.githubusercontent.com/chiupam/surge/main/Surge/YouTubeAds.18.49.3.sgmodule)
+[![广告拦截](https://img.shields.io/badge/Surge-广告拦截-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/AdvertisingScript.sgmodule)
+[![百度网盘](https://img.shields.io/badge/Surge-百度网盘-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/BaiduCloud.sgmodule)
+[![哔哩哔哩去广告](https://img.shields.io/badge/Surge-哔哩哔哩去广告-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/BiliBiliAds.6.74.0.sgmodule)
+[![常用脚本合集](https://img.shields.io/badge/Surge-常用脚本合集-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/Script.sgmodule)
+[![学习强国提醒](https://img.shields.io/badge/Surge-学习相关-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/Study.sgmodule)
+[![定时任务](https://img.shields.io/badge/Surge-定时任务-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/Task.sgmodule)
+[![解锁彩云天气](https://img.shields.io/badge/Surge-解锁彩云天气-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/Unblock.caiyun.sgmodule)
+[![YouTube去广告](https://img.shields.io/badge/Surge-YouTube去广告-orange)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Surge/YouTubeAds.18.49.3.sgmodule)
 
 ## 解锁与功能增强
-[![百度网盘](https://img.shields.io/badge/Loon-百度网盘-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/BaiduCloud.plugin)
-[![B站区域解锁](https://img.shields.io/badge/Loon-B站区域解锁-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/BiliRegions.plugin)
-[![更换UA](https://img.shields.io/badge/Loon-更换UA-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/ChangeUA.plugin)
-[![定位相关](https://img.shields.io/badge/Loon-定位相关-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/Location.plugin)
-[![比价工具](https://img.shields.io/badge/Loon-比价工具-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/Price.plugin)
-[![解锁功能](https://img.shields.io/badge/Loon-解锁功能-green)](https://raw.githubusercontent.com/chiupam/surge/main/Loon/Unblock.plugin)
+[![百度网盘](https://img.shields.io/badge/Loon-百度网盘-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/BaiduCloud.plugin)
+[![B站区域解锁](https://img.shields.io/badge/Loon-B站区域解锁-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/BiliRegions.plugin)
+[![更换UA](https://img.shields.io/badge/Loon-更换UA-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/ChangeUA.plugin)
+[![定位相关](https://img.shields.io/badge/Loon-定位相关-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/Location.plugin)
+[![比价工具](https://img.shields.io/badge/Loon-比价工具-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/Price.plugin)
+[![解锁功能](https://img.shields.io/badge/Loon-解锁功能-green)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/Loon/Unblock.plugin)
 
 ## BoxJS 配置
-[![BoxJS配置](https://img.shields.io/badge/BoxJS-配置订阅-purple)](https://raw.githubusercontent.com/chiupam/surge/main/boxjs/chiupam.boxjs.json)
+[![BoxJS配置](https://img.shields.io/badge/BoxJS-配置订阅-purple)](https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/chiupam.boxjs.json)
 
 # 免责声明
 

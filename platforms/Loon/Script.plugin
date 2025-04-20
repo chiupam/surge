@@ -1,0 +1,16 @@
+#!name= Scripts Plugin
+#!desc= This is a Loon plugin used to collect JaveScripts on daily use.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png
+
+[General]
+skip-proxy = iosapps.itunes.apple.com
+
+[Script]
+http-request ^https?://boxjs.net script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js, requires-body=true, timeout=120, tag=BoxJs(TF), enable = true
+http-request ^https?:\/\/testflight\.apple\.com\/v2\/accounts\/.*\/apps\/\d*/builds/\d*/install, requires-body=true, timeout=10, tag=TF软件更新, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/TF_Download.js, enabled=true
+
+[Mitm]
+hostname = boxjs.net,testflight.apple.com
+

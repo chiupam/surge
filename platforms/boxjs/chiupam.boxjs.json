@@ -1,0 +1,312 @@
+{
+  "id": "chiupam.sub",
+  "name": "chiupam 脚本订阅",
+  "author": "@chiupam",
+  "icon": "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/chiupam.jpg",
+  "repo": "https://github.com/chiupam/surge",
+  "apps": [
+    {
+      "id": "Procuratorate",
+      "name": "工作打卡",
+      "key": [],
+      "descs_html": [
+        "<h4 align=\"center\">打开工作打卡的小程序手动进行一次打卡.</a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "procuratorate_fast",
+          "name": "快速签到",
+          "val": false,
+          "type": "boolean",
+          "desc": "跳过节假日检测环节(默认关闭)"
+        },
+        {
+          "id": "procuratorate_cookie",
+          "name": "签到cookie",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡验证信息"
+        },
+        {
+          "id": "procuratorate_host",
+          "name": "签到主机名",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的主机名"
+        },
+        {
+          "id": "procuratorate_agent",
+          "name": "签到用户代理",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户代理"
+        },
+        {
+          "id": "procuratorate_userDepID",
+          "name": "签到用户部门ID",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户部门ID"
+        },
+        {
+          "id": "procuratorate_userID",
+          "name": "签到用户ID",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的用户ID"
+        },
+        {
+          "id": "procuratorate_address",
+          "name": "签到地址",
+          "val": "",
+          "type": "text",
+          "desc": "上班打卡的地址"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/procuratorate.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/Procuratorate.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/Procuratorate.png"
+      ]
+    },
+    {
+      "id": "zsfc",
+      "name": "掌上飞车",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">掌飞签到：掌上飞车APP => 签到(每日福利) </a></h4>",
+        "<h4 align=\"center\">掌飞寻宝：掌上飞车APP => 寻宝(今日大吉) </a></h4>",
+        "<h4 align=\"center\">使用以上两种方式可以获取更全面的数据</a></h4>",
+        "<h4 align=\"center\">选做：掌上飞车APP => 下方游戏 => 掌飞商城 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "zsfc_shop",
+          "name": "余额自动购买道具",
+          "val": "false",
+          "type": "boolean",
+          "desc": "是否使用消费券和点券自动执行购买操作，默认不执行"
+        },
+        {
+          "id": "zsfc_bang_shopname",
+          "name": "道具名称",
+          "val": "",
+          "type": "text",
+          "desc": "掌上飞车APP的购买道具名称，仅支持在售的点券商品"
+        },
+        {
+          "id": "zsfc_shop_threshold",
+          "name": "购物消耗点券选项",
+          "val": "1",
+          "type": "radios",
+          "items": [
+            {
+              "key": "1",
+              "label": "就让这些剩余的消费券浪费掉"
+            },
+            {
+              "key": "1000000",
+              "label": "只要有剩余消费券就消耗点券再买一个道具"
+            },
+            {
+              "key": "2",
+              "label": "剩余消费券大于单个道具价格的一半才再买一个道具"
+            }
+          ],
+          "desc": "购物完成后剩余的消费券是否需要彻底消耗掉，默认浪费掉"
+        },
+        {
+          "id": "zsfc_forcedConsumption",
+          "name": "每周强制消费点券以完成每周任务",
+          "val": "false",
+          "type": "boolean",
+          "desc": "是否每周强制消费点券以完成每周任务，默认不强制消费"
+        },
+        {
+          "id": "zsfc_upload_id",
+          "name": "上传掌飞签到数据",
+          "val": "true",
+          "type": "boolean",
+          "desc": "将获取到的掌飞签到数据上传到青龙面板"
+        },
+        {
+          "id": "zsfc_upload_config",
+          "name": "上传掌飞寻宝和商店数据",
+          "val": "false",
+          "type": "boolean",
+          "desc": "将获取到的掌飞寻宝和商店数据上传到青龙面板"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/zsfc.v3.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/zsfc.jpeg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/zsfc.jpeg"
+      ]
+    },
+    {
+      "id": "tieba",
+      "name": "百度贴吧",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">百度贴吧签到：打开百度贴吧APP，稍等片刻即可 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "tieba_notice_model",
+          "name": "脚本弹窗通知模式选项",
+          "val": "1",
+          "type": "radios",
+          "items": [
+            {
+              "key": "1",
+              "label": "任何时候都弹窗通知"
+            },
+            {
+              "key": "2",
+              "label": "有签到失败的时候弹窗通知"
+            },
+            {
+              "key": "3",
+              "label": "任何时候都不弹窗通知"
+            }
+          ],
+          "desc": "脚本运行后是否需要弹窗通知，默认任何时候都弹窗通知"
+        },
+        {
+          "id": "tieba_cookie",
+          "name": "百度贴吧Cookie数据",
+          "val": "",
+          "type": "textarea",
+          "desc": "这里将显示百度贴吧获取到的Cookie的关键数据"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/tieba.png",
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/tieba.png"
+      ]
+    },
+    {
+      "id": "xmSports",
+      "name": "小米运动",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\">注意事项: 登录的 APP 名为 zepp life</a></h4>",
+        "<h4 align=\"center\">下载链接: <a href=\"https://apps.apple.com/cn/app/zepp-life-%E5%8E%9F%E5%B0%8F%E7%B1%B3%E8%BF%90%E5%8A%A8/id938688461\">iOS端</a> | <a href=\"https://fga1.market.xiaomi.com/download/AppStore/0f9f1f695650f4dd0b9101726f03c724604316d05/com.xiaomi.hm.health.apk\">Android端</a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "xmSportPhone",
+          "name": "登录手机号",
+          "val": "",
+          "type": "text",
+          "desc": "小米运动登录时所使用的手机号码"
+        },
+        {
+          "id": "xmSportPassword",
+          "name": "登录密码",
+          "val": "",
+          "type": "text",
+          "desc": "小米运动登录时所所需的密码"
+        },
+        {
+          "id": "xmSportMinStep",
+          "name": "最小运动步数",
+          "val": "20000",
+          "type": "radios",
+          "desc": "选择需要修改最小的运动步数",
+          "items": [
+            {
+              "key": "20000",
+              "label": "20000步"
+            },
+            {
+              "key": "30000",
+              "label": "30000步"
+            },
+            {
+              "key": "40000",
+              "label": "40000步"
+            }
+          ]
+        },
+        {
+          "id": "xmSportMaxStep",
+          "name": "最大运动步数",
+          "val": "22000",
+          "type": "radios",
+          "desc": "选择需要修改最大的运动步数",
+          "items": [
+            {
+              "key": "22000",
+              "label": "22000步"
+            },
+            {
+              "key": "32000",
+              "label": "32000步"
+            },
+            {
+              "key": "42000",
+              "label": "42000步"
+            },
+            {
+              "key": "52000",
+              "label": "52000步"
+            }
+          ]
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/xmSport.js",
+      "icons": [
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/xmSport.jpeg",
+        "https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/xmSport.jpeg"
+      ]
+    },
+    {
+      "id": "QLAPI",
+      "name": "青龙API",
+      "keys": [],
+      "descs_html": [
+        "<h4 align=\"center\"> 青龙面板 => 系统设置 => 应用设置 </a></h4>",
+        "<h4 align=\"center\"> 相应的应用必须拥有 “环境变量” 权限 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "ql_url",
+          "name": "青龙面板地址",
+          "val": "",
+          "type": "text",
+          "desc": "建议填写外网地址，任何时候都可以调用成功"
+        },
+        {
+          "id": "ql_client_id",
+          "name": "青龙应用ClientID",
+          "val": "",
+          "type": "text",
+          "desc": "青龙面板应用设置中的应用ID"
+        },
+        {
+          "id": "ql_client_secret",
+          "name": "青龙应用ClientSecret",
+          "val": "",
+          "type": "text",
+          "desc": "青龙面板应用设置中的应用Secret"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "icons": [
+        "https://qn.whyour.cn/logo.png",
+        "https://qn.whyour.cn/logo.png"
+      ]
+    }
+  ]
+}

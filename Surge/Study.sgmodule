@@ -1,9 +1,0 @@
-#!name=Study Module
-#!desc=This is a Surge module that collects scripts to assist in completing learning tasks for some learning apps.
-
-[Script]
-# > 学习强国app
-计时器(视频) = type=http-request, pattern=^https?://boot-video2\.xuexi\.cn/video/.*.ts, requires-body=true, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/xxqg.js, script-update-interval=0, timeout=300
-
-[MITM]
-hostname = %APPEND% boot-video2.xuexi.cn

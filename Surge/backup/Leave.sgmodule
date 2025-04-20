@@ -1,8 +1,0 @@
-#!name=Mysterious Hacker
-#!desc=When you need to modify the leave information, open this module, and go to the BoxJs to modify the leave date.
-
-[Script]
-神秘骇客 = type=http-response, pattern=^https?://xg\.kmmu\.edu\.cn/KmmcXG/webapi/api/(Leave/AllLeaveManage(_Edit)?|Student/GetStuHomePage|Student/GetStuPersonInfo)\?LoginStatus=.*, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascripts/leave_kmmu.js, script-update-interval=0, timeout=60
-
-[MITM]
-hostname = %APPEND% xg.kmmu.edu.cn

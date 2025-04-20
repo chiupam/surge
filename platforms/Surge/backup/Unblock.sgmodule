@@ -1,0 +1,14 @@
+#!name=Unblock Module
+#!desc=This is a Surge module used to collect JaveScripts on hacking, and it will use local resources.
+
+[Script]
+# > 百度网盘 SVIP (pan.baidu.com)
+# > Unblock Baidu netdisc unlocks online video play speed.
+百度网盘 SVIP = type=http-response, pattern=^https?://pan\.baidu\.com/rest/\d\.\d/membership/user, requires-body=1, max-size=0, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/unblock/BaiduCloud.js, script-update-interval=0, timeout=10
+
+# > 全能扫描王
+# > Hacking CamScanner affiliates. CamScanner Version: 5.30.1.xxxxxx
+全能扫描王 SVIP = type=http-response, pattern=^https:\/\/(api|api-cs)\.intsig\.net\/purchase\/cs\/query_property\?, requires-body=1, max-size=-1, script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/CamScanner.js
+
+[MITM]
+hostname = %APPEND% pan.baidu.com, ap*.intsig.net

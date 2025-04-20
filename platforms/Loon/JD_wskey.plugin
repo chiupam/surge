@@ -1,0 +1,12 @@
+#!name= Intercept JD's wskey
+#!desc= This is a Loon plugin used to intercept JD's wskey.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/jd.jpeg
+
+[Script]
+http-request ^https?://api-dd\.jd\.com/client\.action\?functionId=getSessionLog script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/wskey.js, requires-body=true, timeout=10, tag=京东上传wskey, argument=api=1185488678&H4FLgB6NklKaJNEDZ5t_6Pp-iux4DJnEU, enable = true
+
+[Mitm]
+hostname = api-dd.jd.com
+

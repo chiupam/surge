@@ -1,0 +1,13 @@
+#!name= YunNan Young
+#!desc= This is a Loon plugin for YunNan Young.
+#!author= chiupam
+#!homepage= https://github.com/chiupam/surge/tree/main/Loon
+#!icon= https://raw.githubusercontent.com/chiupam/surge/main/platforms/boxjs/icon/qndxx.png
+
+[Script]
+http-response ^http://home\.yngqt\.org\.cn/user/weixin_yngqt\.aspx\?getcode=.*|^https?://home\.yngqt\.org\.cn/qndxx/default\.aspx$ script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/qndxx.js, requires-body=true, timeout=5, tag=云南青年大学习Cookie, enable = true
+cron "13 13 13 * * *" script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/qndxx.js, tag=云南青年大学习, enable=true
+
+[Mitm]
+hostname = home.yngqt.org.cn
+

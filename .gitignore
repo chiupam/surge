@@ -27,3 +27,19 @@ node_modules/
 # 排除src目录下除了obfuscator.js外的所有JavaScript源文件
 scripts/javascripts/src/**/*.js
 !scripts/javascripts/src/obfuscator.js 
+
+# 忽略临时的更新脚本
+update_*.sh
+fix_*.sh
+
+# 常见系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器临时文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~ 
