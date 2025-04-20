@@ -156,32 +156,67 @@
       ],
       "settings": [
         {
-          "id": "tieba_notice_model",
-          "name": "脚本弹窗通知模式选项",
+          "id": "BDUSS",
+          "name": "百度贴吧BDUSS的值(必须提供)",
+          "val": "",
+          "type": "textarea",
+          "desc": "这里将显示百度贴吧获取到的BDUSS的值"
+        },
+        {
+          "id": "BD_maxRetries",
+          "name": "最大重试次数(可选)",
+          "val": "3",
+          "type": "number",
+          "desc": "签到失败时的最大重试次数"
+        },
+        {
+          "id": "BD_retryDelay",
+          "name": "重试延迟时间(可选)",
+          "val": "5000",
+          "type": "number",
+          "desc": "每次重试之间的延迟时间(毫秒)"
+        },
+        {
+          "id": "BD_batchSize",
+          "name": "批量签到数量(可选)",
+          "val": "20",
+          "type": "number",
+          "desc": "每次批量签到的贴吧数量"
+        },
+        {
+          "id": "BD_batchInterval",
+          "name": "批量签到间隔(可选)",
+          "val": "2000",
+          "type": "number",
+          "desc": "批量签到之间的间隔时间(毫秒)"
+        },
+        {
+          "id": "BD_notifyMode",
+          "name": "通知模式(可选)",
           "val": "1",
           "type": "radios",
+          "desc": "选择签到结果的通知方式",
           "items": [
             {
               "key": "1",
-              "label": "任何时候都弹窗通知"
+              "label": "所有结果都通知"
             },
             {
               "key": "2",
-              "label": "有签到失败的时候弹窗通知"
+              "label": "仅失败时通知"
             },
             {
               "key": "3",
-              "label": "任何时候都不弹窗通知"
+              "label": "不通知"
             }
-          ],
-          "desc": "脚本运行后是否需要弹窗通知，默认任何时候都弹窗通知"
+          ]
         },
         {
-          "id": "tieba_cookie",
-          "name": "百度贴吧Cookie数据",
-          "val": "",
-          "type": "textarea",
-          "desc": "这里将显示百度贴吧获取到的Cookie的关键数据"
+          "id": "BD_timeout(可选)",
+          "name": "请求超时时间",
+          "val": "10000",
+          "type": "number",
+          "desc": "网络请求的超时时间(毫秒)"
         }
       ],
       "author": "@chiupam",
