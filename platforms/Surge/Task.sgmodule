@@ -3,8 +3,8 @@
 
 [Script]
 # > 百度贴吧app
-百度贴吧Cookie = type=http-request,pattern=^https?://tiebac\.baidu\.com/c/u/follow/getFoldedMessageUserInfo$,requires-body=0,timeout=60,script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js,script-update-interval=43200
-百度贴吧 = type=cron,cronexp="0 0 0,12,23 * * *",wake-system=1,timeout=300,script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js,script-update-interval=43200
+百度贴吧BDUSS = type=http-request, pattern=^https?://info\.tuisong\.baidu.com/v2/setter$, requires-body=0, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js, script-update-interval=0
+百度贴吧签到 = type=cron, cronexp="1 0 * * *", wake-system=1, script-path=https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js, script-update-interval=0, timeout=60
 
 [MITM]
-hostname = %APPEND% tiebac.baidu.com
+hostname = %APPEND% info.tuisong.baidu.com
