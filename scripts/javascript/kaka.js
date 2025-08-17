@@ -86,7 +86,7 @@ async function main() {
   $.log(`今日金价: ${todayPrice} 元/克`);
   $.log(`回收价格: ${recyclingPrice} 元/克`);
   // 发送通知，包含标题和价格信息
-  $.notify($.name, `🪙 今日价格: ${todayPrice} 元/克`, `♻️ 回收价格: ${recyclingPrice} 元/克`);
+  $.notify($.name, ``, `🪙 今日价格: ${todayPrice} 元/克 (♻️ ${recyclingPrice - todayPrice})`);
 }
 
 /**
