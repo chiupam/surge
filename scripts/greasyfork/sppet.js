@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         中检网自动学习
 // @namespace    https://github.com/chiupam
-// @version      1.6
+// @version      1.7
 // @description  中国检察教育培训网络学院全自动学习课程，点击学习中心，然后进入班级，最后刷新页面即可。
 // @author       chiupam
 // @match        https://www.sppet.cn/portal/play.do*
@@ -9,6 +9,8 @@
 // @icon         https://www.sppet.cn/examine/data/imgs/favicon.ico
 // @grant        none
 // @license      GNU GPLv3
+// @downloadURL https://update.greasyfork.org/scripts/479955/%E4%B8%AD%E6%A3%80%E7%BD%91%E8%87%AA%E5%8A%A8%E5%AD%A6%E4%B9%A0.user.js
+// @updateURL https://update.greasyfork.org/scripts/479955/%E4%B8%AD%E6%A3%80%E7%BD%91%E8%87%AA%E5%8A%A8%E5%AD%A6%E4%B9%A0.meta.js
 // ==/UserScript==
  
 (async function () {
