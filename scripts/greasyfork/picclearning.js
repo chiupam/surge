@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         学堂网自动学习
-// @version      1.0
+// @namespace    https://github.com/chiupam
+// @version      1.1
 // @description  自动检测学堂课程的需学章节并自动播放视频。
 // @author       chiupam
 // @match        https://picclearning.piccgroup.cn/*
@@ -60,6 +61,7 @@
       console.log('检查章节是否需要学习:', needsStudy, sectionText);
       return needsStudy;
     }
+
     // 内置函数2：查找视频元素
     function findVideoElement() {
       console.log('开始查找视频元素');
@@ -68,6 +70,7 @@
       console.log('找到视频元素:', videoElement);
       return videoElement;
     }
+
     // 内置函数3：配置视频播放设置
     function configureVideoPlayback(videoElement, logContainer) {
       logPage(logContainer, '配置视频播放设置(播放速度1.5倍, 音量0, 禁止暂停)');
@@ -78,10 +81,12 @@
       videoElement.addEventListener('pause', function() {this.play()}, true); // 禁止暂停
       startSectionMonitoring(logContainer); // 开始循环监控
     }
+
     // 内置函数4：持续监控播放页面的学习状态
     function startSectionMonitoring(logContainer) {
       logPage(logContainer, '每5秒检查一次章节学习状态');
       logPage(logContainer, '检查学习计时提醒弹窗、网络波动提示弹窗');
+
       setInterval(() => {
         const timingAlert = document.querySelector('.alert-wrapper.new-alert-wrapper'); // 检查学习计时提醒弹窗
         if (timingAlert) {
@@ -107,22 +112,18 @@
           }
         }
         
-        // 检查当前章节学习状态
+        // 检查当前章节学习状态(因为有些章节没必要学习到完全的视频长度)
         const currentSection = document.querySelector('.chapter-list-box.focus');
         if (currentSection) {
           if (!checkSectionNeedsStudy(currentSection)) {
-            // 刷新页面
-            logPage(logContainer, '当前章节学习完成，刷新页面以继续');
+            logPage(logContainer, '当前章节学习完成，刷新页面以继续'); // 刷新页面
             location.reload();
           }
-        } else {
-          logPage(logContainer, '未找到当前焦点章节');
         }
       }, 5000);
     }
     
-    // 获取所有章节元素
-    const sections = document.querySelectorAll('.chapter-list-box');
+    const sections = document.querySelectorAll('.chapter-list-box'); // 获取所有章节元素
     
     if (sections.length === 0) {
       logPage(logContainer, '未找到章节列表');
@@ -135,46 +136,33 @@
       
       if (checkSectionNeedsStudy(section)) {
         logPage(logContainer, `发现需学章节: ${sectionTitle}`);
-        
-        // 点击章节开始学习
-        section.click();
-        
-        // 等待视频加载
+        section.click(); // 点击章节开始学习
         setTimeout(() => {
-          const videoElement = findVideoElement();
+          const videoElement = findVideoElement(); // 等待视频加载
           if (videoElement) {
-            // 配置视频播放
-            configureVideoPlayback(videoElement, logContainer);
-            
-            // 开始播放
-            videoElement.play().catch(error => {
-              logPage(logContainer, `播放失败: ${error}`);
-            });
+            configureVideoPlayback(videoElement, logContainer); // 配置视频播放
+            videoElement.play().catch(error => {logPage(logContainer, `播放失败: ${error}`)}); // 开始播放
           } else {
             logPage(logContainer, '未找到视频元素');
           }
         }, 2000);
-        
         return true;
       }
     }
     
     logPage(logContainer, '所有章节都已学习完成');
     logPage(logContainer, '3秒后将自动关闭页面');
-    // todo：通知课程详情页面刷新页面，随后这个窗口关闭
     
-    // 延迟3秒后尝试关闭当前标签页
     setTimeout(() => {
-      localStorage.setItem('refresh', 'true');
-      window.open('about:blank', '_self').close();
-    }, 3000);
+      localStorage.setItem('refresh', 'true'); // 标记需要刷新
+      window.open('about:blank', '_self').close(); // 关闭当前标签页
+    }, 3000); // 延迟3秒后执行
     return false;
   }
 
   // 初始化视频学习脚本
   function studyInit() {
-    // 创建日志容器
-    const logContainer = createLogContainer();
+    const logContainer = createLogContainer(); // 创建日志容器
     logPage(logContainer, 'studyInit函数开始执行');
     // 添加延迟确保页面完全加载
     setTimeout(() => {
@@ -185,22 +173,18 @@
 
   // 初始化课程详情页面脚本
   function courseInit() {
-    const logContainer = createLogContainer();
+    const logContainer = createLogContainer(); // 创建日志容器
     logPage(logContainer, 'courseInit函数开始执行');
     
-    // 标志变量，用于记录是否已经点击过按钮
-    let hasClickedButton = false;
+    let hasClickedButton = false; // 标志变量，用于记录是否已经点击过按钮
+    const checkInterval = setInterval(() => {checkDOMStatus(logContainer)}, 2000); // 设置定时器定期检查DOM状态
     
-    // 设置定时器定期检查DOM状态
-    const checkInterval = setInterval(() => {
-      checkDOMStatus(logContainer);
-    }, 2000);
-    
-    // 10秒后停止检查（作为备用机制）
+    // 30秒后停止检查（作为备用机制）
     const timeoutId = setTimeout(() => {
       clearInterval(checkInterval);
       logPage(logContainer, 'DOM状态检查结束（超时）');
-    }, 10000);
+      location.reload(); // 刷新页面
+    }, 30000);
     
     // 修改checkDOMStatus函数，添加参数防止重复点击
     function checkDOMStatus(logContainer) {
@@ -209,22 +193,16 @@
       // // 检查当前URL
       // logPage(logContainer, '当前URL: ' + window.location.href);
       
-      // // 检查页面中按钮数量
-      // const buttonCount = document.querySelectorAll('button').length;
-      // logPage(logContainer, '当前页面按钮数量: ' + buttonCount);
-      
       // 如果已经点击过按钮，则不再继续查找和点击，并停止定时器
       if (hasClickedButton) {
         // logPage(logContainer, '按钮已点击过，跳过本次检查');
-        // 立即停止定时器和超时检查
-        clearInterval(checkInterval);
-        clearTimeout(timeoutId);
+        clearInterval(checkInterval); // 立即停止定时器
+        clearTimeout(timeoutId); // 清除超时检查
         logPage(logContainer, 'DOM状态检查结束（按钮已点击）');
         return;
       }
       
-      // 尝试多种方式查找"开始学习"按钮
-      let startStudyButton = null;
+      let startStudyButton = null; // 尝试多种方式查找"开始学习"按钮
       
       // 使用data-v属性和类名直接查找
       try {
@@ -245,25 +223,12 @@
         // 尝试点击按钮
         try {
           logPage(logContainer, '尝试点击"开始学习"按钮...');
-          
-          // 确保按钮在可视区域内
-          startStudyButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          // 使用dispatchEvent模拟点击
-          const clickEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-          });
-          startStudyButton.click();
-          
-          // 标记按钮已点击
-          hasClickedButton = true;
-          // 立即停止定时器和超时检查
-          clearInterval(checkInterval);
-          clearTimeout(timeoutId);
+          // startStudyButton.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 确保按钮在可视区域内
+          startStudyButton.click(); // 点击按钮
+          hasClickedButton = true; // 标记按钮已点击
+          clearInterval(checkInterval); // 立即停止定时器和超时检查
+          clearTimeout(timeoutId); // 清除超时检查
           logPage(logContainer, 'DOM状态检查结束（按钮已点击）');
-          
         } catch (error) {
           logPage(logContainer, '点击按钮错误: ' + error.message);
         }
@@ -301,10 +266,10 @@
   let scriptExecuted = false;
   
   // 核心执行函数
-  function executeScriptIfNeeded() {
+  function executeScriptIfNeeded(type) {
     if (!scriptExecuted) {
       scriptExecuted = true;
-      console.log('触发脚本执行');
+      console.log(['1. DOMContentLoaded事件触发，执行脚本','2. load事件触发，执行脚本','3. 超时机制，强制执行脚本'][type-1]);
       executeScript();
     }
   }
@@ -312,20 +277,20 @@
   // 1. DOMContentLoaded事件 - DOM结构加载完成后立即执行
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM结构加载完成');
-    executeScriptIfNeeded();
+    executeScriptIfNeeded(1);
   });
   
   // 2. load事件 - 页面完全加载完成后执行（作为备用）
   window.addEventListener('load', function() {
     console.log('页面完全加载完成');
-    executeScriptIfNeeded();
+    executeScriptIfNeeded(2);
   });
   
   // 3. 超时机制 - 如果5秒内没有触发上述事件，则自动执行（防止事件不触发的情况）
   setTimeout(function() {
     if (!scriptExecuted) {
       console.log('5秒超时，强制执行脚本');
-      executeScriptIfNeeded();
+      executeScriptIfNeeded(3);
     }
   }, 5000);
 
