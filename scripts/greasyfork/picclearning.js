@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         学堂网自动学习
 // @namespace    https://github.com/chiupam
-// @version      1.1
+// @version      1.2
 // @description  自动检测学堂课程的需学章节并自动播放视频。
 // @author       chiupam
 // @match        https://picclearning.piccgroup.cn/*
@@ -85,7 +85,7 @@
     // 内置函数4：持续监控播放页面的学习状态
     function startSectionMonitoring(logContainer) {
       logPage(logContainer, '每5秒检查一次章节学习状态');
-      logPage(logContainer, '检查学习计时提醒弹窗、网络波动提示弹窗');
+      logPage(logContainer, '检查学习计时提醒弹窗、网络波动提示弹窗、倍速播放提示弹窗');
 
       setInterval(() => {
         const timingAlert = document.querySelector('.alert-wrapper.new-alert-wrapper'); // 检查学习计时提醒弹窗
@@ -109,6 +109,23 @@
             logPage(logContainer, '检测到网络波动提示，正在刷新页面...');
             location.reload();
             return; // 提前结束当前循环，避免重复执行
+          }
+        }
+        
+        // 检查倍速播放提示弹窗
+        const speedAlert = document.querySelector('.alert-wrapper');
+        if (speedAlert) {
+          const alertText = speedAlert.querySelector('.alert-text');
+          if (alertText && alertText.textContent.includes('切换播放倍速，将不会影响您正常学习时长的统计哦~')) {
+            const confirmButton = speedAlert.querySelector('#D662btn-ok'); // 查找ID为D662btn-ok的确定按钮
+            if (confirmButton) {
+              try {
+                confirmButton.click();
+                logPage(logContainer, '检测到倍速播放提示弹窗，已自动点击确定按钮');
+              } catch (e) {
+                logPage(logContainer, '点击倍速提示确定按钮错误: ' + e.message);
+              }
+            }
           }
         }
         
