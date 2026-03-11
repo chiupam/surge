@@ -14,53 +14,88 @@
       ],
       "settings": [
         {
-          "id": "procuratorate_fast",
-          "name": "快速签到",
+          "id": "debug",
+          "name": "调试模式",
           "val": false,
           "type": "boolean",
-          "desc": "跳过节假日检测环节(默认关闭)"
+          "desc": "开启调试模式"
         },
         {
-          "id": "procuratorate_cookie",
-          "name": "签到cookie",
+          "id": "procuratorate_authentication",
+          "name": "签到验证信息",
           "val": "",
           "type": "text",
-          "desc": "上班打卡验证信息"
+          "desc": "验证信息"
         },
         {
           "id": "procuratorate_host",
           "name": "签到主机名",
           "val": "",
           "type": "text",
-          "desc": "上班打卡的主机名"
+          "desc": "主机名"
         },
         {
           "id": "procuratorate_agent",
           "name": "签到用户代理",
           "val": "",
           "type": "text",
-          "desc": "上班打卡的用户代理"
+          "desc": "用户代理"
         },
         {
-          "id": "procuratorate_userDepID",
-          "name": "签到用户部门ID",
+          "id": "procuratorate_browserFingerprint",
+          "name": "签到浏览器指纹",
           "val": "",
           "type": "text",
-          "desc": "上班打卡的用户部门ID"
+          "desc": "浏览器指纹"
         },
         {
-          "id": "procuratorate_userID",
-          "name": "签到用户ID",
+          "id": "procuratorate_Mid",
+          "name": "签到Mid",
           "val": "",
           "type": "text",
-          "desc": "上班打卡的用户ID"
+          "desc": "Mid"
+        },
+        {
+          "id": "procuratorate_lng",
+          "name": "签到经度",
+          "val": "",
+          "type": "text",
+          "desc": "经度"
+        },
+        {
+          "id": "procuratorate_lat",
+          "name": "签到纬度",
+          "val": "",
+          "type": "text",
+          "desc": "纬度"
         },
         {
           "id": "procuratorate_address",
           "name": "签到地址",
           "val": "",
           "type": "text",
-          "desc": "上班打卡的地址"
+          "desc": "地址"
+        },
+        {
+          "id": "procuratorate_accuracy",
+          "name": "面容等待时间",
+          "val": "10",
+          "type": "text",
+          "desc": "面容等待时间"
+        },
+        {
+          "id": "procuratorate_distance",
+          "name": "签到距离",
+          "val": "200",
+          "type": "text",
+          "desc": "最大签到距离"
+        },
+        {
+          "id": "procuratorate_scheduleId",
+          "name": "签到排班ID",
+          "val": "",
+          "type": "text",
+          "desc": "排班ID"
         }
       ],
       "author": "@chiupam",
