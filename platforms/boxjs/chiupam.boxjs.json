@@ -49,53 +49,39 @@
           "desc": "浏览器指纹"
         },
         {
-          "id": "procuratorate_Mid",
-          "name": "签到Mid",
-          "val": "",
-          "type": "text",
-          "desc": "Mid"
-        },
-        {
           "id": "procuratorate_lng",
           "name": "签到经度",
           "val": "",
           "type": "text",
-          "desc": "经度"
+          "desc": "经度, 即longitude"
         },
         {
           "id": "procuratorate_lat",
           "name": "签到纬度",
           "val": "",
           "type": "text",
-          "desc": "纬度"
+          "desc": "纬度, 即latitude"
         },
         {
           "id": "procuratorate_address",
           "name": "签到地址",
           "val": "",
           "type": "text",
-          "desc": "地址"
+          "desc": "需要签到的地址, 建议设置为打卡地点"
         },
         {
           "id": "procuratorate_accuracy",
           "name": "面容等待时间",
           "val": "10",
           "type": "text",
-          "desc": "面容等待时间"
+          "desc": "面容等待时间, 单位秒, 默认10秒"
         },
         {
           "id": "procuratorate_distance",
           "name": "签到距离",
-          "val": "200",
+          "val": "100",
           "type": "text",
-          "desc": "最大签到距离"
-        },
-        {
-          "id": "procuratorate_scheduleId",
-          "name": "签到排班ID",
-          "val": "",
-          "type": "text",
-          "desc": "排班ID"
+          "desc": "最大签到距离, 会在30米与此设定值之间取浮点数"
         }
       ],
       "author": "@chiupam",
