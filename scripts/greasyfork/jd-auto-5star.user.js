@@ -1,123 +1,270 @@
 // ==UserScript==
-// @name         京东自动五星评价
+// @name         京东自动评价（大模型版）
 // @namespace    http://tampermonkey.net/
-// @version      1.3
-// @description  自动勾选五星、移除图片上传、填写好评内容
-// @author       chiupam
+// @version      4.1
+// @description  打开页面自动运行，精准识别商品特性生成评价，过滤隐藏元素，一键五星好评。支持按需接入各类大模型（DeepSeek/OpenAI/GLM等）。
+// @author       oscar (Modified)
 // @match        https://club.jd.com/myJdcomments/orderVoucher*
+// @match        https://club.jd.com/afterComments/productPublish.action*
+// @match        https://club.jd.com/afterComments/saveAfterCommentSuccess.action*
+// @match        https://club.jd.com/myJdcomments/saveCommentSuccess.action*
+// @icon         https://www.jd.com/favicon.ico
+// @require      http://libs.baidu.com/jquery/1.11.1/jquery.min.js
 // @grant        none
-// @run-at       document-end
 // ==/UserScript==
 
-/**
- * 使用说明：
- * 1. 打开京东评价列表页面：
- *    https://club.jd.com/myJdcomments/myJdcomment.action
- * 2. 在评价列表中，点击任意一条商品后的【评价】按钮
- * 3. 页面会弹出一个新的评价窗口，脚本将自动在该页面中执行以下操作：
- *    - 自动勾选全部五星好评
- *    - 自动移除图片上传区域
- *    - 自动填写默认好评内容
- * 4. 确认无误后手动提交即可
- *
- * @note 脚本仅在匹配的 URL 下运行，请确保不会误触其他页面
- */
-
-(function () {
+(function() {
   'use strict';
 
-    var reviewText = '商品与描述完全一致，发货速度快，非常满意的一次购物体验！';
+  // ==================== 🛠️ 用户配置区域 ====================
 
-  function simulateClick(el) {
-    ['mousedown', 'mouseup', 'click'].forEach(function (type) {
-      var event = new MouseEvent(type, {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      });
-      el.dispatchEvent(event);
-    });
+  // 1. 请在此处填入您的 API 密钥 (必填)
+  const API_KEY = '';
+
+  // 2. 接口地址 (默认 DeepSeek 接口，可替换为 OpenAI 或 智谱 GLM 等其他兼容 OpenAI 格式的地址)
+  // 例如 DeepSeek: https://api.deepseek.com/v1/chat/completions
+  // 例如 OpenAI: https://api.openai.com/v1/chat/completions
+  // 例如 智谱GLM: https://open.bigmodel.cn/api/paas/v4/chat/completions
+  const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+  // 3. 模型名称 (请根据您选择的 API 提供商进行修改)
+  // 例如 DeepSeek: deepseek-v4-flash
+  // 例如 OpenAI: gpt-3.5-turbo 或 gpt-4o
+  // 例如 智谱GLM: glm-4
+  const MODEL_NAME = 'deepseek-v4-flash';
+
+  // 4. 页面加载后自动开始的延迟时间（单位：毫秒）
+  const AUTO_START_DELAY = 500;
+
+  // 5. 是否自动点击“发表”按钮提交评价 (true: 自动提交, false: 手动提交)
+  const AUTO_SUBMIT = true;
+
+  // =========================================================
+
+  // ------ 成功页专用：等待延迟后自动关闭 ------
+  if ((location.href.indexOf('saveAfterCommentSuccess.action') !== -1 ||
+           location.href.indexOf('saveCommentSuccess.action') !== -1) && AUTO_SUBMIT) {
+    var delaySec = (AUTO_START_DELAY / 1000).toFixed(1);
+    console.log('[AI Auto Review] 评价提交成功，' + delaySec + '秒后关闭窗口...');
+    setTimeout(function () {
+      window.close();
+      setTimeout(function () {
+        window.open('', '_self', '');
+        window.close();
+      }, 500);
+      setTimeout(function () {
+        window.location.replace('about:blank');
+      }, 1500);
+    }, AUTO_START_DELAY);
+    return;
   }
 
-  function simulateInput(el, value) {
-    // React 需要触发原生 setter 才能更新受控组件
-    var nativeSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLTextAreaElement.prototype, 'value'
+  // 移除图片上传区域
+  function removeThumbnailUploads() {
+    $('.thumbnail-list').remove();
+  }
+
+  // 1. 创建控制面板 UI
+  function createUI() {
+    const uiHTML = `
+      <div id="ai-auto-review-ui" style="position: fixed; top: 30%; right: 20px; width: 260px; background: #fff; border: 2px solid #e4393c; border-radius: 8px; padding: 15px; z-index: 99999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-family: 'Microsoft YaHei', sans-serif;">
+        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #e4393c; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">🤖 AI 自动评价助手</h3>
+        <button id="ai-btn-generate" style="width: 100%; padding: 10px; background: #e4393c; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background 0.3s; margin-bottom: 10px;">手动生成</button>
+        <div id="ai-status" style="font-size: 12px; color: #666; min-height: 40px; background: #f8f8f8; padding: 8px; border-radius: 4px; word-wrap: break-word; line-height: 1.5;">状态：等待页面加载...</div>
+      </div>
+    `;
+    $('body').append(uiHTML);
+
+    $('#ai-btn-generate').hover(
+      function() { $(this).css('background', '#c81623'); },
+      function() { $(this).css('background', '#e4393c'); }
     );
-    if (nativeSetter && nativeSetter.set) {
-      nativeSetter.set.call(el, value);
-    } else {
-      el.value = value;
-    }
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-    el.dispatchEvent(new Event('change', { bubbles: true }));
+
+    $('#ai-btn-generate').click(function() {
+      startReviewProcess();
+    });
   }
 
-  function clickAllFiveStars() {
-    var stars = document.querySelectorAll('.commstar .star5:not(.active)');
-    if (stars.length === 0) {
-      var unclicked = document.querySelectorAll('.commstar .star5');
-      if (unclicked.length === 0) {
-        return false;
-      }
-      stars = unclicked;
+  // 2. 更新面板状态
+  function updateStatus(text, color = '#666') {
+    $('#ai-status').text('状态：' + text).css('color', color);
+    console.log('[AI Auto Review]', text);
+  }
+
+  // 3. 校验用户是否配置了秘钥
+  function checkConfig() {
+    if (!API_KEY || API_KEY === '请在此处填入你的API密钥' || API_KEY.trim() === '') {
+      updateStatus('❌ 错误：请先在油猴脚本代码中配置您的 API_KEY！', 'red');
+      $('#ai-btn-generate').prop('disabled', false).text('请配置秘钥后重试');
+      return false;
     }
-    stars.forEach(function (star) {
-      simulateClick(star);
-    });
     return true;
   }
 
-  function removeThumbnailUploads() {
-    var containers = document.querySelectorAll('.thumbnail-list');
-    containers.forEach(function (el) {
-      el.remove();
+  // 4. 请求 大模型 API
+  function generateProductReview(productName, successCallback, errorCallback) {
+    fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + API_KEY
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: [
+          {
+            role: "system",
+            content: "你是一名真实的网购买家。我刚买了商品，商品全称是：【" + productName + "】。\n\n请写一段60到100字的商品评价，严格遵守以下纪律：\n1. 必须根据名称推断出它具体是什么东西（比如是保鲜膜、垃圾袋还是零食），然后只评价它该有的特定属性（如保鲜膜就评价粘性/厚度/好撕，垃圾袋评价承重/不漏）。\n2. 绝对禁止使用“物流快”、“客服好”、“包装严实”等万能模板废话。\n3. 不要把商品全名抄一遍，用“这款”、“这个”代替。\n4. 字数必须大于60个字。直接输出纯文本正文，绝对不要有任何前缀或提示语。"
+          }
+        ]
+      })
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+      return response.json();
+    })
+    .then(function(result) {
+      if (result.error) {
+        errorCallback(result.error.message || result.error.code || 'API 拒绝请求');
+        return;
+      }
+      var review = result.choices && result.choices.length > 0 ? result.choices[0].message.content : "";
+      if (review && review.length > 5) {
+        successCallback(review.trim());
+      } else {
+        errorCallback('返回内容过短或为空');
+      }
+    })
+    .catch(function(e) {
+      errorCallback('请求失败: ' + e.message);
     });
   }
 
-  function fillReview() {
-    var textarea = document.querySelector('.fop-main .f-textarea textarea');
-    if (textarea && textarea.value === '') {
-      simulateInput(textarea, reviewText);
+  // 5. 模拟点击五星（兼容 React 事件）
+  function simulateClick(el) {
+    ['mousedown', 'mouseup', 'click'].forEach(function (type) {
+      el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true }));
+    });
+  }
+
+  // 6. 统一打五星
+  function clickAllFiveStars() {
+    $('.star5:visible').each(function () {
+      simulateClick(this);
+    });
+  }
+
+  // 7. 自动点击“发表”按钮并关闭窗口
+  function autoClickSubmit() {
+    if (!AUTO_SUBMIT) {
+      return false;
     }
+    var submitBtn = document.querySelector('.btn-submit');
+    if (submitBtn) {
+      submitBtn.click();
+      var delaySec = (AUTO_START_DELAY / 1000).toFixed(1);
+      updateStatus('✅ 已自动点击“发表”按钮，' + delaySec + '秒后关闭窗口...', 'green');
+      setTimeout(function () {
+        window.close();
+      }, AUTO_START_DELAY);
+      return true;
+    }
+    return false;
   }
 
-  function doWork() {
-    clickAllFiveStars();
-    removeThumbnailUploads();
-    fillReview();
-  }
+  // 8. 递归处理每一个可见的商品
+  function processNextItem(index) {
+    let $textareas = $('.f-textarea textarea').filter(':visible');
+    let $names = $('.p-name').filter(':visible');
 
-  function observe() {
-    var target = document.querySelector('.commstar-group');
-    if (target) {
-      doWork();
-      var attempt = function () {
-        var remaining = document.querySelectorAll('.commstar .star5:not(.active)');
-        if (remaining.length > 0) {
-          clickAllFiveStars();
-          setTimeout(attempt, 800);
-        }
-      };
-      attempt();
+    if (index >= $textareas.length) {
+      clickAllFiveStars();
+      var delaySec = (AUTO_START_DELAY / 1000).toFixed(1);
+      if (AUTO_SUBMIT) {
+        var submitMsg = '✅ 评价生成完毕！' + delaySec + '秒后自动提交...';
+      } else {
+        var submitMsg = '✅ 评价生成完毕！请手动点击“发表”按钮提交。';
+      }
+      updateStatus(submitMsg, 'green');
+      $('#ai-btn-generate').prop('disabled', false).text('重新生成');
 
-      var observer = new MutationObserver(function () {
+      if (AUTO_SUBMIT) {
         setTimeout(function () {
-          doWork();
-        }, 300);
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
+          autoClickSubmit();
+        }, AUTO_START_DELAY);
+      }
       return;
     }
 
-    setTimeout(observe, 1000);
+    let nameNode = $names.eq(index);
+    let productName = nameNode.find('a').text().trim() || nameNode.text().trim() || "未知商品";
+    let shortName = productName.length > 15 ? productName.substring(0, 15) + '...' : productName;
+
+    updateStatus(`正在生成 ${index + 1}/${$textareas.length}: ${shortName}`, 'blue');
+
+    generateProductReview(productName,
+      function(review) {
+        let $currentTarget = $textareas.eq(index);
+        $currentTarget.val(review);
+        if ($currentTarget.length > 0) {
+          $currentTarget[0].dispatchEvent(new Event('input', { bubbles: true }));
+          $currentTarget[0].dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        setTimeout(function() {
+          processNextItem(index + 1);
+        }, 1500);
+      },
+      function(errMsg) {
+        updateStatus(`第 ${index + 1} 个失败: ${errMsg}，已填入兜底评价。`, 'red');
+        let backupReview = "这款商品的质量非常不错，材质很好，做工精细，实际使用体验远超预期，非常满意的一次购物！";
+
+        let $currentTarget = $textareas.eq(index);
+        $currentTarget.val(backupReview);
+        if ($currentTarget.length > 0) {
+          $currentTarget[0].dispatchEvent(new Event('input', { bubbles: true }));
+          $currentTarget[0].dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        setTimeout(function() {
+          processNextItem(index + 1);
+        }, 1500);
+      }
+    );
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      setTimeout(observe, 800);
-    });
-  } else {
-    observe();
+  // 9. 主控制流程
+  function startReviewProcess() {
+    if (!checkConfig()) return; // 拦截未配置秘钥的情况
+
+    removeThumbnailUploads();
+
+    let $textareas = $('.f-textarea textarea').filter(':visible');
+    if ($textareas.length === 0) {
+      updateStatus('未检测到可见的评价输入框，请确保当前在评价页面。', 'red');
+      return;
+    }
+
+    updateStatus(`检测到 ${$textareas.length} 个商品，准备开始处理...`, 'blue');
+    $('#ai-btn-generate').prop('disabled', true).text('处理中...');
+
+    processNextItem(0);
   }
+
+  // 10. 页面加载完成后注入 UI 并自动运行
+  $(document).ready(function() {
+    createUI();
+
+    if (!checkConfig()) {
+      return; // 如果未配置秘钥，停止自动运行，面板已标红提示
+    }
+
+    var delaySec = (AUTO_START_DELAY / 1000).toFixed(1);
+    updateStatus('等待页面加载，' + delaySec + '秒后自动开始...', 'blue');
+    setTimeout(function() {
+      startReviewProcess();
+    }, AUTO_START_DELAY);
+  });
 })();
