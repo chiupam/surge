@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         竹马法考自动展开解析
+// @name         竹马法考助手
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  自动点击竹马法考文字解析页面的"查看全部"按钮，展开完整解析内容
+// @version      1.1
+// @description  自动展开文字解析、键盘方向键快捷切换题目（←上一题，→下一题）
 // @author       chiupam
 // @match        https://www.zhumavip.com/obt/analysis?questionTypeId*
 // @icon         https://www.zhumavip.com/favicon.ico
@@ -30,6 +30,38 @@
             }
         }
         return false;
+    }
+
+    // 键盘导航：←上一题，→下一题
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+
+        if (e.key === 'ArrowLeft') {
+            const prevBtn = findBtnByText('上一题');
+            if (prevBtn) {
+                prevBtn.click();
+                console.log('[竹马法考] 键盘导航 → 上一题');
+            }
+        } else if (e.key === 'ArrowRight') {
+            const nextBtn = findBtnByText('下一题');
+            if (nextBtn) {
+                nextBtn.click();
+                console.log('[竹马法考] 键盘导航 → 下一题');
+            }
+        }
+    });
+
+    function findBtnByText(text) {
+        // 优先查精确匹配"上一题"/"下一题"文本的div元素
+        const all = document.querySelectorAll('div');
+        for (const el of all) {
+            const t = el.textContent.trim();
+            // 精确匹配，避免匹配到包含该文本的其他元素
+            if (t === text && el.childElementCount <= 1) {
+                return el;
+            }
+        }
+        return null;
     }
 
     // 每秒轮询一次，持续运行
