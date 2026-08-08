@@ -1,16 +1,31 @@
 // ==UserScript==
 // @name         竹马法考助手
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  自动展开文字解析、键盘方向键快捷切换题目（←上一题，→下一题）
+// @version      1.2
+// @description  自动展开文字解析与题目内容、键盘方向键快捷切换题目（←上一题，→下一题）
 // @author       chiupam
 // @match        https://www.zhumavip.com/obt/analysis?questionTypeId*
-// @icon         https://www.zhumavip.com/favicon.ico
+// @icon         https://osscdn2.zhongheschool.com/common/defaultType/202405/202405091651520646.ico
 // @grant        none
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    function clickShowAllInQuestion() {
+        // 点击题目内容区域中的"查看全部"按钮
+        const allDivs = document.querySelectorAll('div');
+        for (const el of allDivs) {
+            if (el.textContent.trim() === '查看全部' && el.children.length === 0) {
+                // 排除已在 #ptxt 区域内处理的
+                if (el.closest('#ptxt')) continue;
+                el.click();
+                console.log('[竹马法考] 已自动点击题目"查看全部"');
+                return true;
+            }
+        }
+        return false;
+    }
 
     function clickShowAll() {
         // 以稳定的 #ptxt 为锚点，在其父容器内查找文本为"查看全部"的按钮
@@ -65,5 +80,8 @@
     }
 
     // 每秒轮询一次，持续运行
-    setInterval(clickShowAll, 1000);
+    setInterval(() => {
+        clickShowAll();
+        clickShowAllInQuestion();
+    }, 1000);
 })();
