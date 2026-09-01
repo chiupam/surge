@@ -327,6 +327,31 @@
       ]
     },
     {
+      "id": "Bilibili",
+      "name": "Bilibili签到",
+      "keys": ["B_checkin_cookie"],
+      "descs_html": [
+        "<h4 align=\"center\">浏览器登录B站后复制Cookie填入下方即可 </a></h4>",
+        "<h4 align=\"center\">Cookie中必须包含bili_jct字段 </a></h4>"
+      ],
+      "settings": [
+        {
+          "id": "B_checkin_cookie",
+          "name": "B站Cookie",
+          "val": "",
+          "type": "textarea",
+          "desc": "浏览器登录B站后获取的Cookie, 必须包含bili_jct"
+        }
+      ],
+      "author": "@chiupam",
+      "repo": "https://github.com/chiupam/surge",
+      "script": "https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/BiliBili/B-checkin.js",
+      "icons": [
+        "https://www.bilibili.com/favicon.ico",
+        "https://www.bilibili.com/favicon.ico"
+      ]
+    },
+    {
       "id": "QLAPI",
       "name": "青龙API",
       "keys": [],
