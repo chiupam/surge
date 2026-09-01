@@ -18,8 +18,18 @@
 
   // ==================== 🛠️ 用户配置区域 ====================
 
-  // 1. 请在此处填入您的 API 密钥 (必填)
-  const API_KEY = '';
+  // 1. API 密钥：请勿将密钥写入源码。首次运行时会提示输入，
+  //    密钥仅保存在当前浏览器的 localStorage 中，不会出现在脚本代码里。
+  const API_KEY_STORAGE_KEY = 'jd_auto_5star_api_key';
+  function getApiKey() {
+    let key = localStorage.getItem(API_KEY_STORAGE_KEY) || '';
+    if (!key) {
+      key = (window.prompt('请输入您的 API 密钥（仅保存在本机浏览器，不会写入脚本源码）：') || '').trim();
+      if (key) localStorage.setItem(API_KEY_STORAGE_KEY, key);
+    }
+    return key;
+  }
+  const API_KEY = getApiKey();
 
   // 2. 接口地址 (默认 DeepSeek 接口，可替换为 OpenAI 或 智谱 GLM 等其他兼容 OpenAI 格式的地址)
   // 例如 DeepSeek: https://api.deepseek.com/v1/chat/completions
@@ -93,8 +103,8 @@
 
   // 3. 校验用户是否配置了秘钥
   function checkConfig() {
-    if (!API_KEY || API_KEY === '请在此处填入你的API密钥' || API_KEY.trim() === '') {
-      updateStatus('❌ 错误：请先在油猴脚本代码中配置您的 API_KEY！', 'red');
+    if (!API_KEY || API_KEY.trim() === '') {
+      updateStatus('❌ 错误：未检测到 API 密钥，请刷新页面并在提示框中输入！', 'red');
       $('#ai-btn-generate').prop('disabled', false).text('请配置秘钥后重试');
       return false;
     }
