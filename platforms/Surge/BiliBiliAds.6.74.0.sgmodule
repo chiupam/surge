@@ -1,5 +1,6 @@
 #!name=BiliBili Ads
 #!desc=BiliBili Version: 6.74.0; Date: 2023-07-09; Verification: Ture
+#!category=Ads
 
 [Rule]
 DOMAIN-SUFFIX, cm.bilibili.com, REJECT

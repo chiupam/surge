@@ -1,5 +1,6 @@
 #!name=Study Module
 #!desc=This is a Surge module that collects scripts to assist in completing learning tasks for some learning apps.
+#!category=Tasks
 
 [Script]
 # > 学习强国app

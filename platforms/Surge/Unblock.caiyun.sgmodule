@@ -1,5 +1,6 @@
 #!name=Caiyun App Module
 #!desc=This is a Surge module used to collect JaveScripts on hacking for Caiyuntianqi Applicaitons.
+#!category=Unblock
 
 [Script]
 彩云天气 = type=http-request,pattern=^https?:\/\/(api|wrapper)\.(cyapi|caiyunapp)\.(cn|com)\/v\d\/(satellite|nafp\/origin_images),requires-body=1,max-size=0,binary-body-mode=0,script-path=https://raw.githubusercontent.com/chxm1023/Rewrite/main/caiyuntianqi.js ,script-update-interval=0

@@ -1,5 +1,6 @@
 #!name=Scripts Module
 #!desc=This is a Surge module used to collect JaveScripts on daily use.
+#!category=Scripts
 
 [General]
 skip-proxy = %APPEND% iosapps.itunes.apple.com

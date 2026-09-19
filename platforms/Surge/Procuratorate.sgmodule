@@ -1,6 +1,6 @@
 #!name=Procuratorate Sign In
 #!desc=This is a Surge module used to work check in.
-
+#!category=Tasks
 
 [Script]
 工作打卡 = type=http-response,pattern=^https://chenggong.blcmkj.com/api/getGovLoginbyCode\?code=.*,requires-body=1,max-size=0,binary-body-mode=0,script-path=https://raw.githubusercontent.com/chiupam/surge/refs/heads/main/scripts/javascript/procuratorate.v2.js,timeout=30
