@@ -2,7 +2,7 @@
 #!desc = This is a Loon plugin used to collect JaveScripts on daily task.
 #!author = chiupam
 #!homepage = https://github.com/chiupam/surge/tree/main
-#!icon = https://example.com/icon.png
+#!icon = https://raw.githubusercontent.com/chiupam/surge/refs/heads/main/platforms/Loon/icon/%E7%99%BE%E5%BA%A6%E8%B4%B4%E5%90%A7.png
 #!system = iOS
 #!system_version = 15
 #!date = 23/10/2026
