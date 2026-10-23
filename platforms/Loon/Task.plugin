@@ -1,0 +1,18 @@
+#!name = Tasks Plugin
+#!desc = This is a Loon plugin used to collect JaveScripts on daily task.
+#!author = chiupam
+#!homepage = https://github.com/chiupam/surge/tree/main
+#!icon = https://example.com/icon.png
+#!system = iOS
+#!system_version = 15
+#!date = 23/10/2026
+#!tag = Task
+#!type = normal
+
+[Script]
+# > 百度贴吧app
+cron "1 0 * * *" then script("https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js") with tag="百度贴吧签到"
+request if ${url} ~= /^https?:\/\/info\.tuisong\.baidu.com\/v2\/setter$/ then script("https://raw.githubusercontent.com/chiupam/surge/main/scripts/javascript/tieba.js") with tag="百度贴吧BDUSS"
+
+[MITM]
+hostname = info.tuisong.baidu.com
